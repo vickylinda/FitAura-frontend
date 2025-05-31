@@ -1,0 +1,67 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Pacifico&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+#root {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: "Roboto", sans-serif;
+  font-weight: 800;
+}
+
+
+.nde-heading {
+  font-family: 'Instrument Sans', sans-serif;
+  font-optical-sizing: auto;
+  font-variation-settings: 'wdth' 100;
+}
+
+.input-focus {
+  border-radius: 1px;
+  width: 24rem;
+  border: none;
+  padding: 6;
+  border-bottom: solid 4px var(--medium_green);
+  transition: all 0.3s cubic-bezier(.64,.09,.08,1);
+  background: linear-gradient(to bottom, var(--light_green) 96%, var(--medium_green) 4%);
+  background-position: -24rem 0;
+  background-size: 24rem 100%;
+  background-repeat: no-repeat;
+  color: darken(var(--medium_green), 20%);
+  &:focus {
+    box-shadow: none;
+    outline: none;
+    background-position: 0 0;
+  }
+}
+
+.border-none {
+  border-collapse: collapse;
+  border: none;
+}
+
+.border-none td {
+  border: 4px solid var(--dark_green);
+}
+
+.border-none tr:first-child td {
+  border-top: none;
+}
+
+.border-none tr:last-child td {
+  border-bottom: none;
+}
+
+.border-none tr td:first-child {
+  border-left: none;
+}
+
+.border-none tr td:last-child {
+  border-right: none;
+}
+
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}

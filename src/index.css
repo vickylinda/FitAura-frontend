@@ -1,0 +1,65 @@
+/* --- POPPINS VARIABLE --- */
+@font-face {
+  font-family: 'Poppins';
+  src: url('./assets/Poppins-Black.ttf') format('truetype');
+  font-weight: 900;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Poppins';
+  src: url('./assets/Poppins-Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'Poppins';
+  src: url('./assets/Poppins-ExtraBoldItalic.ttf') format('truetype');
+  font-weight: 800;
+  font-style: italic;
+}
+
+
+/* --- INTER VARIABLE --- */
+@font-face {
+  font-family: 'Inter';
+  src: url('./assets/Inter-VariableFont_opsz,wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('./assets/Inter-Italic-VariableFont_opsz,wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* --- LEAGUE SPARTAN VARIABLE --- */
+@font-face {
+  font-family: 'League Spartan';
+  src: url('./assets/LeagueSpartan-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+
+:root {
+  font-family: 'Poppins', 'League Spartan', 'Inter', sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+/*
+  --dark: #231F20;
+  --dark_lighter: #2e2c2d;
+  --light: #F9F7EA;
+  --medium_green: #687E5A;
+  --light_green: #A2B192;
+  --dark_green: #414D35;*/
+}
+
