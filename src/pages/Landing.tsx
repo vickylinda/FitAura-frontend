@@ -1,4 +1,5 @@
 import { Box, Button, Heading, Text, Image } from "@chakra-ui/react";
+import { Link as RouterLink } from "react-router-dom";
 
 export default function Landing() {
   return (
@@ -17,7 +18,6 @@ export default function Landing() {
       px={{ base: 4, md: 8 }}
       py={{ base: 8, md: 0 }}
     >
-      {/* Contenido */}
       <Box position="relative" zIndex={1} maxW="container.md">
         <Heading
           fontSize={{ base: "2xl", md: "4xl" }}
@@ -42,7 +42,7 @@ export default function Landing() {
             as="span"
             fontFamily="Poppins"
             fontStyle="italic"
-            fontWeight={800} // Extrabold
+            fontWeight={800} 
           >
             FIT
           </Text>
@@ -50,7 +50,7 @@ export default function Landing() {
             as="span"
             fontFamily="Poppins"
             fontStyle="italic"
-            fontWeight={400} // Regular
+            fontWeight={400} 
           >
             AURA
           </Text>
@@ -67,21 +67,23 @@ export default function Landing() {
           <Image
             src="/brillito.webp"
             display="inline"
-            boxSize="2.5rem" // ajustá tamaño como gustes
+            boxSize="2.5rem" 
             ml={-2}
             verticalAlign="-0.30rem"
           />
         </Text>
         <Button
+        as={RouterLink}
+  to="/home"
           fontSize={{ base: "sm", md: "md" }}
           fontFamily="Poppins"
           px={{ base: 6, md: 8 }}
           py={{ base: 4, md: 6 }}
-          bg="whiteAlpha.300" // rosa claro de fondo
+          bg="whiteAlpha.300" 
           color="white"
           borderRadius="full"
           border="1px solid white"
-          boxShadow="0 6px 10px rgba(0, 0, 0, 0.25)" // sombra suave como en Figma
+          boxShadow="0 6px 10px rgba(0, 0, 0, 0.25)" 
           _hover={{
             transform: "scale(1.05)",
             boxShadow: "0 8px 14px rgba(0, 0, 0, 0.3)",
