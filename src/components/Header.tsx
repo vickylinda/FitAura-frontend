@@ -186,8 +186,22 @@ export default function Header() {
                 _hover={{ bg: "#fd99bf", color: "black" }}
               >
                 <Image src="login.svg" boxSize="20px" mr={2} />
-                Log In
+                Ingresar
               </MenuItem>
+
+                <MenuItem
+                onClick={() => handleNavigate("/register")}
+                borderBottom="1px solid black"
+                fontFamily={"Inter"}
+                fontWeight={"bold"}
+                cursor="pointer"
+                _hover={{ bg: "#fd99bf", color: "black" }}
+              >
+                <Image src="register.svg" boxSize="20px" mr={2} />
+                Registrarse
+              </MenuItem>
+
+
             </MenuList>
           </Menu>
           </Box>
@@ -228,8 +242,24 @@ export default function Header() {
               }}
             >
               <Image src="login.svg" boxSize="20px" mr={0} />
-              Log In
+              Ingresar
             </Button>
+
+              <Button
+              {...transparentButtonStyles}
+              onClick={() => handleNavigate("/register")}
+              color={"black"}
+              border="2px solid black"
+              _hover={{
+                bg: "#fc7faa",
+                color: "white",
+                textDecoration: "underline",
+              }}
+            >
+              <Image src="register.svg" boxSize="20px" mr={0} />
+              Registrarse
+            </Button>
+
           </HStack>
         )}
       </Flex>

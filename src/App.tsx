@@ -1,12 +1,20 @@
 import { Route, Routes } from 'react-router-dom'
 import Landing from './pages/Landing'
 import Home from './pages/Home'
+import Login from './pages/Login'
+import Register from './pages/Register'
+import RecoverPassword from './pages/RecoverPassword'
+import ResetPassword from './pages/ResetPassword'
 
 function App() {
   return (
     <Routes>
       <Route path="/" element={<Landing />} />
       <Route path="/home" element={<Home />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/password-recovery" element={<RecoverPassword />} />
+      <Route path="/password-reset" element={<ResetPassword />} />
     </Routes>
   )
 }
