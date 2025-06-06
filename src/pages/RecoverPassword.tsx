@@ -20,7 +20,42 @@ export default function RecoverPassword() {
   });
   const [showSuccess, setShowSuccess] = useState(false);
   const navigate = useNavigate();
+  const [email, setEmail] = useState("");
 
+  const handleRecoverPassword = async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:4000/api/v1/users/forgot-password`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        }
+      );
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        setShowSuccess(true);
+      } else {
+        switch (data.internalErrorCode) {
+          case 1001:
+            alert("Petición incorrecta. Faltan datos.");
+            break;
+          case 1007:
+            alert("Usuario no encontrado.");
+            break;
+          default:
+            alert("Hubo un problema al enviar el correo.");
+            break;
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Hubo un error al contactar con el servidor.");
+    }
+  };
+  
   return (
     <Box minH="100vh" bg="white">
       <HeaderLoginRegister />
@@ -79,6 +114,9 @@ export default function RecoverPassword() {
             mb={6}
             w="full"
             fontFamily={"Inter"}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+
           />
 
           <ChakraLink
@@ -122,7 +160,7 @@ export default function RecoverPassword() {
                 outline: "none",
                 borderColor: "transparent",
               }}
-              onClick={() => setShowSuccess(true)}
+              onClick={handleRecoverPassword}
             >
               Recuperar Contraseña
             </Button>
@@ -151,7 +189,7 @@ export default function RecoverPassword() {
                 >
                   <Flex align="center" justify="space-between">
                     <Text fontSize="sm" color="green.800">
-                      ✅ Enviamos un correo a xxxx@xxxx.com. Ingresá a tu
+                      ✅ Enviamos un correo a {email}. Ingresá a tu
                       casilla y seguí las instrucciones para continuar con la
                       recuperación de la contraseña.
                     </Text>

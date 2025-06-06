@@ -15,6 +15,9 @@ import { useRef, useEffect, useState } from "react";
 import HeaderLoginRegister from "@/components/HeaderLoginRegister";
 import { InputGroup, InputRightElement } from "@chakra-ui/input";
 import { Eye, EyeOff } from "lucide-react";
+import { GoogleLogin } from "@react-oauth/google";
+import type { CredentialResponse } from "@react-oauth/google";
+
 
 export default function Login() {
   const navigate = useNavigate();
@@ -37,6 +40,43 @@ export default function Login() {
       setFormHeight(formRef.current.offsetHeight);
     }
   }, [showImage]);
+
+  const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
+    try {
+      const response = await fetch("http://localhost:4000/api/v1/users/log-in-google", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ token: credentialResponse.credential }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        if (errorData.internalErrorCode === 1001) {
+          setError("No recibimos las credenciales de Google");
+        } else if (errorData.internalErrorCode === 1005) {
+          setError("No pudimos validar tus credenciales de Google");
+        } else {
+          setError(errorData.message || "Error al iniciar sesión con Google");
+        }
+        return;
+      }
+      
+
+      const data = await response.json();
+      localStorage.setItem("token", data.jwt);
+      localStorage.setItem("userId", data.userId);
+      navigate("/home");
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || "Ocurrió un error con Google Sign-In");
+    }
+  };
+
+  const handleGoogleError = () => {
+    setError("Error al iniciar sesión con Google");
+  };
 
   return (
     <Box
@@ -208,6 +248,13 @@ export default function Login() {
               >
                 Iniciar Sesión
               </Button>
+
+              {/* Google Login */}
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={handleGoogleError}
+                size="large"
+              />
 
               {error && (
                 <Text fontSize="sm" color="red.500" mt={2}>

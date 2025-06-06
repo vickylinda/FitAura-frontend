@@ -13,8 +13,14 @@ import { useEffect, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { InputGroup, InputRightElement } from "@chakra-ui/input";
 import { useNavigate } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
+
+
 
 export default function ResetPassword() {
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get("token");
+  console.log("TOKEN:", token);
   const headingSize = useBreakpointValue({
     base: "2xl",
     md: "4xl",
@@ -25,7 +31,12 @@ export default function ResetPassword() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [countdown, setCountdown] = useState(5);
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
   const navigate = useNavigate();
+ 
+
 
   useEffect(() => {
     if (showSuccess) {
@@ -33,7 +44,7 @@ export default function ResetPassword() {
         setCountdown((prev) => {
           if (prev <= 1) {
             clearInterval(timer);
-            navigate("/home");
+            navigate("/login");
             return 0;
           }
           return prev - 1;
@@ -43,7 +54,57 @@ export default function ResetPassword() {
     }
   }, [showSuccess, navigate]);
 
+
+  const handleResetPassword = async () => {
+    if (!token) {
+      alert("Token inválido o faltante.");
+      return;
+    }
+  
+    if (password !== confirmPassword) {
+      alert("Las contraseñas no coinciden.");
+      return;
+    }
+  
+    try {
+      const response = await fetch(`http://localhost:4000/api/v1/users/reset-password`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password, token }),
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        setShowSuccess(true);
+      } else {
+        switch (data.internalErrorCode) {
+          case 1001:
+            alert("Petición incorrecta. Faltan datos.");
+            break;
+          case 1002:
+            alert("La contraseña no cumple con los requisitos de seguridad.");
+            break;
+          case 1008:
+            alert("Token inválido o expirado. Por favor vuelve a solicitar el enlace.");
+            break;
+          case 1009:
+            alert("Usuario no encontrado.");
+            break;
+          default:
+            alert("Error desconocido. Intenta nuevamente.");
+            break;
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Hubo un problema al resetear la contraseña.");
+    }
+  };
+  
+  
   return (
+    
     <Box minH="100vh" bg="white">
       <HeaderLoginRegister />
 
@@ -85,6 +146,8 @@ export default function ResetPassword() {
               bg="#dcd3f0"
               border="none"
               fontFamily="Inter"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
             <InputRightElement>
               <Button
@@ -107,6 +170,8 @@ export default function ResetPassword() {
               bg="#dcd3f0"
               border="none"
               fontFamily="Inter"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
             />
             <InputRightElement>
               <Button
@@ -145,7 +210,9 @@ export default function ResetPassword() {
               w="full"
               fontFamily="Inter"
               _hover={{ bg: "#fd6193" }}
-              onClick={() => setShowSuccess(true)}
+              onClick={handleResetPassword}
+              //onClick={() => setShowSuccess(true)}
+              
             >
               Reestablecer Contraseña
             </Button>
