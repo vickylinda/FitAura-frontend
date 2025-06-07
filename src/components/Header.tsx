@@ -6,7 +6,12 @@ import {
   Image,
   Text,
   useBreakpointValue,
+  Avatar,
+  AvatarRoot,
+  AvatarFallback,
 } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
+import { colorPalettes } from "compositions/lib/color-palettes";
 import { Menu, MenuButton, MenuList, MenuItem } from "@chakra-ui/menu";
 import { useNavigate } from "react-router-dom";
 import { Link as RouterLink } from "react-router-dom";
@@ -58,6 +63,19 @@ export default function Header() {
       borderColor: "transparent",
     },
   };
+
+  const [user, setUser] = useState<{ id: number; name: string } | null>(null);
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("fitauraUser");
+    if (storedUser) {
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (e) {
+        console.error("Error parsing user from localStorage", e);
+      }
+    }
+  }, []);
 
   return (
     <Box as="header" w="100%" bg="white" px={{ base: 4, md: 12 }} py={4}>
@@ -117,96 +135,115 @@ export default function Header() {
         {/* mobile */}
         {isMobile ? (
           <Box position="relative" zIndex={10}>
-          <Menu>
-            <MenuButton
-              position="fixed"
-              top="35px"
-              right="35px"
-              zIndex="9999"
-              cursor="pointer"
-            >
-              <Image
-                src="/puntitosnegros.svg"
-                alt="menu"
-                boxSize="28px"
+            <Menu>
+              <MenuButton
+                position="fixed"
+                top="35px"
+                right="35px"
+                zIndex="9999"
                 cursor="pointer"
-              />
-            </MenuButton>
-            <MenuList
-              bg="#fed2ea"
-              color="black"
-              border="2px solid black"
-              sx={{
-                borderRadius: "8px",
-                overflow: "hidden",
-                boxShadow: "lg",
-                paddingX: 6,
-                paddingY: 2,
-              }}
-            >
-              <MenuItem
-                onClick={() => handleNavigate("/trainings")}
-                borderBottom="1px solid black"
-                fontFamily={"Inter"}
-                fontWeight={"bold"}
-                cursor="pointer"
-                _hover={{ bg: "#fd99bf", color: "black" }}
               >
-                <Image src="/entrenamientos.svg" boxSize="20px" mr={2} />
-                Entrenamientos
-              </MenuItem>
-              <MenuItem
-                onClick={() => handleNavigate("/mytrainings")}
-                borderBottom="1px solid black"
-                fontFamily={"Inter"}
-                fontWeight={"bold"}
-                cursor="pointer"
-                _hover={{ bg: "#fd99bf", color: "black" }}
+                <Image
+                  src="/puntitosnegros.svg"
+                  alt="menu"
+                  boxSize="28px"
+                  cursor="pointer"
+                />
+              </MenuButton>
+              <MenuList
+                bg="#fed2ea"
+                color="black"
+                border="2px solid black"
+                sx={{
+                  borderRadius: "8px",
+                  overflow: "hidden",
+                  boxShadow: "lg",
+                  paddingX: 6,
+                  paddingY: 2,
+                }}
               >
-                <Image src="/misentrenamientos.svg" boxSize="20px" mr={2} />
-                Mis Entrenamientos
-              </MenuItem>
-              <MenuItem
-                onClick={() => handleNavigate("/portaltrainers")}
-                borderBottom="1px solid black"
-                fontFamily={"Inter"}
-                fontWeight={"bold"}
-                cursor="pointer"
-                _hover={{ bg: "#fd99bf", color: "black" }}
-              >
-                <Image src="/portalentrenadoras.svg" boxSize="20px" mr={2} />
-                Portal Entrenadoras
-              </MenuItem>
-              <MenuItem
-                onClick={() => handleNavigate("/login")}
-                borderBottom="1px solid black"
-                fontFamily={"Inter"}
-                fontWeight={"bold"}
-                cursor="pointer"
-                _hover={{ bg: "#fd99bf", color: "black" }}
-              >
-                <Image src="login.svg" boxSize="20px" mr={2} />
-                Ingresar
-              </MenuItem>
-
                 <MenuItem
-                onClick={() => handleNavigate("/register")}
-                borderBottom="1px solid black"
-                fontFamily={"Inter"}
-                fontWeight={"bold"}
-                cursor="pointer"
-                _hover={{ bg: "#fd99bf", color: "black" }}
-              >
-                <Image src="register.svg" boxSize="20px" mr={2} />
-                Registrarse
-              </MenuItem>
+                  onClick={() => handleNavigate("/trainings")}
+                  borderBottom="1px solid black"
+                  fontFamily={"Inter"}
+                  fontWeight={"bold"}
+                  cursor="pointer"
+                  _hover={{ bg: "#fd99bf", color: "black" }}
+                >
+                  <Image src="/entrenamientos.svg" boxSize="20px" mr={2} />
+                  Entrenamientos
+                </MenuItem>
+                <MenuItem
+                  onClick={() => handleNavigate("/mytrainings")}
+                  borderBottom="1px solid black"
+                  fontFamily={"Inter"}
+                  fontWeight={"bold"}
+                  cursor="pointer"
+                  _hover={{ bg: "#fd99bf", color: "black" }}
+                >
+                  <Image src="/misentrenamientos.svg" boxSize="20px" mr={2} />
+                  Mis Entrenamientos
+                </MenuItem>
+                <MenuItem
+                  onClick={() => handleNavigate("/portaltrainers")}
+                  borderBottom="1px solid black"
+                  fontFamily={"Inter"}
+                  fontWeight={"bold"}
+                  cursor="pointer"
+                  _hover={{ bg: "#fd99bf", color: "black" }}
+                >
+                  <Image src="/portalentrenadoras.svg" boxSize="20px" mr={2} />
+                  Portal Entrenadoras
+                </MenuItem>
+                {user ? (
+                  <MenuItem
+                    isDisabled
+                    //fontFamily={"Inter"}
+                    //fontWeight={"bold"}
+                    cursor="pointer"
+                    _hover={{ bg: "#fd99bf", color: "black" }}
+                  >
+                    <Text
+                      ml={2}
+                      fontFamily="League Spartan"
+                      fontWeight={"bold"}
+                    >
+                      ¡Hola, {user.name}!
+                    </Text>
+                  </MenuItem>
+                ) : (
+                  <>
+                    <MenuItem
+                      onClick={() => handleNavigate("/login")}
+                      borderBottom="1px solid black"
+                      fontFamily={"Inter"}
+                      fontWeight={"bold"}
+                      cursor="pointer"
+                      _hover={{ bg: "#fd99bf", color: "black" }}
+                    >
+                      <Image src="login.svg" boxSize="20px" mr={2} />
+                      Ingresar
+                    </MenuItem>
 
-
-            </MenuList>
-          </Menu>
+                    <MenuItem
+                      onClick={() => handleNavigate("/register")}
+                      borderBottom="1px solid black"
+                      fontFamily={"Inter"}
+                      fontWeight={"bold"}
+                      cursor="pointer"
+                      _hover={{ bg: "#fd99bf", color: "black" }}
+                    >
+                      <Image src="register.svg" boxSize="20px" mr={2} />
+                      Registrarse
+                    </MenuItem>
+                  </>
+                )}
+              </MenuList>
+            </Menu>
           </Box>
         ) : (
           //navvvvv
+
           <HStack gap={4} w="100%" ml={8}>
             <Button
               {...transparentButtonStyles}
@@ -230,36 +267,57 @@ export default function Header() {
               Portal Entrenadoras
             </Button>
             <Box flexGrow={1} />
-            <Button
-              {...transparentButtonStyles}
-              onClick={() => handleNavigate("/login")}
-              color={"black"}
-              border="2px solid black"
-              _hover={{
-                bg: "#fc7faa",
-                color: "white",
-                textDecoration: "underline",
-              }}
-            >
-              <Image src="login.svg" boxSize="20px" mr={0} />
-              Ingresar
-            </Button>
 
+            {/* Si hay usuario: saludo con avatar */}
+            {user ? (
               <Button
-              {...transparentButtonStyles}
-              onClick={() => handleNavigate("/register")}
-              color={"black"}
-              border="2px solid black"
-              _hover={{
-                bg: "#fc7faa",
-                color: "white",
-                textDecoration: "underline",
-              }}
-            >
-              <Image src="register.svg" boxSize="20px" mr={0} />
-              Registrarse
-            </Button>
+                {...transparentButtonStyles}
+                color="black"
+                cursor="pointer"
+                display="flex"
+                alignItems="center"
+                gap={2}
+                fontFamily="League Spartan"
+                fontWeight={"semibold"}
+              >
+                <AvatarRoot colorPalette="pink">
+                  <AvatarFallback />
+                </AvatarRoot>
+                ¡Hola, {user.name}!
+              </Button>
+            ) : (
+              <>
+                <Button
+                  {...transparentButtonStyles}
+                  onClick={() => handleNavigate("/login")}
+                  color={"black"}
+                  border="2px solid black"
+                  _hover={{
+                    bg: "#fc7faa",
+                    color: "white",
+                    textDecoration: "underline",
+                  }}
+                >
+                  <Image src="login.svg" boxSize="20px" mr={0} />
+                  Ingresar
+                </Button>
 
+                <Button
+                  {...transparentButtonStyles}
+                  onClick={() => handleNavigate("/register")}
+                  color={"black"}
+                  border="2px solid black"
+                  _hover={{
+                    bg: "#fc7faa",
+                    color: "white",
+                    textDecoration: "underline",
+                  }}
+                >
+                  <Image src="register.svg" boxSize="20px" mr={0} />
+                  Registrarse
+                </Button>
+              </>
+            )}
           </HStack>
         )}
       </Flex>

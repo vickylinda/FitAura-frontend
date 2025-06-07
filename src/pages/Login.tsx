@@ -18,7 +18,6 @@ import { Eye, EyeOff } from "lucide-react";
 import { GoogleLogin } from "@react-oauth/google";
 import type { CredentialResponse } from "@react-oauth/google";
 
-
 export default function Login() {
   const navigate = useNavigate();
   const showImage = useBreakpointValue({ base: false, md: true });
@@ -30,7 +29,12 @@ export default function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const inputSize = useBreakpointValue({ base: "sm", md: "md", lg: "lg" });
-  const headingSize = useBreakpointValue({ base: "3xl", sm: "4xl", md: "5xl", lg: "6xl" });
+  const headingSize = useBreakpointValue({
+    base: "3xl",
+    sm: "4xl",
+    md: "5xl",
+    lg: "6xl",
+  });
 
   const [showPassword, setShowPassword] = useState(false);
   const handleTogglePassword = () => setShowPassword((prev) => !prev);
@@ -41,15 +45,20 @@ export default function Login() {
     }
   }, [showImage]);
 
-  const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
+  const handleGoogleSuccess = async (
+    credentialResponse: CredentialResponse
+  ) => {
     try {
-      const response = await fetch("http://localhost:4000/api/v1/users/log-in-google", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ token: credentialResponse.credential }),
-      });
+      const response = await fetch(
+        "http://localhost:4000/api/v1/users/log-in-google",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ token: credentialResponse.credential }),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -62,7 +71,6 @@ export default function Login() {
         }
         return;
       }
-      
 
       const data = await response.json();
       localStorage.setItem("token", data.jwt);
@@ -138,7 +146,12 @@ export default function Login() {
 
             <Stack spacing={4}>
               <Box>
-                <Text fontFamily="Inter" fontSize={inputSize} fontWeight="semibold" mb={2}>
+                <Text
+                  fontFamily="Inter"
+                  fontSize={inputSize}
+                  fontWeight="semibold"
+                  mb={2}
+                >
                   Email
                 </Text>
                 <Input
@@ -151,7 +164,13 @@ export default function Login() {
               </Box>
 
               <Box>
-                <Text fontFamily="Inter" fontSize={inputSize} fontWeight="semibold" mt={4} mb={2}>
+                <Text
+                  fontFamily="Inter"
+                  fontSize={inputSize}
+                  fontWeight="semibold"
+                  mt={4}
+                  mb={2}
+                >
                   Contraseña
                 </Text>
                 <InputGroup>
@@ -169,7 +188,11 @@ export default function Login() {
                       onClick={handleTogglePassword}
                       _hover={{ bg: "transparent" }}
                     >
-                      {showPassword ? <EyeOff size={20} color="black" /> : <Eye size={20} color="black"/>}
+                      {showPassword ? (
+                        <EyeOff size={20} color="black" />
+                      ) : (
+                        <Eye size={20} color="black" />
+                      )}
                     </Button>
                   </InputRightElement>
                 </InputGroup>
@@ -179,7 +202,8 @@ export default function Login() {
                 alignSelf="flex-end"
                 fontSize="sm"
                 color="#474BCA"
-                as={RouterLink} to="/password-recovery"
+                as={RouterLink}
+                to="/password-recovery"
                 _hover={{ textDecoration: "underline" }}
                 _focus={{
                   boxShadow: "none",
@@ -217,6 +241,7 @@ export default function Login() {
 
                   setLoading(true);
                   try {
+                    // Paso 1: Login
                     const response = await fetch(
                       "http://localhost:4000/api/v1/users/log-in",
                       {
@@ -237,7 +262,32 @@ export default function Login() {
 
                     const data = await response.json();
                     localStorage.setItem("token", data.token);
-                    localStorage.setItem("user", JSON.stringify(data.user));
+
+                    // Paso 2: Obtener perfil con el token
+                    const profileRes = await fetch(
+                      "http://localhost:4000/api/v1/users/profile",
+                      {
+                        headers: {
+                          Authorization: `Bearer ${data.token}`,
+                        },
+                      }
+                    );
+
+                    if (!profileRes.ok) {
+                      throw new Error("No se pudo obtener el perfil");
+                    }
+
+                    const profileData = await profileRes.json();
+                    const firstName =
+                      profileData.name?.split(" ")[0] || "Usuaria";
+
+                    // Guardamos en localStorage
+                    localStorage.setItem(
+                      "fitauraUser",
+                      JSON.stringify({ id: profileData.id, name: firstName })
+                    );
+
+                    // Navegamos
                     navigate("/home");
                   } catch (err: any) {
                     setError(err.message || "Ocurrió un error");
@@ -265,7 +315,8 @@ export default function Login() {
               <Text fontSize="sm" textAlign="center">
                 ¿No tenés una cuenta?{" "}
                 <ChakraLink
-                 as={RouterLink} to="/register"
+                  as={RouterLink}
+                  to="/register"
                   color="#fc7faa"
                   fontWeight="medium"
                   href="#"
