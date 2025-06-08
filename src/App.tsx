@@ -5,6 +5,8 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import RecoverPassword from './pages/RecoverPassword'
 import ResetPassword from './pages/ResetPassword'
+import AllServicesDraft from "./pages/AllServicesDraft";
+
 
 function App() {
   return (
@@ -15,6 +17,8 @@ function App() {
       <Route path="/register" element={<Register />} />
       <Route path="/password-recovery" element={<RecoverPassword />} />
       <Route path="/password-reset" element={<ResetPassword />} />
+      <Route path="/all-services-draft" element={<AllServicesDraft/>} />
+
     </Routes>
   )
 }

@@ -59,7 +59,7 @@ export default function Login() {
           body: JSON.stringify({ token: credentialResponse.credential }),
         }
       );
-
+  
       if (!response.ok) {
         const errorData = await response.json();
         if (errorData.internalErrorCode === 1001) {
@@ -71,17 +71,40 @@ export default function Login() {
         }
         return;
       }
-
+  
       const data = await response.json();
       localStorage.setItem("token", data.jwt);
-      localStorage.setItem("userId", data.userId);
+  
+      // Paso 2: Obtener perfil con el token (igual que en login normal)
+      const profileRes = await fetch(
+        "http://localhost:4000/api/v1/users/profile",
+        {
+          headers: {
+            Authorization: `Bearer ${data.jwt}`,
+          },
+        }
+      );
+  
+      if (!profileRes.ok) {
+        throw new Error("No se pudo obtener el perfil");
+      }
+  
+      const profileData = await profileRes.json();
+      const firstName = profileData.name?.split(" ")[0] || "Usuaria";
+  
+      // Guardamos en localStorage
+      localStorage.setItem(
+        "fitauraUser",
+        JSON.stringify({ id: profileData.id, name: firstName })
+      );
+  
       navigate("/home");
     } catch (err: any) {
       console.error(err);
       setError(err.message || "Ocurrió un error con Google Sign-In");
     }
   };
-
+  
   const handleGoogleError = () => {
     setError("Error al iniciar sesión con Google");
   };
