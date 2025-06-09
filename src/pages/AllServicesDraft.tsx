@@ -57,6 +57,8 @@ const AllServicesDraft: React.FC = () => {
       if (onlyBestRated) {
         params.append("ratingMin", "4.5");
       }
+        //en esta pagina quiero mostrar solo los publicados.
+        params.append("published", "true");
 
       const url = `http://localhost:4000/api/v2/services?${params.toString()}`;
       console.log("Llamando a:", url);
