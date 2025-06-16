@@ -21,6 +21,7 @@ interface TrainingCardProps {
   language: string;
   trainer: Trainer;
   onTrainerClick?: () => void;
+  status?: 'Aceptado' | 'Pendiente' | 'Realizado' | 'Calificar';
 }
 
 const TrainingCard: React.FC<TrainingCardProps> = ({
@@ -31,7 +32,45 @@ const TrainingCard: React.FC<TrainingCardProps> = ({
   language,
   trainer,
   onTrainerClick,
+  status,
 }) => {
+  // CTA info según el status
+  const ctaInfo = {
+    Aceptado: {
+      label: 'Aceptado',
+      bg: 'green.300',
+      color: 'white',
+      border: 'none',
+    },
+    Pendiente: {
+      label: 'Pendiente',
+      bg: 'yellow.200',
+      color: 'black',
+      border: 'none',
+    },
+    Realizado: {
+      label: 'Completado',
+      bg: 'white',
+      color: '#fd6193',
+      border: '2px solid #fd6193',
+    },
+    Calificar: {
+      label: 'Puntuar',
+      bg: '#fd6193',
+      color: 'white',
+      border: 'none',
+    },
+  };
+
+  const { label, bg, color, border } = status
+    ? ctaInfo[status]
+    : {
+        label: 'Reservar clase',
+        bg: '#fd6193',
+        color: 'white',
+        border: 'none',
+      };
+
   return (
     <Box pt="40px">
       <Box
@@ -39,12 +78,12 @@ const TrainingCard: React.FC<TrainingCardProps> = ({
         border="1px solid #E2E8F0"
         bg="white"
         p={6}
+        m={0}
         maxW="400px"
         w="270px"
         mx="auto"
         position="relative"
->
-
+      >
         {/* Botón con datos de entrenadora */}
         <Button
           position="absolute"
@@ -97,15 +136,19 @@ const TrainingCard: React.FC<TrainingCardProps> = ({
           <Text mb={1}>🌐 {language}</Text>
         </Box>
 
+        {/* CTA dinámico */}
         <Button
-          bg="#fd6193"
-          color="white"
+          bg={bg}
+          color={color}
+          border={border || 'none'}
           width="100%"
           borderRadius="lg"
           fontWeight="bold"
-          _hover={{ bg: '#e45784' }}
+          cursor={status === 'Realizado' ? 'default' : 'pointer'}
+          _hover={status === 'Realizado' ? { bg: 'white' } : { opacity: 0.9 }}
+          onClick={status === 'Realizado' ? undefined : () => {}}
         >
-          Reservar clase
+          {label}
         </Button>
       </Box>
     </Box>

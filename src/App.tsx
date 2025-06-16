@@ -8,6 +8,7 @@ import ResetPassword from './pages/ResetPassword'
 import AllServicesDraft from "./pages/AllServicesDraft";
 import Header from './components/Header';
 import TrainerProfile from './pages/TrainerProfile';
+import MyTrainings from './pages/MyTrainings'
 
 function App() {
   return (
@@ -22,6 +23,8 @@ function App() {
       <Route path="/password-reset" element={<ResetPassword />} />
       <Route path="/all-services-draft" element={<AllServicesDraft/>} />
       <Route path="/trainer-profile" element={<TrainerProfile/>} />
+      <Route path="/mytrainings" element={<MyTrainings/>} />
+
 
     </Routes>
     </>
