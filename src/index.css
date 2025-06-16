@@ -62,3 +62,8 @@
   --light_green: #A2B192;
   --dark_green: #414D35;*/
 }
+
+body {
+  background-color: 'white'!important;
+  color-scheme: light !important;
+}

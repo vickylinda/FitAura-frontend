@@ -12,7 +12,6 @@ import {
   AvatarRoot,
   AvatarFallback,
 } from "@chakra-ui/react";
-import Header from "../components/Header";
 import { Link as RouterLink } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Footer from "@/components/Footer";
@@ -60,7 +59,7 @@ const Home = () => {
   };
 
   return (
-    <Box overflowX="hidden">
+    <Box>
       <Header />
 
       {/* Hero */}
