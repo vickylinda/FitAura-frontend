@@ -16,13 +16,25 @@ import { Menu, MenuButton, MenuList, MenuItem } from "@chakra-ui/menu";
 import { useNavigate } from "react-router-dom";
 import { Link as RouterLink } from "react-router-dom";
 import { Link } from "@chakra-ui/react";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Header() {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const isMobile = useBreakpointValue({ base: true, xl: false });
 
   const handleNavigate = (path: string) => {
     navigate(path);
+  };
+
+  //const handleLogout = () => {
+  //localStorage.removeItem("token");
+  //localStorage.removeItem("fitauraUser");
+  //navigate("/home");
+  //};
+  const handleLogout = () => {
+    logout();
+    navigate("/home");
   };
 
   const transparentButtonStyles = {
@@ -64,7 +76,7 @@ export default function Header() {
     },
   };
 
-  const [user, setUser] = useState<{ id: number; name: string } | null>(null);
+{/*const [user, setUser] = useState<{ id: number; name: string } | null>(null);
 
   useEffect(() => {
     const storedUser = localStorage.getItem("fitauraUser");
@@ -75,7 +87,7 @@ export default function Header() {
         console.error("Error parsing user from localStorage", e);
       }
     }
-  }, []);
+  }, []); */}
 
   return (
     <Box as="header" w="100%" bg="white" px={{ base: 4, md: 12 }} py={4}>
@@ -196,21 +208,19 @@ export default function Header() {
                   Portal Entrenadoras
                 </MenuItem>
                 {user ? (
+                
                   <MenuItem
                     isDisabled
-                    //fontFamily={"Inter"}
-                    //fontWeight={"bold"}
+                    onClick={() => handleNavigate("/my-account")}
+                    fontFamily={"Inter"}
+                    fontWeight={"bold"}
                     cursor="pointer"
                     _hover={{ bg: "#fd99bf", color: "black" }}
+                    borderBottom="1px solid black"
                   >
-                    <Text
-                      ml={2}
-                      fontFamily="League Spartan"
-                      fontWeight={"bold"}
-                    >
-                      ¡Hola, {user.name}!
-                    </Text>
-                  </MenuItem>
+                    <Image src="micuenta.png" boxSize="20px" mr={2} />
+                    Ver mi cuenta
+                  </MenuItem> 
                 ) : (
                   <>
                     <MenuItem
@@ -237,6 +247,18 @@ export default function Header() {
                       Registrarse
                     </MenuItem>
                   </>
+                )}
+                {user && (
+                  <MenuItem
+                    onClick={handleLogout}
+                    fontFamily="Inter"
+                    fontWeight="bold"
+                    cursor="pointer"
+                    _hover={{ bg: "#fd99bf", color: "black" }}
+                  >
+                    <Image src="/logout.svg" boxSize="20px" mr={2} />
+                    Cerrar sesión
+                  </MenuItem>
                 )}
               </MenuList>
             </Menu>
@@ -270,21 +292,52 @@ export default function Header() {
 
             {/* Si hay usuario: saludo con avatar */}
             {user ? (
-              <Button
-                {...transparentButtonStyles}
-                color="black"
-                cursor="pointer"
-                display="flex"
-                alignItems="center"
-                gap={2}
-                fontFamily="League Spartan"
-                fontWeight={"semibold"}
-              >
-                <AvatarRoot colorPalette="pink">
-                  <AvatarFallback />
-                </AvatarRoot>
-                ¡Hola, {user.name}!
-              </Button>
+              <Menu>
+                <MenuButton
+                  as={Button}
+                  {...transparentButtonStyles}
+                  color="black"
+                  cursor="pointer"
+                  fontFamily="League Spartan"
+                  fontWeight="semibold"
+                  display="flex"
+                  alignItems="center"
+                  gap={2}
+                > <Flex align="center" gap={2}>
+                  <AvatarRoot colorPalette="pink">
+                    <AvatarFallback />
+                  </AvatarRoot>
+                  ¡Hola, {user.name}!
+                  </Flex>
+                </MenuButton>
+                
+                <MenuList bg="#fed2ea" border="2px solid black" color={"black"} sx={{
+                  borderRadius: "8px",
+                  overflow: "hidden",
+                  boxShadow: "lg",
+                  paddingX: 6,
+                  paddingY: 2,
+                }}>
+                  <MenuItem
+                    onClick={() => handleNavigate("/profile")}
+                    fontFamily="Inter"
+                    fontWeight="bold"
+                    _hover={{ bg: "#fd99bf", color: "black" }}
+                  >
+                    <Image src="/micuenta.png" boxSize="20px" mr={2} />
+                    Ver mi perfil
+                  </MenuItem>
+                  <MenuItem
+                    onClick={handleLogout}
+                    fontFamily="Inter"
+                    fontWeight="bold"
+                    _hover={{ bg: "#fd99bf", color: "black" }}
+                  >
+                    <Image src="/logout.svg" boxSize="20px" mr={2} />
+                    Cerrar sesión
+                  </MenuItem>
+                </MenuList>
+              </Menu>
             ) : (
               <>
                 <Button

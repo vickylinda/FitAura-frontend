@@ -10,6 +10,7 @@ import AllServicesDraft from "./pages/AllServicesDraft";
 
 function App() {
   return (
+    <>
     <Routes>
       <Route path="/" element={<Landing />} />
       <Route path="/home" element={<Home />} />
@@ -20,6 +21,7 @@ function App() {
       <Route path="/all-services-draft" element={<AllServicesDraft/>} />
 
     </Routes>
+     </>
   )
 }
 export default App;

@@ -9,10 +9,13 @@ import {
   Text,
   useBreakpointValue,
   Link,
+  AvatarRoot,
+  AvatarFallback,
 } from "@chakra-ui/react";
 import Header from "../components/Header";
 import { Link as RouterLink } from "react-router-dom";
 import { useState, useEffect } from "react";
+import Footer from "@/components/Footer";
 
 const Home = () => {
   const [highlightedServices, setHighlightedServices] = useState<any[]>([]);
@@ -57,7 +60,7 @@ const Home = () => {
   };
 
   return (
-    <Box>
+    <Box overflowX="hidden">
       <Header />
 
       {/* Hero */}
@@ -88,7 +91,11 @@ const Home = () => {
           >
             Elegí el entrenamiento que se adapte a vos
           </Heading>
-          <Image src="/entren.png" boxSize={{ base: "50px", md: "60px" }} mt={4} />
+          <Image
+            src="/entren.png"
+            boxSize={{ base: "50px", md: "60px" }}
+            mt={4}
+          />
         </Box>
       </Box>
 
@@ -168,78 +175,89 @@ const Home = () => {
             <Text>No hay entrenamientos destacados.</Text>
           ) : (
             highlightedServices.map((clase, index) => (
-              <Flex
+              <Box
                 key={index}
                 p={4}
                 bg="white"
                 borderRadius="xl"
                 boxShadow="md"
+                display="flex"
                 flexDirection="column"
-                position="relative"
-                minHeight="440px"
+                height="100%"
               >
-                {/* Card Header */}
                 <Flex
-                  position="absolute"
-                  top={4}
-                  right={4}
-                  bg="white"
-                  border="2px solid #fd6193"
-                  borderRadius="lg"
-                  px={3}
-                  py={2}
+                  justify="space-between"
                   align="center"
-                  boxShadow="md"
-                  zIndex={1}
+                  mb={4}
+                  wrap="wrap"
+                  gap={2}
                 >
-                  <Box mr={2} textAlign="left">
-                    <Text
-                      fontWeight="extrabold"
-                      color="#fd6193"
-                      fontSize="md"
-                      fontFamily="Poppins"
-                      lineHeight="1"
-                    >
-                      {clase.trainer_name}
-                    </Text>
-                    <Flex align="center" gap={1}>
-                      <Text fontWeight="bold" fontSize="sm" color="black">
-                        {clase.trainer_rating
-                          ? `${clase.trainer_rating.toFixed(1)}/5`
-                          : "Sin reviews"}
-                      </Text>
-                      <Image src="/estrella.png" boxSize="1rem" />
-                    </Flex>
-                  </Box>
-                  <Image
-                    src={clase.profile_pic || "/default_trainer.png"}
-                    alt={clase.trainer_name}
-                    boxSize={{ base: "40px", md: "50px" }}
-                    borderRadius="full"
-                    objectFit="cover"
-                  />
-                </Flex>
-
-                {/* Descripción */}
-                <Box mt={20} mb={4} minHeight="60px">
-                  {/* 👈 Aquí se fuerza un espacio mínimo */}
                   <Text
                     fontWeight="semibold"
                     fontSize={{ base: "md", md: "lg" }}
                     fontFamily="Poppins"
+                    flex="1 1 100%"
+                    wordBreak="break-word"
                   >
                     {clase.description}
                   </Text>
-                </Box>
 
-                {/* Bloque de info */}
-                <Box flexGrow={1} display="flex" flexDirection="column" justifyContent="flex-start" gap={2}>
+                  <Flex
+                    as={RouterLink}
+                    to={"/trainer"}
+                    _hover={{ transform: "scale(1.05)", boxShadow: "md" }}
+                    transition="all 0.2s ease-in-out"
+                    align="center"
+                    border="1px solid #fd6193"
+                    borderRadius="lg"
+                    px={3}
+                    py={2}
+                    bg="white"
+                    boxShadow="sm"
+                  >
+                    <Box mr={2}>
+                      <Text
+                        fontWeight="extrabold"
+                        color="#fd6193"
+                        fontSize="md"
+                        fontFamily="Poppins"
+                        lineHeight="1"
+                      >
+                        {clase.trainer_name}
+                      </Text>
+                      <Flex align="center" gap={1}>
+                        <Text fontWeight="bold" fontSize="sm" color="black">
+                          {clase.trainer_rating
+                            ? `${clase.trainer_rating.toFixed(1)}/5`
+                            : "Sin reviews"}
+                        </Text>
+                        <Image src="/estrella.png" boxSize="1rem" />
+                      </Flex>
+                    </Box>
+
+                    {clase.profile_pic ? (
+                      <Image
+                        src={clase.profile_pic}
+                        alt={clase.trainer_name}
+                        boxSize={{ base: "40px", md: "50px" }}
+                        borderRadius="full"
+                        objectFit="cover"
+                        flexShrink={0}
+                      />
+                    ) : (
+                      <AvatarRoot colorPalette="pink">
+                        <AvatarFallback />
+                      </AvatarRoot>
+                    )}
+                  </Flex>
+                </Flex>
+
+                <Box flexGrow={1} mb={4}>
                   <Text fontSize={fontSizeCard}>
                     <Image
                       src="/dinero.webp"
                       display="inline"
                       boxSize="1.5rem"
-                      ml={0}
                       verticalAlign="-0.30rem"
                     />{" "}
                     ${Number(clase.price).toFixed(2)}
@@ -249,7 +267,6 @@ const Home = () => {
                       src="/reloj.png"
                       display="inline"
                       boxSize="1.5rem"
-                      ml={0}
                       verticalAlign="-0.30rem"
                     />{" "}
                     {clase.duration} mins
@@ -259,7 +276,6 @@ const Home = () => {
                       src="/locacion.png"
                       display="inline"
                       boxSize="1.5rem"
-                      ml={0}
                       verticalAlign="-0.30rem"
                     />{" "}
                     {clase.location}
@@ -269,16 +285,15 @@ const Home = () => {
                       src="/idioma.png"
                       display="inline"
                       boxSize="1.5rem"
-                      ml={0}
                       verticalAlign="-0.30rem"
                     />{" "}
                     {clase.language}
                   </Text>
                 </Box>
 
-                {/* Botón */}
                 <Button
-                  mt={4}
+                  mt="auto"
+                  mb={1}
                   bg={"#fd6193"}
                   w="full"
                   borderRadius="xl"
@@ -290,7 +305,7 @@ const Home = () => {
                 >
                   Reservar clase
                 </Button>
-              </Flex>
+              </Box>
             ))
           )}
         </SimpleGrid>
@@ -316,6 +331,7 @@ const Home = () => {
           </Button>
         </Flex>
       </Box>
+      <Footer />
     </Box>
   );
 };
