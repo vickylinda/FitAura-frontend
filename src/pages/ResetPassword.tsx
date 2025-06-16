@@ -8,7 +8,6 @@ import {
   useBreakpointValue,
   Link as ChakraLink,
 } from "@chakra-ui/react";
-import HeaderLoginRegister from "@/components/HeaderLoginRegister";
 import { useEffect, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { InputGroup, InputRightElement } from "@chakra-ui/input";
@@ -106,7 +105,6 @@ export default function ResetPassword() {
   return (
     
     <Box minH="100vh" bg="white">
-      <HeaderLoginRegister />
 
       <Flex
         direction="column"

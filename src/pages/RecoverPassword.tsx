@@ -8,7 +8,6 @@ import {
   useBreakpointValue,
   Link as ChakraLink,
 } from "@chakra-ui/react";
-import HeaderLoginRegister from "@/components/HeaderLoginRegister";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -58,7 +57,6 @@ export default function RecoverPassword() {
   
   return (
     <Box minH="100vh" bg="white">
-      <HeaderLoginRegister />
       <Flex
         direction="column"
         align="flex-start"

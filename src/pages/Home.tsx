@@ -10,7 +10,6 @@ import {
   useBreakpointValue,
   Link,
 } from "@chakra-ui/react";
-import Header from "../components/Header";
 import { Link as RouterLink } from "react-router-dom";
 import { useState, useEffect } from "react";
 
@@ -58,7 +57,6 @@ const Home = () => {
 
   return (
     <Box>
-      <Header />
 
       {/* Hero */}
       <Box

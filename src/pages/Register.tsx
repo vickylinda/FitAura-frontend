@@ -22,7 +22,6 @@ import {
 import { InputGroup, InputRightElement } from "@chakra-ui/input";
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import HeaderLoginRegister from "@/components/HeaderLoginRegister";
 import { Link as RouterLink } from "react-router-dom";
 import { HiCheck, HiX } from "react-icons/hi";
 
@@ -128,7 +127,6 @@ export default function Register() {
       position="relative"
       overflowX="hidden"
     >
-      <HeaderLoginRegister />
       <Box px={{ base: 4, md: 8 }}>
         <Flex
           w="100%"

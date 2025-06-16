@@ -12,7 +12,6 @@ import {
 } from "@chakra-ui/react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { useRef, useEffect, useState } from "react";
-import HeaderLoginRegister from "@/components/HeaderLoginRegister";
 import { InputGroup, InputRightElement } from "@chakra-ui/input";
 import { Eye, EyeOff } from "lucide-react";
 import { GoogleLogin } from "@react-oauth/google";
@@ -122,7 +121,6 @@ export default function Login() {
       position="relative"
       overflowX="hidden"
     >
-      <HeaderLoginRegister />
       <Box px={{ base: 4, md: 8 }}>
         <Flex
           maxW="1200px"
