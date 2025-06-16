@@ -11,14 +11,18 @@ import {
   AvatarFallback,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { colorPalettes } from "compositions/lib/color-palettes";
 import { Menu, MenuButton, MenuList, MenuItem } from "@chakra-ui/menu";
 import { useNavigate } from "react-router-dom";
 import { Link as RouterLink } from "react-router-dom";
 import { Link } from "@chakra-ui/react";
+import { useLocation } from "react-router-dom";
+
 
 export default function Header() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const isActive = (path: string) => location.pathname === path;
+  
   const isMobile = useBreakpointValue({ base: true, xl: false });
 
   const handleNavigate = (path: string) => {
@@ -83,6 +87,7 @@ export default function Header() {
         {/* logo */}
         <Link
           as={RouterLink}
+          // @ts-ignore
           to="/home"
           _hover={{ textDecoration: "none" }}
           _focus={{
@@ -245,80 +250,85 @@ export default function Header() {
           //navvvvv
 
           <HStack gap={4} w="100%" ml={8}>
-            <Button
-              {...transparentButtonStyles}
-              onClick={() => handleNavigate("/trainings")}
-              color={"black"}
-            >
-              Entrenamientos
-            </Button>
-            <Button
-              {...transparentButtonStyles}
-              onClick={() => handleNavigate("/mytrainings")}
-              color={"black"}
-            >
-              Mis Entrenamientos
-            </Button>
-            <Button
-              {...transparentButtonStyles}
-              onClick={() => handleNavigate("/trainersportal")}
-              color={"black"}
-            >
-              Portal Entrenadoras
-            </Button>
-            <Box flexGrow={1} />
+  <Button
+    {...transparentButtonStyles}
+    onClick={() => handleNavigate("/trainings")}
+    color={isActive("/trainings") ? "#fd6193" : "black"}
+    fontWeight={isActive("/trainings") ? "bold" : "medium"}
+    borderBottom={isActive("/trainings") ? "2px solid #fd6193" : "none"}
+  >
+    Entrenamientos
+  </Button>
+  <Button
+    {...transparentButtonStyles}
+    onClick={() => handleNavigate("/mytrainings")}
+    color={isActive("/mytrainings") ? "#fd6193" : "black"}
+    fontWeight={isActive("/mytrainings") ? "bold" : "medium"}
+    borderBottom={isActive("/mytrainings") ? "2px solid #fd6193" : "none"}
+  >
+    Mis Entrenamientos
+  </Button>
+  <Button
+    {...transparentButtonStyles}
+    onClick={() => handleNavigate("/trainersportal")}
+    color={isActive("/trainersportal") ? "#fd6193" : "black"}
+    fontWeight={isActive("/trainersportal") ? "bold" : "medium"}
+    borderBottom={isActive("/trainersportal") ? "2px solid #fd6193" : "none"}
+  >
+    Portal Entrenadoras
+  </Button>
+  <Box flexGrow={1} />
 
-            {/* Si hay usuario: saludo con avatar */}
-            {user ? (
-              <Button
-                {...transparentButtonStyles}
-                color="black"
-                cursor="pointer"
-                display="flex"
-                alignItems="center"
-                gap={2}
-                fontFamily="League Spartan"
-                fontWeight={"semibold"}
-              >
-                <AvatarRoot colorPalette="pink">
-                  <AvatarFallback />
-                </AvatarRoot>
-                ¡Hola, {user.name}!
-              </Button>
-            ) : (
-              <>
-                <Button
-                  {...transparentButtonStyles}
-                  onClick={() => handleNavigate("/login")}
-                  color={"black"}
-                  border="2px solid black"
-                  _hover={{
-                    bg: "#fc7faa",
-                    color: "white",
-                    textDecoration: "underline",
-                  }}
-                >
-                  <Image src="login.svg" boxSize="20px" mr={0} />
-                  Ingresar
-                </Button>
+  {user ? (
+    <Button
+      {...transparentButtonStyles}
+      color="black"
+      cursor="pointer"
+      display="flex"
+      alignItems="center"
+      gap={2}
+      fontFamily="League Spartan"
+      fontWeight={"semibold"}
+    >
+      <AvatarRoot colorPalette="pink">
+        <AvatarFallback />
+      </AvatarRoot>
+      ¡Hola, {user.name}!
+    </Button>
+  ) : (
+    <>
+      <Button
+        {...transparentButtonStyles}
+        onClick={() => handleNavigate("/login")}
+        color={"black"}
+        border="2px solid black"
+        _hover={{
+          bg: "#fc7faa",
+          color: "white",
+          textDecoration: "underline",
+        }}
+      >
+        <Image src="login.svg" boxSize="20px" mr={0} />
+        Ingresar
+      </Button>
 
-                <Button
-                  {...transparentButtonStyles}
-                  onClick={() => handleNavigate("/register")}
-                  color={"black"}
-                  border="2px solid black"
-                  _hover={{
-                    bg: "#fc7faa",
-                    color: "white",
-                    textDecoration: "underline",
-                  }}
-                >
-                  <Image src="register.svg" boxSize="20px" mr={0} />
-                  Registrarse
-                </Button>
-              </>
-            )}
-          </HStack>
+      <Button
+        {...transparentButtonStyles}
+        onClick={() => handleNavigate("/register")}
+        color={"black"}
+        border="2px solid black"
+        _hover={{
+          bg: "#fc7faa",
+          color: "white",
+          textDecoration: "underline",
+        }}
+      >
+        <Image src="register.svg" boxSize="20px" mr={0} />
+        Registrarse
+      </Button>
+    </>
+  )}
+</HStack>
         )}
       </Flex>
     </Box>
