@@ -80,7 +80,7 @@ const MisEntrenamientos = () => {
         </Text>
       <Box height="2px" width="100%" bg="#fd6193" borderRadius="full" mb={6} />
 
-      <Flex wrap="wrap" gap={1}>
+      <Flex wrap="wrap" gap={6}>
         {mockTrainings
           .filter(t => t.status === 'Aceptado' || t.status === 'Pendiente')
           .map((training, idx) => (
@@ -107,7 +107,7 @@ const MisEntrenamientos = () => {
         </Text>
       <Box height="2px" width="100%" bg="#fd6193" borderRadius="full" mb={6} />
 
-      <Flex wrap="wrap" gap={1}>
+      <Flex wrap="wrap" gap={6}>
         {realizados.map((training, idx) => (
           <Box key={idx} flex="0 0 270px" m={0} p={0}>
             <TrainingCard
