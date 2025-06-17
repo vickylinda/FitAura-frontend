@@ -17,6 +17,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { GoogleLogin } from "@react-oauth/google";
 import type { CredentialResponse } from "@react-oauth/google";
 import { useAuth } from "@/context/AuthContext";
+import HeaderLoginRegister from "@/components/HeaderLoginRegister";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -129,6 +130,7 @@ export default function Login() {
       position="relative"
       overflowX="hidden"
     >
+      <HeaderLoginRegister/>
       <Box px={{ base: 4, md: 8 }}>
         <Flex
           maxW="1200px"
@@ -173,7 +175,7 @@ export default function Login() {
               <Image src="/manito.png" boxSize="24px" ml={2} />
             </Flex>
 
-            <Stack spacing={4}>
+            <Stack gap={4}>
               <Box>
                 <Text
                   fontFamily="Inter"

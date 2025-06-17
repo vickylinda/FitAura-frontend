@@ -15,6 +15,7 @@ import {
 import { Link as RouterLink } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Footer from "@/components/Footer";
+import Header from "@/components/Header";
 
 const Home = () => {
   const [highlightedServices, setHighlightedServices] = useState<any[]>([]);
@@ -60,7 +61,7 @@ const Home = () => {
 
   return (
     <Box>
-      <Header />
+      <Header/>
 
       {/* Hero */}
       <Box

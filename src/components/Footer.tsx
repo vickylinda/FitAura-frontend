@@ -1,4 +1,4 @@
-import { Box, Heading, Text, Image, Flex } from "@chakra-ui/react";
+import { Box, Heading, Text, Flex } from "@chakra-ui/react";
 export default function Footer() {
   return (
     <Box bg="#fd6193" color="white" py={{ base: 8, md: 12 }} px={{ base: 4, md: 8 }} textAlign="center"> 

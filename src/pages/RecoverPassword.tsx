@@ -10,6 +10,7 @@ import {
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Header from "@/components/Header";
 
 export default function RecoverPassword() {
   const headingSize = useBreakpointValue({
@@ -57,6 +58,7 @@ export default function RecoverPassword() {
   
   return (
     <Box minH="100vh" bg="white">
+      <Header/>
       <Flex
         direction="column"
         align="flex-start"

@@ -1,8 +1,8 @@
 import { Box, Text, Flex, SimpleGrid, Image } from '@chakra-ui/react';
 import { Card, CardBody } from '@chakra-ui/card';
-import { Avatar } from '@chakra-ui/avatar';
 import { FaStar } from 'react-icons/fa';
 import TrainingCard from '@/components/Card.entrenamiento';
+import Header from '@/components/Header';
 import ReviewCard from '@/components/ReviewCard';
 
 // 👇 Componente de Info de Entrenadora
@@ -151,6 +151,7 @@ const TrainerProfile = () => {
       border="none"
       boxSizing="border-box"
     >
+      <Header/>
       {/* Card de entrenadora */}
       <TrainerInfo
         name="María Paula"

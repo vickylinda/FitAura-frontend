@@ -5,6 +5,7 @@ import {
   Flex,
 } from '@chakra-ui/react';
 import TrainingCard from '@/components/Card.entrenamiento';
+import Header from '@/components/Header';
 
 const mockTrainings = [
   {
@@ -69,6 +70,7 @@ const MisEntrenamientos = () => {
 
   return (
     <Box px={4} py={6} minH="100vh" bg="white">
+      <Header/>
       {/* Próximos entrenamientos */}
       <Text color="#fd6193" fontWeight="bold" fontSize="2xl" mb={2}>
         Próximos entrenamientos

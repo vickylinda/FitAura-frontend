@@ -13,6 +13,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { InputGroup, InputRightElement } from "@chakra-ui/input";
 import { useNavigate } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
+import Header from "@/components/Header";
 
 
 
@@ -105,6 +106,7 @@ export default function ResetPassword() {
   return (
     
     <Box minH="100vh" bg="white">
+      <Header/>
 
       <Flex
         direction="column"
