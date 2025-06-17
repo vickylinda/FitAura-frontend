@@ -8,6 +8,7 @@ import ResetPassword from './pages/ResetPassword'
 import AllServicesDraft from "./pages/AllServicesDraft";
 import TrainerProfile from './pages/TrainerProfile';
 import MyTrainings from './pages/MyTrainings'
+import Services from './pages/Services'
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
       <Route path="/all-services-draft" element={<AllServicesDraft/>} />
       <Route path="/trainer-profile" element={<TrainerProfile/>} />
       <Route path="/mytrainings" element={<MyTrainings/>} />
+      <Route path="/trainings" element={<Services/>} />
 
 
     </Routes>

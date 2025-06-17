@@ -276,9 +276,10 @@ export default function Header() {
               onClick={() => handleNavigate("/trainings")}
               color={isActive("/trainings") ? "#fd6193" : "black"}
               fontWeight={isActive("/trainings") ? "bold" : "medium"}
-              borderBottom={
+              textDecoration={
                 isActive("/trainings") ? "2px solid #fd6193" : "none"
               }
+               
             >
               Entrenamientos
             </Button>
@@ -287,9 +288,11 @@ export default function Header() {
               onClick={() => handleNavigate("/mytrainings")}
               color={isActive("/mytrainings") ? "#fd6193" : "black"}
               fontWeight={isActive("/mytrainings") ? "bold" : "medium"}
-              borderBottom={
+              textDecoration={
                 isActive("/mytrainings") ? "2px solid #fd6193" : "none"
               }
+              
+  
             >
               Mis Entrenamientos
             </Button>
@@ -298,7 +301,7 @@ export default function Header() {
               onClick={() => handleNavigate("/trainersportal")}
               color={isActive("/trainersportal") ? "#fd6193" : "black"}
               fontWeight={isActive("/trainersportal") ? "bold" : "medium"}
-              borderBottom={
+              textDecoration={
                 isActive("/trainersportal") ? "2px solid #fd6193" : "none"
               }
             >

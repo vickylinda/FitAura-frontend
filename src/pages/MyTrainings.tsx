@@ -69,7 +69,7 @@ const MisEntrenamientos = () => {
   ];
 
   return (
-    <Box px={4} py={6} minH="100vh" bg="white">
+    <Box >
       <Header/>
       {/* Próximos entrenamientos */}
       <Text color="#fd6193" fontWeight="bold" fontSize="2xl" mb={2}>
