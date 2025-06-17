@@ -10,7 +10,8 @@ import {
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Header from "@/components/Header";
+import HeaderLoginRegister from "@/components/HeaderLoginRegister";
+
 
 export default function RecoverPassword() {
   const headingSize = useBreakpointValue({
@@ -21,6 +22,7 @@ export default function RecoverPassword() {
   const [showSuccess, setShowSuccess] = useState(false);
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
+ 
 
   const handleRecoverPassword = async () => {
     try {
@@ -58,7 +60,7 @@ export default function RecoverPassword() {
   
   return (
     <Box minH="100vh" bg="white">
-      <Header/>
+      <HeaderLoginRegister/>
       <Flex
         direction="column"
         align="flex-start"
@@ -187,7 +189,7 @@ export default function RecoverPassword() {
                   maxW="600px"
                   w="90%"
                 >
-                  <Flex align="center" justify="space-between">
+                <Flex align="center" justify="space-between">
                     <Text fontSize="sm" color="green.800">
                       ✅ Enviamos un correo a {email}. Ingresá a tu
                       casilla y seguí las instrucciones para continuar con la
@@ -195,13 +197,18 @@ export default function RecoverPassword() {
                     </Text>
                     <Button
                       size="sm"
-                      onClick={() => navigate("/password-reset")}
+                        onClick={() => {
+    
+    navigate("/home"); 
+  }}
                       variant="ghost"
                       colorScheme="green"
+                      _hover={{bg: "green.300"}}
                     >
                       ✖
                     </Button>
                   </Flex>
+                
                 </Box>
               </Box>
             )}
