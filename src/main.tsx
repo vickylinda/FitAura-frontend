@@ -7,7 +7,7 @@ import { StrictMode } from 'react'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import { AuthProvider } from "./context/AuthContext";
 import { Toaster } from "@/components/ui/toaster";
-
+import { AuthModalProvider,useAuthModal } from './context/AuthModalContext.tsx'
 const clientId = "397376705718-n6q8v94hb24kr8on6ld7mmvdnmivv2kn.apps.googleusercontent.com";
 
 createRoot(document.getElementById('root')!).render(
@@ -16,8 +16,10 @@ createRoot(document.getElementById('root')!).render(
       <BrowserRouter>
         <Provider>
           <AuthProvider>
-          <App />
-          <Toaster />
+            <AuthModalProvider>
+              <App />
+            </AuthModalProvider>
+            <Toaster />
           </AuthProvider>
         </Provider>
       </BrowserRouter>

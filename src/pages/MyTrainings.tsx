@@ -7,33 +7,39 @@ import {
   Image
 } from '@chakra-ui/react';
 import { Avatar } from '@chakra-ui/avatar';
-
-import TrainingCard from '@/components/Card.entrenamiento';
+import { useFetchWithAuth } from '@/utils/fetchWithAuth';
 import Header from '@/components/Header';
 import { useEffect, useState } from 'react';
-import axios from 'axios';
+import { Link as RouterLink } from "react-router-dom";
 
 const MisEntrenamientos = () => {
   const [trainings, setTrainings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorCode, setErrorCode] = useState<number | null>(null);
 
+  const fetchWithAuth = useFetchWithAuth();
+
   useEffect(() => {
     const fetchTrainings = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get("http://localhost:4000/api/v1/client-trainings", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const res = await fetchWithAuth("http://localhost:4000/api/v1/client-trainings");
+        if (!res) return;
 
-        setTrainings(response.data.trainings);
+        const data = await res.json();
+        console.log("[MisEntrenamientos] Respuesta del backend:", data);
+        setTrainings(Array.isArray(data.trainings) ? data.trainings : []);
+        console.log("[MisEntrenamientos] Trainings recibidos:", data.trainings);
+
         setErrorCode(null);
       } catch (err: any) {
-        const code = err.response?.data?.internalErrorCode;
+        try {
+          const errorData = await err?.response?.json?.();
+          const code = errorData?.internalErrorCode || 1000;
+          setErrorCode(code);
+        } catch {
+          setErrorCode(1000);
+        }
         setTrainings([]);
-        setErrorCode(code || 1000);
       } finally {
         setLoading(false);
       }
@@ -48,17 +54,6 @@ const MisEntrenamientos = () => {
 
   if (loading) {
     return <Text p={8}>Cargando entrenamientos...</Text>;
-  }
-
-  if (errorCode === 1005) {
-    return (
-      <Box p={8}>
-        <Header />
-        <Text color="red.500" fontSize="lg" fontWeight="bold">
-          Iniciá sesión para ver tus entrenamientos.
-        </Text>
-      </Box>
-    );
   }
 
   return (
@@ -79,97 +74,123 @@ const MisEntrenamientos = () => {
       <Box height="2px" width="100%" bg="#fd6193" borderRadius="full" mb={6} />
 
       {proximos.length > 0 ? (
-        <SimpleGrid columns={{ base: 1, sm: 2, md: 3 }} gap={{ base: 6, md: 8 }} mb={8}>
-          {proximos.map((training, index) => (
-            <Box
-              key={index}
-              p={4}
-              bg="white"
-              borderRadius="xl"
-              boxShadow="md"
-              display="flex"
-              flexDirection="column"
-              height="100%"
-            >
-              <Flex justify="space-between" align="center" mb={4} wrap="wrap" gap={2}>
-                <Text fontWeight="semibold" fontSize={{ base: "md", md: "lg" }} fontFamily="Poppins">
-                  {training.description}
-                </Text>
+  <SimpleGrid columns={{ base: 1, sm: 2, md: 3 }} gap={{ base: 6, md: 8 }} mb={8}>
+    {proximos.map((training, index) => (
+  <Box
+    key={index}
+    p={4}
+    bg="white"
+    borderRadius="xl"
+    boxShadow="md"
+    display="flex"
+    flexDirection="column"
+    height="100%"
+  >
+    <Flex justify="space-between" align="center" mb={4} wrap="wrap" gap={2}>
+      <Text fontWeight="semibold" fontSize={{ base: "md", md: "lg" }} fontFamily="Poppins">
+        {training.description}
+      </Text>
 
-                <Flex
-                  align="center"
-                  border="1px solid #fd6193"
-                  borderRadius="lg"
-                  px={3}
-                  py={2}
-                  bg="white"
-                  boxShadow="sm"
-                >
-                  <Box mr={2}>
-                    <Text fontWeight="extrabold" color="#fd6193" fontSize="md" fontFamily="Poppins">
-                      {training.trainerName}
-                    </Text>
-                    <Flex align="center" gap={1}>
-                    <Text fontWeight="bold" fontSize="sm" color="black" mt={1}>
-                    {!isNaN(parseFloat(training.trainerRating))
-                      ? `${parseFloat(training.trainerRating).toFixed(1)}/5`
-                      : "Sin reviews"}
-                  </Text>
+      <Flex
+        as={RouterLink}
+        to={`/trainer/${training.trainerId}`}
+        _hover={{ transform: "scale(1.05)", boxShadow: "md" }}
+        transition="all 0.2s ease-in-out"
+        align="center"
+        border="1px solid #fd6193"
+        borderRadius="lg"
+        px={3}
+        py={2}
+        bg="white"
+        boxShadow="sm"
+      >
+        <Box mr={2}>
+          <Text fontWeight="extrabold" color="#fd6193" fontSize="md" fontFamily="Poppins">
+            {training.trainerName}
+          </Text>
+          <Flex align="center" gap={1} >
+            
+            <Text fontWeight="bold" fontSize="sm" color="black" mt={1}>
+              {!isNaN(parseFloat(training.trainerRating))
+                ? `${parseFloat(training.trainerRating).toFixed(1)}/5`
+                : "Sin reviews"}
+            </Text>
+            <Image src="/estrella.png" boxSize="1rem" />
+          </Flex>
+        </Box>
 
-                      <Image src="/estrella.png" boxSize="1rem" />
-                    </Flex>
-                  </Box>
+        {training.trainerPicture ? (
+          <Image
+            src={training.trainerPicture}
+            alt={training.trainerName}
+            boxSize="50px"
+            borderRadius="full"
+            objectFit="cover"
+            flexShrink={0}
+          />
+        ) : (
+          <Avatar name={training.trainerName} bg="pink.300" />
+        )}
+      </Flex>
+    </Flex>
 
-                  {training.trainerPicture ? (
-                    <Image
-                      src={training.trainerPicture}
-                      alt={training.trainerName}
-                      boxSize="50px"
-                      borderRadius="full"
-                      objectFit="cover"
-                      flexShrink={0}
-                    />
-                  ) : (
-                    <Avatar name={training.trainerName} bg="pink.300" />
-                  )}
-                </Flex>
-              </Flex>
-
-              <Box flexGrow={1} mb={4}>
-                <Text>
-                  <Image src="/dinero.webp" display="inline" boxSize="1.5rem" verticalAlign="-0.30rem" /> ${training.price}
-                </Text>
-                <Text>
-                  <Image src="/reloj.png" display="inline" boxSize="1.5rem" verticalAlign="-0.30rem" /> {training.duration} mins
-                </Text>
-                <Text>
-                  <Image src="/locacion.png" display="inline" boxSize="1.5rem" verticalAlign="-0.30rem" /> {training.location}
-                </Text>
-                <Text>
-                  <Image src="/idioma.png" display="inline" boxSize="1.5rem" verticalAlign="-0.30rem" /> {training.language}
-                </Text>
-              </Box>
-
-              <Box
-                mt="auto"
-                bg={training.status === "aceptado" ? "green.300" : "yellow.200"}
-                color="black"
-                borderRadius="xl"
-                fontWeight="semibold"
-                textAlign="center"
-                py={2}
-              >
-                {training.status === "aceptado" ? "Aceptado" : "Pendiente"}
-              </Box>
-
-            </Box>
+    <Box flexGrow={1} mb={4}>
+      <Text>
+        <Image src="/dinero.webp" display="inline" boxSize="1.5rem" verticalAlign="-0.30rem" /> ${training.price}
+      </Text>
+      <Text>
+        <Image src="/reloj.png" display="inline" boxSize="1.5rem" verticalAlign="-0.30rem" /> {training.duration} mins
+      </Text>
+      <Text>
+        <Image src="/locacion.png" display="inline" boxSize="1.5rem" verticalAlign="-0.30rem" /> {training.location}
+      </Text>
+      <Text>
+        <Image src="/idioma.png" display="inline" boxSize="1.5rem" verticalAlign="-0.30rem" /> {training.language}
+      </Text>
+      {training.selectedSchedule && (
+        <Box mt={2}>
+          <Text fontWeight="semibold">Horarios seleccionados:</Text>
+          {(Object.entries(training.selectedSchedule) as [string, string[]][]).map(([day, times]) => (
+            <Text key={day}>
+              <strong>{day.charAt(0).toUpperCase() + day.slice(1)}:</strong> {times.join(", ")}
+            </Text>
           ))}
-        </SimpleGrid>
-      ) : (
-        <Text color="red.500" fontSize="md" ml={2} mb={8}>
-          Sin entrenamientos próximos.
-        </Text>
-      )}
+        </Box>
+        )}
+
+        {training.endDate && (
+          <Text mt={2}>
+            Finaliza el {" "}
+            {new Date(training.endDate * 1000).toLocaleDateString("es-AR", {
+              weekday: "long",
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            })}
+          </Text>
+        )}
+    </Box>
+
+    <Box
+      mt="auto"
+      bg={training.status === "aceptado" ? "green.300" : "yellow.200"}
+      color="black"
+      borderRadius="xl"
+      fontWeight="semibold"
+      textAlign="center"
+      py={2}
+    >
+      {training.status === "aceptado" ? "Aceptado" : "Pendiente"}
+    </Box>
+  </Box>
+))}
+
+  </SimpleGrid>
+) : (
+  <Text color="red.500" fontSize="md" ml={2} mb={8}>
+    Sin entrenamientos próximos.
+  </Text>
+)}
 
       {/* Completados */}
       <Text color="gray.700" fontWeight="semibold" fontSize="lg" mb={2}>
@@ -197,14 +218,18 @@ const MisEntrenamientos = () => {
                 </Text>
 
                 <Flex
-                  align="center"
-                  border="1px solid #fd6193"
-                  borderRadius="lg"
-                  px={3}
-                  py={2}
-                  bg="white"
-                  boxShadow="sm"
-                >
+                    as={RouterLink}
+                    to={`/trainer/${training.trainerId}`}
+                    _hover={{ transform: "scale(1.05)", boxShadow: "md" }}
+                    transition="all 0.2s ease-in-out"
+                    align="center"
+                    border="1px solid #fd6193"
+                    borderRadius="lg"
+                    px={3}
+                    py={2}
+                    bg="white"
+                    boxShadow="sm"
+                  >
                   <Box mr={2}>
                     <Text fontWeight="extrabold" color="#fd6193" fontSize="md" fontFamily="Poppins">
                       {training.trainerName}
@@ -248,6 +273,31 @@ const MisEntrenamientos = () => {
                 <Text>
                   <Image src="/idioma.png" display="inline" boxSize="1.5rem" verticalAlign="-0.30rem" /> {training.language}
                 </Text>
+                
+                {training.selectedSchedule && (
+                  <Box mt={2}>
+                    <Text fontWeight="semibold">Horarios seleccionados:</Text>
+                    {(Object.entries(training.selectedSchedule) as [string, string[]][]).map(([day, times]) => (
+                      <Text key={day}>
+                        <strong>{day.charAt(0).toUpperCase() + day.slice(1)}:</strong> {times.join(", ")}
+                      </Text>
+                    ))}
+                  </Box>
+                  )}
+
+                  {training.endDate && (
+                    <Text mt={2}>
+                      Finalizó el {" "}
+                      {new Date(training.endDate * 1000).toLocaleDateString("es-AR", {
+                        weekday: "long",
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      })}
+                    </Text>
+                  )}
+
+
               </Box>
 
               {training.hasReview ? (

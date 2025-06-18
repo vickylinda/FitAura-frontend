@@ -7,12 +7,17 @@ import RecoverPassword from './pages/RecoverPassword'
 import ResetPassword from './pages/ResetPassword'
 import AllServicesDraft from "./pages/AllServicesDraft";
 import TrainerProfile from './pages/TrainerProfile';
-import MyTrainings from './pages/MyTrainings'
-import Services from './pages/Services'
+import MyTrainings from './pages/MyTrainings';
+import Services from './pages/Services';
+import LoginModal from "@/pages/LoginModal";
+import {useAuthModal} from "@/context/AuthModalContext";
+
 
 function App() {
+  const { isOpen, closeModal } = useAuthModal();  //para poder ver el estado del modal
   return (
     <> 
+    
     <Routes>
       <Route path="/" element={<Landing />} />
       <Route path="/home" element={<Home />} />
@@ -25,8 +30,9 @@ function App() {
       <Route path="/mytrainings" element={<MyTrainings/>} />
       <Route path="/trainings" element={<Services/>} />
 
-
     </Routes>
+    <LoginModal isOpen={isOpen} onClose={closeModal} />
+
     </>
   )
 }

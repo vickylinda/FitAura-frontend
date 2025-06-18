@@ -33,8 +33,9 @@ export default function Header() {
   //navigate("/home");
   //};
 
-  const { user, logout } = useAuth();
-
+  const { user, logout, loading } = useAuth();
+  if (loading) return null;
+  
   const handleLogout = () => {
     logout();
     navigate("/home");
