@@ -19,27 +19,51 @@ import { Link as RouterLink } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { useSearchParams } from "react-router-dom";
 
 
 const Services = () => {
+  const [searchParams] = useSearchParams();
+  const initialCategory = searchParams.get("category");
+  const initialDurations = searchParams.get("durations");
+
+  const [category, setCategory] = useState<string | null>(
+    initialCategory ?? null
+  );
+  const [durations, setDurations] = useState<string[]>(
+    initialDurations ? [initialDurations] : []
+  );
+
   const [services, setServices] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   // Filtros
-  const [category, setCategory] = useState<string | null>(null);
   const [locations, setLocations] = useState<string[]>([]);
   const [languages, setLanguages] = useState<string[]>([]);
-  const [durations, setDurations] = useState<string[]>([]);
-  const [ratingMin, setRatingMin] = useState<boolean>(false);
+  const [ratingMin, setRatingMin] = useState<boolean>(false);/*
   const [maxPrice, setMaxPrice] = useState<number>(1000);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
   const [minInput, setMinInput] = useState("0");
-const [maxInput, setMaxInput] = useState("1000");
- useEffect(() => {
+  const [maxInput, setMaxInput] = useState("1000");*/
+  const [maxPrice, setMaxPrice] = useState<number>(1000);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, Infinity]);
+  const [minInput, setMinInput] = useState("0");
+  const [maxInput, setMaxInput] = useState("");
+  const [globalMaxPrice, setGlobalMaxPrice] = useState<number>(1000);
+  const [hasFetchedGlobalMax, setHasFetchedGlobalMax] = useState<boolean>(false);
+
+  
+
+ /*useEffect(() => {
   setMinInput(priceRange[0].toString());
   setMaxInput(priceRange[1].toString());
-}, [priceRange]);
+}, [priceRange]);*/
+  useEffect(() => {
+    setMinInput(priceRange[0].toString());
+    setMaxInput(priceRange[1] === Infinity ? "" : priceRange[1].toString());
+  }, [priceRange]);
+
 
   const [search, setSearch] = useState<string>("");
 
@@ -59,8 +83,11 @@ const [maxInput, setMaxInput] = useState("1000");
       if (durations.length > 0) params.append("durations", durations.join(","));
       if (ratingMin) params.append("ratingMin", "4.5");
       // Antes de usar priceMin / priceMax:
+      /*if (priceRange[0]) params.append("priceMin", priceRange[0].toString());
+      if (priceRange[1]) params.append("priceMax", priceRange[1].toString());*/
       if (priceRange[0]) params.append("priceMin", priceRange[0].toString());
-      if (priceRange[1]) params.append("priceMax", priceRange[1].toString());
+      if (priceRange[1] !== Infinity) params.append("priceMax", priceRange[1].toString());
+
       params.append("published", "true");
 
       const url = `http://localhost:4000/api/v2/services?${params.toString()}`;
@@ -77,16 +104,21 @@ const [maxInput, setMaxInput] = useState("1000");
       const fetchedServices = data.services || [];
       setServices(fetchedServices);
 
-      // 🚀 Calcula el máximo real
-      const prices = fetchedServices.map((s) => Number(s.price) || 0);
+      // 🚀 Calcula el máximo real - Esto al final lo sacamos porque el filtro dinámico andaba mal
+     /* const prices = fetchedServices.map((s) => Number(s.price) || 0);
       const highest = prices.length > 0 ? Math.max(...prices) : 1000;
 
       setMaxPrice(highest);
       // Si quieres reiniciar el slider cada vez:
-      setPriceRange(([currentMin, currentMax]) => [
+      /*setPriceRange(([currentMin, currentMax]) => [
   Math.max(0, Math.min(currentMin, highest)),
   Math.max(0, Math.min(currentMax, highest)),
 ]);
+    setPriceRange(([currentMin, currentMax]) => {
+      const untouched = currentMin === 0 && currentMax === Infinity;
+      return untouched ? [0, highest] : [currentMin, Math.min(currentMax, highest)];
+    });*/
+
     } catch (err) {
       console.error("Error al cargar servicios:", err);
       setError("Error interno en el servidor.");
@@ -94,6 +126,26 @@ const [maxInput, setMaxInput] = useState("1000");
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const fetchGlobalMax = async () => {
+      try {
+        const response = await fetch("http://localhost:4000/api/v2/services?published=true");
+        const data = await response.json();
+        const prices = (data.services || []).map((s: any) => Number(s.price) || 0);
+        const highest = prices.length > 0 ? Math.max(...prices) : 1000;
+        setGlobalMaxPrice(highest);
+        setMaxPrice(highest); // inicializa el slider
+        setPriceRange([0, highest]);
+        setHasFetchedGlobalMax(true);
+      } catch (e) {
+        console.error("Error obteniendo precio máximo global", e);
+      }
+    };
+  
+    fetchGlobalMax();
+  }, []);
+  
 
   // ⚠️ SOLO para cargar todo al entrar una vez:
   useEffect(() => {
@@ -214,6 +266,7 @@ const [maxInput, setMaxInput] = useState("1000");
               ["btw45and60", "45–60 mins"],
               ["btw30and45", "30–45 mins"],
               ["lt30", "-30 mins"],
+              ["solo15", "-15 mins"]
             ].map(([value, label]) => (
               <Checkbox.Root
                 key={value}
@@ -286,8 +339,9 @@ const [maxInput, setMaxInput] = useState("1000");
 
           {/* Slider de precio */}
           <Text fontWeight="semibold" mb={2}>
-            Precio: ${priceRange[0]} - ${priceRange[1]}
+            Precio: ${priceRange[0]} - {priceRange[1] === Infinity ? "∞" : `$${priceRange[1]}`}
           </Text>
+
           <Slider.Root
           mb={4}
             maxW="md"
@@ -324,15 +378,20 @@ const [maxInput, setMaxInput] = useState("1000");
   />
 
   <Input
-    type="number"
-    value={maxInput}
-    onChange={(e) => setMaxInput(e.target.value)}
-    onBlur={() => {
-      const val = Number(maxInput);
+  type="number"
+  value={maxInput}
+  onChange={(e) => setMaxInput(e.target.value)}
+  onBlur={() => {
+    const val = Number(maxInput);
+    if (isNaN(val) || maxInput.trim() === "") {
+      setPriceRange([priceRange[0], Infinity]);
+    } else {
       const safeVal = Math.min(Math.max(val, priceRange[0]), maxPrice);
       setPriceRange([priceRange[0], safeVal]);
-    }}
-  />
+    }
+  }}
+/>
+
 </Flex>
 
 

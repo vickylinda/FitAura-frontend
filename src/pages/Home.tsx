@@ -111,16 +111,18 @@ const Home = () => {
         </Text>
         <SimpleGrid columns={{ base: 3, sm: 4, md: 6 }} gap={4}>
           {[
-            { label: "YOGA", src: "/yoga.jpg" },
-            { label: "FUERZA", src: "/fuerza.jpg" },
-            { label: "PILATES", src: "/pilates.jpg" },
-            { label: "SOLO 15'", src: "/15min.jpg" },
-            { label: "CARDIO", src: "/cardio.jpg" },
-            { label: "OTROS", src: "/otros.jpg" },
+             { label: "YOGA", src: "/yoga.jpg", to: "/trainings?category=Yoga" },
+             { label: "FUERZA", src: "/fuerza.jpg", to: "/trainings?category=Fuerza" },
+             { label: "PILATES", src: "/pilates.jpg", to: "/trainings?category=Pilates" },
+             { label: "SOLO 15'", src: "/15min.jpg", to: "/trainings?durations=solo15" },
+             { label: "CARDIO", src: "/cardio.jpg", to: "/trainings?category=Cardio" },
+             { label: "OTROS", src: "/otros.jpg", to: "/trainings?category=Otros" },
+           
           ].map((item, i) => (
             <Link
               key={i}
               as={RouterLink}
+              to={item.to} 
               _hover={{ textDecoration: "none", transform: "scale(1.05)" }}
               transition="all 0.2s ease-in-out"
             >
@@ -311,24 +313,26 @@ const Home = () => {
         </SimpleGrid>
 
         <Flex justify="center" mt={10}>
-          <Button
-            variant="outline"
-            fontWeight="bold"
-            fontSize={{ base: "sm", md: "md" }}
-            fontFamily="Poppins"
-            px={{ base: 8, md: 10 }}
-            py={{ base: 2, md: 4 }}
-            bg="#fd6193"
-            color="white"
-            borderRadius="full"
-            border="1px solid #fd6193"
-            boxShadow="0 6px 10px rgba(0, 0, 0, 0.25)"
-            _hover={{
-              boxShadow: "0 8px 14px rgba(0, 0, 0, 0.3)",
-            }}
-          >
-            Ver Todos
-          </Button>
+          <Link as={RouterLink} to="/trainings" _hover={{ textDecoration: "none" }}>
+            <Button
+              variant="outline"
+              fontWeight="bold"
+              fontSize={{ base: "sm", md: "md" }}
+              fontFamily="Poppins"
+              px={{ base: 8, md: 10 }}
+              py={{ base: 2, md: 4 }}
+              bg="#fd6193"
+              color="white"
+              borderRadius="full"
+              border="1px solid #fd6193"
+              boxShadow="0 6px 10px rgba(0, 0, 0, 0.25)"
+              _hover={{
+                boxShadow: "0 8px 14px rgba(0, 0, 0, 0.3)",
+              }}
+            >
+              Ver Todos
+            </Button>
+          </Link>
         </Flex>
       </Box>
       <Footer />

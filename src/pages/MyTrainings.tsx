@@ -1,127 +1,289 @@
 import {
   Box,
   Text,
-  SimpleGrid,
   Flex,
+  SimpleGrid,
+  Button,
+  Image
 } from '@chakra-ui/react';
+import { Avatar } from '@chakra-ui/avatar';
+
 import TrainingCard from '@/components/Card.entrenamiento';
 import Header from '@/components/Header';
-
-const mockTrainings = [
-  {
-    title: 'Pilates Cardio 30/05/25 - 15hs',
-    trainer: {
-      name: 'María Paula',
-      rating: 4.7,
-      avatarUrl: 'https://randomuser.me/api/portraits/women/65.jpg',
-    },
-    price: '$15',
-    duration: '45 mins',
-    location: 'Palermo, CABA',
-    language: 'Español',
-    status: 'Aceptado',
-  },
-  {
-    title: 'Pilates en casa 30/05/25 - 18hs',
-    trainer: {
-      name: 'Martina',
-      rating: 4.5,
-      avatarUrl: 'https://randomuser.me/api/portraits/women/66.jpg',
-    },
-    price: '$20',
-    duration: '45 mins',
-    location: 'Virtual por Zoom',
-    language: 'Español',
-    status: 'Pendiente',
-  },
-  {
-    title: 'Yoga Flow 01/06/25 - 10hs',
-    trainer: {
-      name: 'Lucía',
-      rating: 4.9,
-      avatarUrl: 'https://randomuser.me/api/portraits/women/67.jpg',
-    },
-    price: '$18',
-    duration: '60 mins',
-    location: 'Belgrano, CABA',
-    language: 'Español',
-    status: 'Calificar',
-  },
-  {
-    title: 'Funcional 02/06/25 - 19hs',
-    trainer: {
-      name: 'Sofía',
-      rating: 4.8,
-      avatarUrl: 'https://randomuser.me/api/portraits/women/68.jpg',
-    },
-    price: '$22',
-    duration: '50 mins',
-    location: 'Virtual por Zoom',
-    language: 'Español',
-    status: 'Realizado',
-  },
-];
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 
 const MisEntrenamientos = () => {
-  const realizados = [
-    ...mockTrainings.filter(t => t.status === 'Calificar'),
-    ...mockTrainings.filter(t => t.status === 'Realizado'),
-  ];
+  const [trainings, setTrainings] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [errorCode, setErrorCode] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchTrainings = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get("http://localhost:4000/api/v1/client-trainings", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        setTrainings(response.data.trainings);
+        setErrorCode(null);
+      } catch (err: any) {
+        const code = err.response?.data?.internalErrorCode;
+        setTrainings([]);
+        setErrorCode(code || 1000);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTrainings();
+  }, []);
+
+  const proximos = trainings.filter(t => t.status === 'aceptado' || t.status === 'pendiente');
+  const calificar = trainings.filter(t => t.status === 'completado' && !t.hasReview);
+  const realizados = trainings.filter(t => t.status === 'completado' && t.hasReview);
+
+  if (loading) {
+    return <Text p={8}>Cargando entrenamientos...</Text>;
+  }
+
+  if (errorCode === 1005) {
+    return (
+      <Box p={8}>
+        <Header />
+        <Text color="red.500" fontSize="lg" fontWeight="bold">
+          Iniciá sesión para ver tus entrenamientos.
+        </Text>
+      </Box>
+    );
+  }
 
   return (
-    <Box >
-      <Header/>
-      {/* Próximos entrenamientos */}
+    <Box>
+      <Header />
+
       <Text color="#fd6193" fontWeight="bold" fontSize="2xl" mb={2}>
+        Estado de mis entrenamientos
+      </Text>
+
+      <Box height="2px" width="100%" bg="#fd6193" borderRadius="full" mb={6} />
+
+      {/* Próximos */}
+      <Text color="gray.700" fontWeight="semibold" fontSize="lg" mb={2}>
         Próximos entrenamientos
       </Text>
-      <Text color="gray.500" fontSize="sm" mb={2}>
-          Entrenamientos que has reservado y están próximos a realizarse. Puedes ver detalles y consultar su estado.
-        </Text>
+
       <Box height="2px" width="100%" bg="#fd6193" borderRadius="full" mb={6} />
 
-      <Flex wrap="wrap" gap={1}>
-        {mockTrainings
-          .filter(t => t.status === 'Aceptado' || t.status === 'Pendiente')
-          .map((training, idx) => (
-            <Box key={idx} flex="0 0 270px" m={0} p={0}>
-              <TrainingCard
-                title={training.title}
-                trainer={training.trainer}
-                price={training.price}
-                duration={training.duration}
-                location={training.location}
-                language={training.language}
-                status={training.status as 'Aceptado' | 'Pendiente'}
-              />
+      {proximos.length > 0 ? (
+        <SimpleGrid columns={{ base: 1, sm: 2, md: 3 }} gap={{ base: 6, md: 8 }} mb={8}>
+          {proximos.map((training, index) => (
+            <Box
+              key={index}
+              p={4}
+              bg="white"
+              borderRadius="xl"
+              boxShadow="md"
+              display="flex"
+              flexDirection="column"
+              height="100%"
+            >
+              <Flex justify="space-between" align="center" mb={4} wrap="wrap" gap={2}>
+                <Text fontWeight="semibold" fontSize={{ base: "md", md: "lg" }} fontFamily="Poppins">
+                  {training.description}
+                </Text>
+
+                <Flex
+                  align="center"
+                  border="1px solid #fd6193"
+                  borderRadius="lg"
+                  px={3}
+                  py={2}
+                  bg="white"
+                  boxShadow="sm"
+                >
+                  <Box mr={2}>
+                    <Text fontWeight="extrabold" color="#fd6193" fontSize="md" fontFamily="Poppins">
+                      {training.trainerName}
+                    </Text>
+                    <Flex align="center" gap={1}>
+                    <Text fontWeight="bold" fontSize="sm" color="black" mt={1}>
+                    {!isNaN(parseFloat(training.trainerRating))
+                      ? `${parseFloat(training.trainerRating).toFixed(1)}/5`
+                      : "Sin reviews"}
+                  </Text>
+
+                      <Image src="/estrella.png" boxSize="1rem" />
+                    </Flex>
+                  </Box>
+
+                  {training.trainerPicture ? (
+                    <Image
+                      src={training.trainerPicture}
+                      alt={training.trainerName}
+                      boxSize="50px"
+                      borderRadius="full"
+                      objectFit="cover"
+                      flexShrink={0}
+                    />
+                  ) : (
+                    <Avatar name={training.trainerName} bg="pink.300" />
+                  )}
+                </Flex>
+              </Flex>
+
+              <Box flexGrow={1} mb={4}>
+                <Text>
+                  <Image src="/dinero.webp" display="inline" boxSize="1.5rem" verticalAlign="-0.30rem" /> ${training.price}
+                </Text>
+                <Text>
+                  <Image src="/reloj.png" display="inline" boxSize="1.5rem" verticalAlign="-0.30rem" /> {training.duration} mins
+                </Text>
+                <Text>
+                  <Image src="/locacion.png" display="inline" boxSize="1.5rem" verticalAlign="-0.30rem" /> {training.location}
+                </Text>
+                <Text>
+                  <Image src="/idioma.png" display="inline" boxSize="1.5rem" verticalAlign="-0.30rem" /> {training.language}
+                </Text>
+              </Box>
+
+              <Box
+                mt="auto"
+                bg={training.status === "aceptado" ? "green.300" : "yellow.200"}
+                color="black"
+                borderRadius="xl"
+                fontWeight="semibold"
+                textAlign="center"
+                py={2}
+              >
+                {training.status === "aceptado" ? "Aceptado" : "Pendiente"}
+              </Box>
+
             </Box>
           ))}
-      </Flex>
-
-      {/* Entrenamientos realizados */}
-      <Text color="#fd6193" fontWeight="bold" fontSize="2xl" mt={10} mb={2}>
-        Entrenamientos realizados
-      </Text>
-      <Text color="gray.500" fontSize="sm" mb={2}>
-          Entrenamientos a los cuales ya has asistido. Si todavía no lo hiciste, podrás calificarlos.
+        </SimpleGrid>
+      ) : (
+        <Text color="red.500" fontSize="md" ml={2} mb={8}>
+          Sin entrenamientos próximos.
         </Text>
+      )}
+
+      {/* Completados */}
+      <Text color="gray.700" fontWeight="semibold" fontSize="lg" mb={2}>
+        Entrenamientos completados.
+      </Text>
+
       <Box height="2px" width="100%" bg="#fd6193" borderRadius="full" mb={6} />
 
-      <Flex wrap="wrap" gap={1}>
-        {realizados.map((training, idx) => (
-          <Box key={idx} flex="0 0 270px" m={0} p={0}>
-            <TrainingCard
-              title={training.title}
-              trainer={training.trainer}
-              price={training.price}
-              duration={training.duration}
-              location={training.location}
-              language={training.language}
-              status={training.status as 'Calificar' | 'Realizado'}
-            />
-          </Box>
-        ))}
-      </Flex>
+      {[...calificar, ...realizados].length > 0 ? (
+        <SimpleGrid columns={{ base: 1, sm: 2, md: 3 }} gap={{ base: 6, md: 8 }} mb={8}>
+          {[...calificar, ...realizados].map((training, index) => (
+            <Box
+              key={index}
+              p={4}
+              bg="white"
+              borderRadius="xl"
+              boxShadow="md"
+              display="flex"
+              flexDirection="column"
+              height="100%"
+            >
+              <Flex justify="space-between" align="center" mb={4} wrap="wrap" gap={2}>
+                <Text fontWeight="semibold" fontSize={{ base: "md", md: "lg" }} fontFamily="Poppins">
+                  {training.description}
+                </Text>
+
+                <Flex
+                  align="center"
+                  border="1px solid #fd6193"
+                  borderRadius="lg"
+                  px={3}
+                  py={2}
+                  bg="white"
+                  boxShadow="sm"
+                >
+                  <Box mr={2}>
+                    <Text fontWeight="extrabold" color="#fd6193" fontSize="md" fontFamily="Poppins">
+                      {training.trainerName}
+                    </Text>
+                    <Flex align="center" gap={1}>
+                    <Text fontWeight="bold" fontSize="sm" color="black" mt={1}>
+                      {!isNaN(parseFloat(training.trainerRating))
+                        ? `${parseFloat(training.trainerRating).toFixed(1)}/5`
+                        : "Sin reviews"}
+                    </Text>
+
+                      <Image src="/estrella.png" boxSize="1rem" />
+                    </Flex>
+                  </Box>
+
+                  {training.trainerPicture ? (
+                    <Image
+                      src={training.trainerPicture}
+                      alt={training.trainerName}
+                      boxSize="50px"
+                      borderRadius="full"
+                      objectFit="cover"
+                      flexShrink={0}
+                    />
+                  ) : (
+                    <Avatar name={training.trainerName} bg="pink.300" />
+                  )}
+                </Flex>
+              </Flex>
+
+              <Box flexGrow={1} mb={4}>
+                <Text>
+                  <Image src="/dinero.webp" display="inline" boxSize="1.5rem" verticalAlign="-0.30rem" /> ${training.price}
+                </Text>
+                <Text>
+                  <Image src="/reloj.png" display="inline" boxSize="1.5rem" verticalAlign="-0.30rem" /> {training.duration} mins
+                </Text>
+                <Text>
+                  <Image src="/locacion.png" display="inline" boxSize="1.5rem" verticalAlign="-0.30rem" /> {training.location}
+                </Text>
+                <Text>
+                  <Image src="/idioma.png" display="inline" boxSize="1.5rem" verticalAlign="-0.30rem" /> {training.language}
+                </Text>
+              </Box>
+
+              {training.hasReview ? (
+  <Box
+    mt="auto"
+    bg="green.200"
+    color="black"
+    borderRadius="xl"
+    fontWeight="semibold"
+    textAlign="center"
+    py={2}
+  >
+    Completado y servicio ya puntuado
+  </Box>
+) : (
+  <Button
+    mt="auto"
+    bg="#fd6193"
+    color="white"
+    w="full"
+    borderRadius="xl"
+    fontWeight="semibold"
+    _hover={{ bg: "#fc7faa" }}
+  >
+    Calificar entrenamiento
+  </Button>
+)}
+
+            </Box>
+          ))}
+        </SimpleGrid>
+      ) : (
+        <Text color="red.500" fontSize="md" ml={2} mb={8}>
+          Sin entrenamientos completados.
+        </Text>
+      )}
     </Box>
   );
 };
