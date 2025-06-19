@@ -26,7 +26,7 @@ function App() {
       <Route path="/password-recovery" element={<RecoverPassword />} />
       <Route path="/password-reset" element={<ResetPassword />} />
       <Route path="/all-services-draft" element={<AllServicesDraft/>} />
-      <Route path="/trainer-profile" element={<TrainerProfile/>} />
+      <Route path="/trainer/:trainerId" element={<TrainerProfile />} />
       <Route path="/mytrainings" element={<MyTrainings/>} />
       <Route path="/trainings" element={<Services/>} />
 
