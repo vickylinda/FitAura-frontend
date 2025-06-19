@@ -202,17 +202,7 @@ export default function Header() {
                   <Image src="/misentrenamientos.svg" boxSize="20px" mr={2} />
                   Mis Entrenamientos
                 </MenuItem>
-                <MenuItem
-                  onClick={() => handleNavigate("/portaltrainers")}
-                  borderBottom="1px solid black"
-                  fontFamily={"Inter"}
-                  fontWeight={"bold"}
-                  cursor="pointer"
-                  _hover={{ bg: "#fd99bf", color: "black" }}
-                >
-                  <Image src="/portalentrenadoras.svg" boxSize="20px" mr={2} />
-                  Portal Entrenadoras
-                </MenuItem>
+                
                 {user ? (
                   <MenuItem
                     isDisabled
@@ -297,17 +287,7 @@ export default function Header() {
             >
               Mis Entrenamientos
             </Button>
-            <Button
-              {...transparentButtonStyles}
-              onClick={() => handleNavigate("/trainersportal")}
-              color={isActive("/trainersportal") ? "#fd6193" : "black"}
-              fontWeight={isActive("/trainersportal") ? "bold" : "medium"}
-              textDecoration={
-                isActive("/trainersportal") ? "2px solid #fd6193" : "none"
-              }
-            >
-              Portal Entrenadoras
-            </Button>
+           
             <Box flexGrow={1} />
 
             {user ? (
