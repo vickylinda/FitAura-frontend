@@ -69,7 +69,7 @@ const MisEntrenamientos = () => {
   ];
 
   return (
-    <Box >
+    <Box bg="white">
       <Header/>
       {/* Próximos entrenamientos */}
       <Text color="#fd6193" fontWeight="bold" fontSize="2xl" mb={2}>
