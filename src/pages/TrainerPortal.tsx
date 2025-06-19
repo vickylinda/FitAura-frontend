@@ -20,6 +20,8 @@ import { MdEdit } from 'react-icons/md';
 import Header from '@/components/Header';
 import ReviewCard from '@/components/ReviewCard';
 import TrainerStats from '@/components/TrainerStats';
+import ServiceActions from '@/components/ServiceActions';
+
 
 const mockTrainer = {
   name: 'María Paula Gómez',
@@ -123,33 +125,7 @@ const TrainerPortal = () => {
         </VStack>
       </SimpleGrid>
 
-      <Flex justify="space-between" align="center" mb={3}>
-        <Heading fontSize="2xl" color="#fd6193">
-          Mis servicios
-        </Heading>
-        <Button size="sm" variant="ghost" color="#fd6193">
-          editar
-        </Button>
-      </Flex>
-      <Box height="2px" width="100%" bg="#fd6193" borderRadius="full" mb={6} />
-
-      <Flex wrap="wrap" gap={8} mb={8}>
-        {mockServices.map((service, idx) => (
-          <Box key={idx} borderRadius="2xl" overflow="hidden" flex="0 0 270px" m={0} p={0}>
-            <TrainingCard
-              title={service.title}
-              trainer={service.trainer}
-              price={service.price}
-              duration={service.duration}
-              location={service.location}
-              language={service.language}
-              ctaLabel="Administrar clase"
-            />
-          </Box>
-        ))}
-      </Flex>
-
-<Heading fontSize="2xl" color="#fd6193" mb={4}>
+      <Heading fontSize="2xl" color="#fd6193" mb={4}>
   Mis estadísticas y calificaciones
 </Heading>
 
@@ -191,6 +167,36 @@ const TrainerPortal = () => {
     </VStack>
   </Box>
 </Flex>
+
+      <Flex justify="space-between" align="center" mb={3}>
+        <Heading fontSize="2xl" color="#fd6193">
+          Mis servicios
+        </Heading>
+      </Flex>
+      <Box height="2px" width="100%" bg="#fd6193" borderRadius="full" mb={6} />
+
+      <Flex wrap="wrap" gap={8} mb={8}>
+        {mockServices.map((service, idx) => (
+          <Box key={idx} borderRadius="2xl" overflow="hidden" flex="0 0 270px" m={0} p={0}>
+            <TrainingCard
+              title={service.title}
+              trainer={service.trainer}
+              price={service.price}
+              duration={service.duration}
+              location={service.location}
+              language={service.language}
+              ctaLabel="Administrar clase"
+            />
+          </Box>
+        ))}
+      </Flex>
+    <Heading fontSize="2xl" color="#fd6193" mb={4}>
+    Gestionar servicios
+    </Heading>
+    <Box height="2px" width="100%" bg="#fd6193" borderRadius="full" mb={6} />
+    <ServiceActions />
+
+
     </Box>
   );
 };
