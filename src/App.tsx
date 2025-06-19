@@ -11,6 +11,7 @@ import MyTrainings from './pages/MyTrainings'
 import Services from './pages/Services'
 import BookingSection from './components/Booking'
 import TrainerPortal from './pages/TrainerPortal'
+import CreateService from './pages/CreateService'
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
       <Route path="/trainings" element={<Services/>} />
       <Route path="/booktraining" element={<BookingSection pricePerClass={15} trainerName={''} trainerRating={0} trainerAvatar={''}/>} />
       <Route path="trainersportal" element={<TrainerPortal />} />
+      <Route path="create-service" element={<CreateService/>} />
     </Routes>
     </>
   )

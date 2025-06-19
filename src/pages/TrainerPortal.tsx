@@ -76,7 +76,7 @@ const TrainerPortal = () => {
   const [description, setDescription] = useState(mockTrainer.description);
 
   return (
-    <Box bg="white" px={{ base: 4, md: 10 }} py={8}>
+    <Box bg="white" px={{ base: 4, md: 10 }} py={0}>
       <Header />
 
       <Heading fontSize="2xl" color="#fd6193" mb={4}>
@@ -170,7 +170,7 @@ const TrainerPortal = () => {
 
       <Flex justify="space-between" align="center" mb={3}>
         <Heading fontSize="2xl" color="#fd6193">
-          Mis servicios
+          Mis próximos entrenamientos
         </Heading>
       </Flex>
       <Box height="2px" width="100%" bg="#fd6193" borderRadius="full" mb={6} />
