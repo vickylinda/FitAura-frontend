@@ -12,6 +12,7 @@ import Services from './pages/Services'
 import BookingSection from './components/Booking'
 import TrainerPortal from './pages/TrainerPortal'
 import CreateService from './pages/CreateService'
+import ModifyService from './pages/ModifyService'
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
       <Route path="/booktraining" element={<BookingSection pricePerClass={15} trainerName={''} trainerRating={0} trainerAvatar={''}/>} />
       <Route path="trainersportal" element={<TrainerPortal />} />
       <Route path="create-service" element={<CreateService/>} />
+      <Route path="modify-service" element={<ModifyService/>} />
     </Routes>
     </>
   )

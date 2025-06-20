@@ -31,11 +31,11 @@ const CreateService = () => {
     <Box p={6} color="white" bg="white" py={0}>
       <Header />
       <Heading fontSize="2xl" color="#fd6193" mb={1}>
-        Crear servicio
+        Modificar servicio
       </Heading>
       <Box height="1px" width="100%" bg="#fdc8da" mb={4} />
       <Text mb={8} color="gray.600" fontSize="md">
-        Para crear un nuevo servicio, se requiere completar los siguientes campos:
+        Editá los campos que quieras modificar del servicio seleccionado:
       </Text>
 
       <VStack gap={6} align="stretch">
