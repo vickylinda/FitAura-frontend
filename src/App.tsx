@@ -5,7 +5,6 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import RecoverPassword from './pages/RecoverPassword'
 import ResetPassword from './pages/ResetPassword'
-import AllServicesDraft from "./pages/AllServicesDraft";
 import TrainerProfile from './pages/TrainerProfile';
 import MyTrainings from './pages/MyTrainings';
 import Services from './pages/Services';
@@ -15,7 +14,6 @@ import {useAuthModal} from "@/context/AuthModalContext";
 import BookingSection from './components/Booking'
 import TrainerPortal from './pages/TrainerPortal'
 import CreateService from './pages/CreateService'
-import MyTrainings2 from './pages/MyTrainings-2'
 
 
 function App() {
@@ -29,7 +27,6 @@ function App() {
       <Route path="/register" element={<Register/>} />
       <Route path="/password-recovery" element={<RecoverPassword />} />
       <Route path="/password-reset" element={<ResetPassword />} />
-      <Route path="/all-services-draft" element={<AllServicesDraft/>} />
       <Route path="/trainer/:trainerId" element={<TrainerProfile />} />
       <Route path="/mytrainings" element={<MyTrainings/>} />
       <Route path="/trainings" element={<Services/>} />

@@ -205,7 +205,6 @@ export default function Header() {
                 
                 {user ? (
                   <MenuItem
-                    isDisabled
                     onClick={() => handleNavigate("/my-account")}
                     fontFamily={"Inter"}
                     fontWeight={"bold"}
