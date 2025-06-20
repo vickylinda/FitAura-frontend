@@ -1,7 +1,8 @@
 import React from 'react';
 import { Box, Heading, SimpleGrid } from '@chakra-ui/react';
 import TrainingCard from '../components/Card.entrenamiento';
-import Header from '@/components/Header';      
+import Header from '@/components/Header';  
+import { Flex } from '@chakra-ui/react';    
 
 // Tipos
 interface Trainer {
@@ -82,9 +83,9 @@ return (
         {getHeading(accion)}
       </Heading>
       <Box height="2px" width="100%" bg="#fd6193" borderRadius="full" mb={6} />
-      <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={6}>
-        {servicios.map((servicio: Servicio) => (
-          <TrainingCard
+      <Flex flexWrap="wrap" justify="left" gap={6}>
+        {servicios.map((servicio) => (
+            <TrainingCard
             key={servicio.id}
             title={servicio.title}
             price={servicio.price}
@@ -92,12 +93,12 @@ return (
             location={servicio.location}
             language={servicio.language}
             trainer={servicio.trainer}
-            ctaLabel={getLabel(accion).charAt(0).toUpperCase() + getLabel(accion).slice(1)}
-            onTrainerClick={() => console.log(`Perfil de ${servicio.trainer.name}`)}
-            // onActionClick={() => handleAccion(servicio.id)}
-          />
-        ))}
-      </SimpleGrid>
+            ctaLabel={getLabel(accion)}
+            onTrainerClick={() => {}}
+    />
+  ))}
+</Flex>
+
     </Box>
   </Box>
 );

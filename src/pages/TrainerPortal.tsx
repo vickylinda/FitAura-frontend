@@ -20,7 +20,6 @@ import { MdEdit } from 'react-icons/md';
 import Header from '@/components/Header';
 import ReviewCard from '@/components/ReviewCard';
 import TrainerStats from '@/components/TrainerStats';
-import ServiceActions from '@/pages/ServiceAction';
 
 
 const mockTrainer = {
@@ -194,7 +193,6 @@ const TrainerPortal = () => {
     Gestionar servicios
     </Heading>
     <Box height="2px" width="100%" bg="#fd6193" borderRadius="full" mb={6} />
-    <ServiceActions />
 
 
     </Box>
