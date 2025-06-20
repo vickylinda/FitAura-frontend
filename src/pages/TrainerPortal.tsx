@@ -20,7 +20,7 @@ import { MdEdit } from 'react-icons/md';
 import Header from '@/components/Header';
 import ReviewCard from '@/components/ReviewCard';
 import TrainerStats from '@/components/TrainerStats';
-import ServiceActions from '@/components/ServiceActions';
+import ServiceActions from '@/pages/ServiceAction';
 
 
 const mockTrainer = {

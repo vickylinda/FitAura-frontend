@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom'
+import { Route, Routes, useParams } from 'react-router-dom'
 import Landing from './pages/Landing'
 import Home from './pages/Home'
 import Login from './pages/Login'
@@ -13,6 +13,14 @@ import BookingSection from './components/Booking'
 import TrainerPortal from './pages/TrainerPortal'
 import CreateService from './pages/CreateService'
 import ModifyService from './pages/ModifyService'
+import ServiceAction from './pages/ServiceAction'
+import type { Accion } from './pages/ServiceAction';
+
+function ServiceActionWrapper() {
+  const { accion } = useParams();
+  // Replace 'defaultAccion' with a valid Accion value from your type
+  return <ServiceAction accion={(accion as Accion) ?? 'modificar'} />;
+}
 
 function App() {
   return (
@@ -32,6 +40,7 @@ function App() {
       <Route path="trainersportal" element={<TrainerPortal />} />
       <Route path="create-service" element={<CreateService/>} />
       <Route path="modify-service" element={<ModifyService/>} />
+      <Route path="select/:accion" element={<ServiceActionWrapper />} />
     </Routes>
     </>
   )

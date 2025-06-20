@@ -23,6 +23,8 @@ interface TrainingCardProps {
   onTrainerClick?: () => void;
   status?: 'Aceptado' | 'Pendiente' | 'Realizado' | 'Calificar';
   ctaLabel?: string; 
+  onCtaClick?: () => void; //  prop para manejar acciones (crear, modificar, etc)
+
 }
 
 const TrainingCard: React.FC<TrainingCardProps> = ({
@@ -109,7 +111,7 @@ const { label, bg, color, border } = ctaLabel
           color="black"
           fontWeight="bold"
           fontSize="sm"
-          onClick={onTrainerClick}
+          onClick={status === 'Realizado' ? undefined : onTrainerClick}
           _hover={{ bg: 'gray.50' }}
           display="flex"
           gap={3}
