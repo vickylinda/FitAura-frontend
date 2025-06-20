@@ -48,13 +48,13 @@ const ServiceAction: React.FC<ServiceActionProps> = ({ accion }) => {
   const getLabel = (accion: Accion): string => {
   switch (accion) {
     case 'modificar':
-      return 'modificar';
+      return ' Modificar';
     case 'eliminar':
-      return 'eliminar';
+      return 'Eliminar';
     case 'publicar':
-      return 'publicar';
+      return 'Publicar';
     case 'despublicar':
-      return 'despublicar';
+      return 'Despublicar';
     default:
       return '';
   }
