@@ -29,7 +29,8 @@ function App() {
       <Route path="/register" element={<Register/>} />
       <Route path="/password-recovery" element={<RecoverPassword />} />
       <Route path="/password-reset" element={<ResetPassword />} />
-      <Route path="/trainer-profile" element={<TrainerProfile/>} />
+      <Route path="/all-services-draft" element={<AllServicesDraft/>} />
+      <Route path="/trainer/:trainerId" element={<TrainerProfile />} />
       <Route path="/mytrainings" element={<MyTrainings/>} />
       <Route path="/trainings" element={<Services/>} />
       <Route path="/my-account" element ={<MyAccount/>} />

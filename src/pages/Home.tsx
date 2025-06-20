@@ -206,7 +206,7 @@ const Home = () => {
 
                   <Flex
                     as={RouterLink}
-                    to={"/trainer"}
+                    to={`/trainer/${clase.trainerid}`}
                     _hover={{ transform: "scale(1.05)", boxShadow: "md" }}
                     transition="all 0.2s ease-in-out"
                     align="center"
