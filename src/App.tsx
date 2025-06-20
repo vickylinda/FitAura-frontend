@@ -14,6 +14,7 @@ import {useAuthModal} from "@/context/AuthModalContext";
 import BookingSection from './components/Booking'
 import TrainerPortal from './pages/TrainerPortal'
 import CreateService from './pages/CreateService'
+import Booking from './pages/Booking'
 
 
 function App() {
@@ -34,6 +35,7 @@ function App() {
       <Route path="/booktraining" element={<BookingSection pricePerClass={15} trainerName={''} trainerRating={0} trainerAvatar={''}/>} />
       <Route path="trainersportal" element={<TrainerPortal />} />
       <Route path="create-service" element={<CreateService/>} />
+      <Route path="booking" element={<Booking/>} />
 
     </Routes>
     <LoginModal isOpen={isOpen} onClose={closeModal} />

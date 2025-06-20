@@ -57,7 +57,7 @@ const MisEntrenamientos = () => {
   }
 
   return (
-    <Box>
+    <Box  minH="100vh" bg={"white"}>
       <Header />
 
       <Text color="#fd6193" fontWeight="bold" fontSize="2xl" mb={2}>
