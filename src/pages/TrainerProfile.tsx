@@ -25,7 +25,7 @@ const TrainerInfo = ({
 }) => (
   <Flex
     direction={{ base: 'column', md: 'row' }}
-    gap={4}
+    gap={6}
     w="100%"
     mb={12}
     flexWrap="wrap"
@@ -164,7 +164,7 @@ const TrainerProfile = () => {
       />
 
       {/* Primer header */}
-      <Flex direction="column" mt={2} mb={2} gap={2}>
+      <Flex direction="column" mt={2} mb={2} gap={6}>
         <Text color="#fd6193" fontWeight="bold" fontSize="2xl">
           Servicios
         </Text>
@@ -205,7 +205,7 @@ const TrainerProfile = () => {
       </SimpleGrid>
 
       {/* Segundo header */}
-      <Flex direction="column" mt={2} mb={2} gap={2}>
+      <Flex direction="column" mt={2} mb={2} gap={6}>
         <Text color="#fd6193" fontWeight="bold" fontSize="2xl">
           Calificaciones
         </Text>
@@ -224,7 +224,7 @@ const TrainerProfile = () => {
       />
 
       {/* Reviews */}
-      <SimpleGrid columns={{ base: 1, md: 2 }} gap={10} mb={12} mt={8}>
+      <SimpleGrid columns={{ base: 1, md: 2 }} gap={6} mb={12} mt={8}>
   {reviews.map((review, idx) => (
     <ReviewCard
       key={idx}

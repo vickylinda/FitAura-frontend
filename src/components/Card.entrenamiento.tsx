@@ -22,6 +22,7 @@ interface TrainingCardProps {
   trainer: Trainer;
   onTrainerClick?: () => void;
   status?: 'Aceptado' | 'Pendiente' | 'Realizado' | 'Calificar';
+  ctaLabel?: string; 
 }
 
 const TrainingCard: React.FC<TrainingCardProps> = ({
@@ -33,6 +34,7 @@ const TrainingCard: React.FC<TrainingCardProps> = ({
   trainer,
   onTrainerClick,
   status,
+  ctaLabel,
 }) => {
   // CTA info según el status
   const ctaInfo = {
@@ -62,14 +64,21 @@ const TrainingCard: React.FC<TrainingCardProps> = ({
     },
   };
 
-  const { label, bg, color, border } = status
-    ? ctaInfo[status]
-    : {
-        label: 'Reservar clase',
-        bg: '#fd6193',
-        color: 'white',
-        border: 'none',
-      };
+const { label, bg, color, border } = ctaLabel
+  ? {
+      label: ctaLabel,
+      bg: '#fd6193',
+      color: 'white',
+      border: 'none',
+    }
+  : status
+  ? ctaInfo[status]
+  : {
+      label: 'Reservar clase',
+      bg: '#fd6193',
+      color: 'white',
+      border: 'none',
+    };
 
   return (
     <Box pt="40px">

@@ -10,14 +10,18 @@ import TrainerProfile from './pages/TrainerProfile';
 import MyTrainings from './pages/MyTrainings';
 import Services from './pages/Services';
 import LoginModal from "@/pages/LoginModal";
+import MyAccount from './pages/MyAccount'
 import {useAuthModal} from "@/context/AuthModalContext";
+import BookingSection from './components/Booking'
+import TrainerPortal from './pages/TrainerPortal'
+import CreateService from './pages/CreateService'
+import MyTrainings2 from './pages/MyTrainings-2'
 
 
 function App() {
   const { isOpen, closeModal } = useAuthModal();  //para poder ver el estado del modal
   return (
     <> 
-    
     <Routes>
       <Route path="/" element={<Landing />} />
       <Route path="/home" element={<Home />} />
@@ -25,10 +29,13 @@ function App() {
       <Route path="/register" element={<Register/>} />
       <Route path="/password-recovery" element={<RecoverPassword />} />
       <Route path="/password-reset" element={<ResetPassword />} />
-      <Route path="/all-services-draft" element={<AllServicesDraft/>} />
       <Route path="/trainer-profile" element={<TrainerProfile/>} />
       <Route path="/mytrainings" element={<MyTrainings/>} />
       <Route path="/trainings" element={<Services/>} />
+      <Route path="/my-account" element ={<MyAccount/>} />
+      <Route path="/booktraining" element={<BookingSection pricePerClass={15} trainerName={''} trainerRating={0} trainerAvatar={''}/>} />
+      <Route path="trainersportal" element={<TrainerPortal />} />
+      <Route path="create-service" element={<CreateService/>} />
 
     </Routes>
     <LoginModal isOpen={isOpen} onClose={closeModal} />
