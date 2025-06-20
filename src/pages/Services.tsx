@@ -91,33 +91,25 @@ const Services = () => {
       params.append("published", "true");
 
       const url = `http://localhost:4000/api/v2/services?${params.toString()}`;
-      console.log("🔗 URL generada:", url);
+      //console.log("URL generada:", url); para debugging
 
       const response = await fetch(url);
       const data = await response.json();
 
       if (!response.ok) {
+        if (data.internalErrorCode === 1007) {
+          setServices([]); 
+          return;
+        }
         setError(data.message || "Error interno en el servidor.");
         return;
       }
+      
 
       const fetchedServices = data.services || [];
       setServices(fetchedServices);
 
-      // 🚀 Calcula el máximo real - Esto al final lo sacamos porque el filtro dinámico andaba mal
-     /* const prices = fetchedServices.map((s) => Number(s.price) || 0);
-      const highest = prices.length > 0 ? Math.max(...prices) : 1000;
-
-      setMaxPrice(highest);
-      // Si quieres reiniciar el slider cada vez:
-      /*setPriceRange(([currentMin, currentMax]) => [
-  Math.max(0, Math.min(currentMin, highest)),
-  Math.max(0, Math.min(currentMax, highest)),
-]);
-    setPriceRange(([currentMin, currentMax]) => {
-      const untouched = currentMin === 0 && currentMax === Infinity;
-      return untouched ? [0, highest] : [currentMin, Math.min(currentMax, highest)];
-    });*/
+      
 
     } catch (err) {
       console.error("Error al cargar servicios:", err);

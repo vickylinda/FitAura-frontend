@@ -34,6 +34,8 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
 import { ArrowBackIcon, ArrowForwardIcon } from "@chakra-ui/icons";
+import { useFetchWithAuth } from '@/utils/fetchWithAuth';
+
 
 export default function MyAccount() {
   const { user, setUser } = useAuth();
@@ -43,6 +45,10 @@ export default function MyAccount() {
   const fontSizeCard = useBreakpointValue({ base: "sm", md: "md" }) || "md";
   const [errorServices, setErrorServices] = useState<string | null>(null);
   const [services, setServices] = useState<any[]>([]);
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [errorReviews, setErrorReviews] = useState<string | null>(null);
+  const [trainerStats, setTrainerStats] = useState<any>(null);
+  const [trainerStatsError, setTrainerStatsError] = useState<string | null>(null);
 
   const [profile, setProfile] = useState({
     name: "",
@@ -55,6 +61,7 @@ export default function MyAccount() {
   });
 
   const [isEditing, setIsEditing] = useState(false);
+  const fetchWithAuth = useFetchWithAuth();
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -64,7 +71,7 @@ export default function MyAccount() {
       }
 
       try {
-        const res = await fetch("http://localhost:4000/api/v1/users/profile", {
+        const res = await fetchWithAuth("http://localhost:4000/api/v1/users/profile", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -78,15 +85,28 @@ export default function MyAccount() {
           ? new Date(data.joiningDate * 1000).toLocaleDateString("es-AR")
           : "";
 
-        setProfile({
+        let profileData = {
           name: data.name,
           email: data.email,
           birthDate: birthDateFormatted,
           joiningDate: joiningDateFormatted,
           isTrainer: data.isTrainer,
-          avatarUrl: data.avatarUrl || "", // ajusta según tu API
-          description: data.description || "", // idem
-        });
+          avatarUrl:  "", // estos dos últimos pertenecen solo al perfil de entrenadoras
+          description:  "",
+        };
+        // Si es entrenadora, pedimos el perfil con foto y descripción
+        if (data.isTrainer && data.id) {
+          const trainerRes = await fetchWithAuth(`http://localhost:4000/api/v1/trainers/${data.id}/profile`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (trainerRes.ok) {
+            const trainerData = await trainerRes.json();
+            profileData.avatarUrl = trainerData.profilePic || "";
+            profileData.description = trainerData.description || "";
+          }
+        }
+        setProfile(profileData)
+
       } catch (err) {
         toaster.create({
           title: "Error",
@@ -112,7 +132,7 @@ export default function MyAccount() {
         new Date(`${year}-${month}-${day}`).getTime() / 1000
       );
 
-      const res = await fetch("http://localhost:4000/api/v1/users/profile", {
+      const res = await fetchWithAuth("http://localhost:4000/api/v1/users/profile", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -154,25 +174,74 @@ export default function MyAccount() {
   const fetchMyServices = async () => {
     try {
       const res = await fetch(
-        `http://localhost:4000/api/v2/services?trainerId=${user?.id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+        `http://localhost:4000/api/v2/services?trainerId=${user?.id}`);
+        const data = await res.json();
+      if (!res.ok) {
+        if (data.internalErrorCode === 1007) {
+          // No hay servicios publicados
+          setServices([]);
+          setErrorServices(null); 
+          return;
 
-      if (!res.ok) throw new Error("Error al obtener tus servicios.");
-      const data = await res.json();
+
+        }
+        throw new Error("Error al obtener tus servicios.");
+
+      }
       setServices(data.services); // ajustá si es data directamente
     } catch (err) {
       console.error(err);
       setErrorServices("No se pudieron cargar tus servicios.");
     }
   };
+  const fetchMyReviews = async () => {
+    try {
+      const res = await fetch(`http://localhost:4000/api/v1/reviews?trainerId=${user?.id}`);
+      const data = await res.json();
+      
+      setReviews(data.reviews);
+    } catch (err) {
+      console.error(err);
+      setErrorReviews("No se pudieron cargar tus reseñas.");
+    }
+  };
+
+  const fetchTrainerStats = async () => {
+    try {
+      const res = await fetch(`http://localhost:4000/api/v1/users/${user?.id}/trainer-statistics`);
+      if (!res) return;
+  
+      const data = await res.json();
+      if (!res.ok) {
+        const code = data.internalErrorCode || 1000;
+        if (code === 1007) {
+          setTrainerStats(null); 
+          return;
+        }
+        throw new Error(data.message || 'Error al obtener estadísticas');
+      }
+
+      setTrainerStats({
+        ratingAverage: data.ratingaverage !== null ? parseFloat(data.ratingaverage) : null,
+        ratingCount: data.ratingcount,
+        views: data.visualizations,
+        contracts: data.hiredservices,
+        conversionRate: parseFloat(data.conversionrate),
+        ratingsBreakdown: data.ratingsBreakdown,
+      });
+      
+    } catch (err: any) {
+      console.error("Error al obtener estadísticas:", err);
+      setTrainerStatsError("No se pudieron obtener tus estadísticas como entrenadora.");
+    }
+  };
+  
+
   useEffect(() => {
     if (profile.isTrainer && user?.id) {
       fetchMyServices();
+      fetchMyReviews();
+      fetchTrainerStats();
     }
   }, [profile.isTrainer, user?.id]);
 
@@ -257,6 +326,37 @@ const NextArrow = ({ onClick }) => (
     ],
   };
 
+  const handleReplySubmit = async (reviewId: number, replyText: string) => {
+    try {
+      const res = await fetchWithAuth(`http://localhost:4000/api/v1/reviews/${reviewId}/reply`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ reply: replyText }),
+      });
+  
+      if (!res.ok) throw new Error("Error al responder la review");
+      
+      await fetchMyReviews(); // recargamos las reviews actualizadas
+      toaster.create({
+        title: "Respuesta publicada",
+        description: "Tu respuesta fue enviada correctamente.",
+        type: "success",
+        duration: 3000,
+      });
+    } catch (err) {
+      toaster.create({
+        title: "Error",
+        description: "No se pudo enviar la respuesta.",
+        type: "error",
+        duration: 3000,
+      });
+    }
+  };
+  
+
   // --- RETURN ---
   return (
     
@@ -317,12 +417,23 @@ const NextArrow = ({ onClick }) => (
                   h={{ base: "auto", md: "100%" }}
                   align={{ base: "center", md: "flex-start" }}
                 >
-                  <AvatarRoot
-                    colorPalette="pink"
-                    boxSize={{ base: "150px", md: "250px" }}
-                  >
-                    <AvatarFallback />
-                  </AvatarRoot>
+                  {profile.avatarUrl ? (
+                    <Image
+                      src={profile.avatarUrl}
+                      alt={profile.name}
+                      boxSize={{ base: "150px", md: "250px" }}
+                      borderRadius="full"
+                      objectFit="cover"
+                      flexShrink={0}
+                    />
+                  ) : (
+                    <AvatarRoot colorPalette="pink">
+                      <AvatarFallback />
+                    </AvatarRoot>
+                  )}
+
+
+  
                 </Flex>
 
                 <Box>
@@ -709,15 +820,32 @@ const NextArrow = ({ onClick }) => (
               p={4}
               bg="white"
             >
-              <TrainerStats />
+            <TrainerStats stats={trainerStats} />
             </Box>
 
             <Box flex="2" minW={{ base: "100%", md: "500px" }}>
-              <VStack align="stretch" gap={4}>
-                {mockReviews.map((review, idx) => (
-                  <ReviewCard key={idx} {...review} />
-                ))}
-              </VStack>
+            <Stack spacing={6} w="100%">
+            {reviews.length > 0 ? (
+              reviews.map((review, idx) => (
+                <ReviewCard
+                  key={idx}
+                  reviewId={review.reviewId}
+                  user={{ name: review.name }}  
+                  date={review.createdAt}
+                  training={review.description}
+                  rating={review.rating}
+                  comment={review.comment}
+                  reply={review.reply}
+                  isOwner={true}
+                  onReplySubmit={handleReplySubmit}
+                />
+              ))
+            ) : (
+              <Text>No hay reseñas disponibles.</Text>
+            )}
+          </Stack>
+
+              
             </Box>
           </Flex>
 

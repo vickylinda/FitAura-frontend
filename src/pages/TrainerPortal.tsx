@@ -22,7 +22,6 @@ import ReviewCard from '@/components/ReviewCard';
 import TrainerStats from '@/components/TrainerStats';
 import ServiceActions from '@/components/ServiceActions';
 
-
 const mockTrainer = {
   name: 'María Paula Gómez',
   description:

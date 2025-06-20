@@ -53,6 +53,7 @@ const TrainerProfile = () => {
         const servicesData = await fetchServices(numericId);
         setServices(servicesData);
       } catch (err) {
+        
         console.error("Error al cargar servicios:", err);
         setErrorServices("No se pudieron cargar los servicios.");
       }
@@ -161,9 +162,13 @@ const TrainerProfile = () => {
     const data = await res.json();
   
     if (!res.ok) {
-      throw new Error('Error al cargar los servicios');
+      if (data.internalErrorCode === 1007) {
+      // No hay servicios disponibles (no es un error)
+      return [];
     }
-  
+    throw new Error('Error al cargar los servicios');
+
+    }
     return data.services;
   };
 
@@ -438,11 +443,14 @@ const TrainerProfile = () => {
     reviewsData.map((review, idx) => (
       <ReviewCard
         key={idx}
+        reviewId={review.reviewId}
         user={{ name: review.name }}  
         date={review.createdAt}
         training={review.description}
         rating={review.rating}
         comment={review.comment}
+        reply={review.reply}
+        
       />
     ))
   ) : (
