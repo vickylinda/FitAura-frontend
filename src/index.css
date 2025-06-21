@@ -64,6 +64,16 @@
 }
 
 body {
-  background-color: 'white'!important;
+  background-color: white!important;
   color-scheme: light !important;
+}
+
+/* ...tus reglas existentes... */
+
+.chakra-modal__content {
+  position: fixed !important;
+  margin: auto !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
 }

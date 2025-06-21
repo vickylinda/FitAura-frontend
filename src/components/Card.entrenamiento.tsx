@@ -37,6 +37,7 @@ const TrainingCard: React.FC<TrainingCardProps> = ({
   onTrainerClick,
   status,
   ctaLabel,
+  onCtaClick,
 }) => {
   // CTA info según el status
   const ctaInfo = {
@@ -148,19 +149,19 @@ const { label, bg, color, border } = ctaLabel
         </Box>
 
         {/* CTA dinámico */}
-        <Button
-          bg={bg}
-          color={color}
-          border={border || 'none'}
-          width="100%"
-          borderRadius="lg"
-          fontWeight="bold"
-          cursor={status === 'Realizado' ? 'default' : 'pointer'}
-          _hover={status === 'Realizado' ? { bg: 'white' } : { opacity: 0.9 }}
-          onClick={status === 'Realizado' ? undefined : () => {}}
-        >
-          {label}
-        </Button>
+       <Button
+        bg={bg}
+        color={color}
+        border={border || 'none'}
+        width="100%"
+        borderRadius="lg"
+        fontWeight="bold"
+        cursor={status === 'Realizado' ? 'default' : 'pointer'}
+        _hover={status === 'Realizado' ? { bg: 'white' } : { opacity: 0.9 }}
+        onClick={status === 'Realizado' ? undefined : onCtaClick}
+      >
+  {label}
+</Button>
       </Box>
     </Box>
   );
