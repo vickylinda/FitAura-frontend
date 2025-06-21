@@ -354,9 +354,9 @@ const TrainerProfile = () => {
       height="100%"
     >
       <Flex justify="space-between" align="center" mb={4} wrap="wrap" gap={2}>
-        {/* Descripción del servicio */}
+        {/* Título del servicio */}
         <Text fontWeight="semibold" fontSize={{ base: "md", md: "lg" }} fontFamily="Poppins" flex="1 1 100%" wordBreak="break-word">
-          {service.description}
+          {service.title}
         </Text>
 
         {/* Información del entrenador */}
@@ -475,7 +475,7 @@ const TrainerProfile = () => {
         reviewId={review.reviewId}
         user={{ name: review.name }}  
         date={review.createdAt}
-        training={review.description}
+        training={review.title}
         rating={review.rating}
         comment={review.comment}
         reply={review.reply}

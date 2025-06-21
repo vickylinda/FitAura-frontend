@@ -801,7 +801,7 @@ const showArrows = useBreakpointValue({ base: false, md: true });
                         wrap="wrap"
                         gap={2}
                       >
-                        {/* Descripción del servicio */}
+                        {/* Título del servicio */}
                         <Text
                           fontWeight="semibold"
                           fontSize={{ base: "md", md: "lg" }}
@@ -809,7 +809,7 @@ const showArrows = useBreakpointValue({ base: false, md: true });
                           flex="1 1 100%"
                           wordBreak="break-word"
                         >
-                          {service.description}
+                          {service.title}
                         </Text>
 
                         {/* Información del entrenador */}
@@ -976,7 +976,7 @@ const showArrows = useBreakpointValue({ base: false, md: true });
                       reviewId={review.reviewId}
                       user={{ name: review.name }}
                       date={review.createdAt}
-                      training={review.description}
+                      training={review.title}
                       rating={review.rating}
                       comment={review.comment}
                       reply={review.reply}

@@ -438,7 +438,7 @@ const Services = () => {
                       flex="1 1 100%"
                       wordBreak="break-word"
                     >
-                      {clase.description}
+                      {clase.title}
                     </Text>
 
                     <Flex

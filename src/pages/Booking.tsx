@@ -37,6 +37,7 @@ import { ThemeProvider, createTheme } from "@mui/material/styles";
 type ServiceData = {
   id: number;
   category: string;
+  title: string;
   description: string;
   duration: number;
   price: string;
@@ -245,7 +246,7 @@ export default function Booking() {
               flex="1 1 100%"
               wordBreak="break-word"
             >
-              {serviceData?.description || "Cargando..."}
+              {serviceData?.title || "Cargando..."}
             </Text>
             <Flex
               as={RouterLink}
