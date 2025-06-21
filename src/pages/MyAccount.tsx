@@ -8,7 +8,6 @@ import {
   Field,
   Text,
   SimpleGrid,
-  IconButton,
   Textarea,
   VStack,
   AvatarRoot,
@@ -16,10 +15,8 @@ import {
   Image,
   useBreakpointValue,
 } from "@chakra-ui/react";
-import { Avatar } from "@chakra-ui/avatar";
-import { MdEdit } from "react-icons/md";
 import { Global } from "@emotion/react";
-
+import Footer from "@/components/Footer";
 import { Link as RouterLink } from "react-router-dom";
 import { toaster } from "@/components/ui/toaster";
 import { useEffect, useState } from "react";
@@ -28,19 +25,17 @@ import { useAuth } from "@/context/AuthContext";
 import Header from "@/components/Header";
 import TrainerStats from "@/components/TrainerStats";
 import ReviewCard from "@/components/ReviewCard";
-import TrainingCard from "@/components/Card.entrenamiento";
 import ServiceActions from "@/components/ServiceActions";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
-import { ArrowBackIcon, ArrowForwardIcon } from "@chakra-ui/icons";
-import { useFetchWithAuth } from '@/utils/fetchWithAuth';
-
+import { useFetchWithAuth } from "@/utils/fetchWithAuth";
 
 export default function MyAccount() {
   const { user, setUser } = useAuth();
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
+const showArrows = useBreakpointValue({ base: false, md: true });
 
   const fontSizeCard = useBreakpointValue({ base: "sm", md: "md" }) || "md";
   const [errorServices, setErrorServices] = useState<string | null>(null);
@@ -48,8 +43,9 @@ export default function MyAccount() {
   const [reviews, setReviews] = useState<any[]>([]);
   const [errorReviews, setErrorReviews] = useState<string | null>(null);
   const [trainerStats, setTrainerStats] = useState<any>(null);
-  const [trainerStatsError, setTrainerStatsError] = useState<string | null>(null);
-
+  const [trainerStatsError, setTrainerStatsError] = useState<string | null>(
+    null
+  );
   const [profile, setProfile] = useState({
     name: "",
     email: "",
@@ -59,6 +55,21 @@ export default function MyAccount() {
     avatarUrl: "",
     description: "",
   });
+  const [newProfilePicFile, setNewProfilePicFile] = useState<File | null>(null);
+  const [saving, setSaving] = useState(false);
+  const CLOUD_NAME = "dfvnyxs4i"; // 👈 el que se ve arriba a la izquierda en tu consola!
+  const UPLOAD_PRESET = "fitaura_unsigned"; // 👈 o el nombre que le pusiste!
+  const [originalProfile, setOriginalProfile] = useState(profile);
+
+  const startEditing = () => {
+    setOriginalProfile(profile); // backup
+    setIsEditing(true);
+  };
+  const cancelEditing = () => {
+    setProfile(originalProfile); // restore
+    setNewProfilePicFile(null); // limpio la imagen temporal subida
+    setIsEditing(false);
+  };
 
   const [isEditing, setIsEditing] = useState(false);
   const fetchWithAuth = useFetchWithAuth();
@@ -71,11 +82,14 @@ export default function MyAccount() {
       }
 
       try {
-        const res = await fetchWithAuth("http://localhost:4000/api/v1/users/profile", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const res = await fetchWithAuth(
+          "http://localhost:4000/api/v1/users/profile",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         if (!res.ok) throw new Error("Error al obtener perfil");
         const data = await res.json();
         const birthDateFormatted = data.birthDate
@@ -91,22 +105,24 @@ export default function MyAccount() {
           birthDate: birthDateFormatted,
           joiningDate: joiningDateFormatted,
           isTrainer: data.isTrainer,
-          avatarUrl:  "", // estos dos últimos pertenecen solo al perfil de entrenadoras
-          description:  "",
+          avatarUrl: "", // estos dos últimos pertenecen solo al perfil de entrenadoras
+          description: "",
         };
         // Si es entrenadora, pedimos el perfil con foto y descripción
         if (data.isTrainer && data.id) {
-          const trainerRes = await fetchWithAuth(`http://localhost:4000/api/v1/trainers/${data.id}/profile`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
+          const trainerRes = await fetchWithAuth(
+            `http://localhost:4000/api/v1/trainers/${data.id}/profile`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
           if (trainerRes.ok) {
             const trainerData = await trainerRes.json();
             profileData.avatarUrl = trainerData.profilePic || "";
             profileData.description = trainerData.description || "";
           }
         }
-        setProfile(profileData)
-
+        setProfile(profileData);
       } catch (err) {
         toaster.create({
           title: "Error",
@@ -127,32 +143,81 @@ export default function MyAccount() {
 
   const handleSave = async () => {
     try {
+      setSaving(true);
       const [day, month, year] = profile.birthDate.split("/");
       const birthDateTimestamp = Math.floor(
         new Date(`${year}-${month}-${day}`).getTime() / 1000
       );
+      let uploadedPicUrl = profile.avatarUrl;
 
-      const res = await fetchWithAuth("http://localhost:4000/api/v1/users/profile", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          name: profile.name,
-          email: profile.email,
-          birthDate: birthDateTimestamp,
-        }),
-      });
+      if (newProfilePicFile) {
+        // ✅ Subir a Cloudinary
+        const formData = new FormData();
+        formData.append("file", newProfilePicFile);
+        formData.append("upload_preset", UPLOAD_PRESET);
+
+        const cloudinaryRes = await fetch(
+          `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+        const cloudinaryData = await cloudinaryRes.json();
+        uploadedPicUrl = cloudinaryData.secure_url;
+      }
+
+      const res = await fetchWithAuth(
+        "http://localhost:4000/api/v1/users/profile",
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            name: profile.name,
+            email: profile.email,
+            birthDate: birthDateTimestamp,
+          }),
+        }
+      );
 
       if (!res.ok) throw new Error("No se pudo actualizar");
+      if (profile.isTrainer) {
+        const trainerRes = await fetchWithAuth(
+          `http://localhost:4000/api/v1/trainers/${user?.id}/profile`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              description: profile.description,
+              profilePic: uploadedPicUrl,
+              name: profile.name,
+            }),
+          }
+        );
 
+        if (!trainerRes.ok)
+          throw new Error("No se pudo actualizar el perfil de entrenadora");
+      }
+
+      // 🗂️  Construí el nuevo user global
       const updatedUser = {
         id: user?.id || 0,
         name: profile.name.split(" ")[0] || "Usuaria",
+        profilePic: uploadedPicUrl, // 👈 NUEVO
       };
+
+      // ⏫ Actualizá el AuthContext
       setUser(updatedUser);
+
+      // 💾 Y el localStorage
       localStorage.setItem("fitauraUser", JSON.stringify(updatedUser));
+      await fetchMyServices();
 
       toaster.create({
         title: "Guardado",
@@ -161,6 +226,7 @@ export default function MyAccount() {
         duration: 3000,
       });
       setIsEditing(false);
+      setNewProfilePicFile(null);
     } catch (err) {
       toaster.create({
         title: "Error",
@@ -169,24 +235,23 @@ export default function MyAccount() {
         duration: 3000,
       });
     }
+    setSaving(false);
   };
 
   const fetchMyServices = async () => {
     try {
       const res = await fetch(
-        `http://localhost:4000/api/v2/services?trainerId=${user?.id}`);
-        const data = await res.json();
+        `http://localhost:4000/api/v2/services?trainerId=${user?.id}`
+      );
+      const data = await res.json();
       if (!res.ok) {
         if (data.internalErrorCode === 1007) {
           // No hay servicios publicados
           setServices([]);
-          setErrorServices(null); 
+          setErrorServices(null);
           return;
-
-
         }
         throw new Error("Error al obtener tus servicios.");
-
       }
       setServices(data.services); // ajustá si es data directamente
     } catch (err) {
@@ -196,9 +261,11 @@ export default function MyAccount() {
   };
   const fetchMyReviews = async () => {
     try {
-      const res = await fetch(`http://localhost:4000/api/v1/reviews?trainerId=${user?.id}`);
+      const res = await fetch(
+        `http://localhost:4000/api/v1/reviews?trainerId=${user?.id}`
+      );
       const data = await res.json();
-      
+
       setReviews(data.reviews);
     } catch (err) {
       console.error(err);
@@ -208,34 +275,37 @@ export default function MyAccount() {
 
   const fetchTrainerStats = async () => {
     try {
-      const res = await fetch(`http://localhost:4000/api/v1/users/${user?.id}/trainer-statistics`);
+      const res = await fetch(
+        `http://localhost:4000/api/v1/users/${user?.id}/trainer-statistics`
+      );
       if (!res) return;
-  
+
       const data = await res.json();
       if (!res.ok) {
         const code = data.internalErrorCode || 1000;
         if (code === 1007) {
-          setTrainerStats(null); 
+          setTrainerStats(null);
           return;
         }
-        throw new Error(data.message || 'Error al obtener estadísticas');
+        throw new Error(data.message || "Error al obtener estadísticas");
       }
 
       setTrainerStats({
-        ratingAverage: data.ratingaverage !== null ? parseFloat(data.ratingaverage) : null,
+        ratingAverage:
+          data.ratingaverage !== null ? parseFloat(data.ratingaverage) : null,
         ratingCount: data.ratingcount,
         views: data.visualizations,
         contracts: data.hiredservices,
         conversionRate: parseFloat(data.conversionrate),
         ratingsBreakdown: data.ratingsBreakdown,
       });
-      
     } catch (err: any) {
       console.error("Error al obtener estadísticas:", err);
-      setTrainerStatsError("No se pudieron obtener tus estadísticas como entrenadora.");
+      setTrainerStatsError(
+        "No se pudieron obtener tus estadísticas como entrenadora."
+      );
     }
   };
-  
 
   useEffect(() => {
     if (profile.isTrainer && user?.id) {
@@ -256,54 +326,39 @@ export default function MyAccount() {
     },
   ];
 
-  const mockServices = [
-    {
-      title: "Pilates Cardio",
-      trainer: {
-        name: "María Paula",
-        rating: 4.7,
-        avatarUrl: profile.avatarUrl,
-      },
-      price: "$15",
-      duration: "45 mins",
-      location: "Palermo, CABA",
-      language: "Español",
-    },
-  ];
+  // Flecha izquierda
+  const PrevArrow = ({ onClick }) => (
+    <Box
+      as="button"
+      onClick={onClick}
+      position="absolute"
+      left="-40px" // Ajustá según tu diseño
+      top="50%"
+      transform="translateY(-50%)"
+      zIndex="2"
+      _hover={{ transform: "translateY(-50%) scale(1.2)" }}
+      cursor={"pointer"}
+    >
+      <Image src="/left-arrow.png" alt="Back" boxSize="40px" />
+    </Box>
+  );
 
-// Flecha izquierda
-const PrevArrow = ({ onClick }) => (
-  <Box
-    as="button"
-    onClick={onClick}
-    position="absolute"
-    left="-40px"      // Ajustá según tu diseño
-    top="50%"
-    transform="translateY(-50%)"
-    zIndex="2"
-    _hover={{ transform: "translateY(-50%) scale(1.2)" }}
-    cursor={"pointer"}
-  >
-    <Image src="/left-arrow.png" alt="Back" boxSize="40px" />
-  </Box>
-);
-
-// Flecha derecha
-const NextArrow = ({ onClick }) => (
-  <Box
-    as="button"
-    onClick={onClick}
-    position="absolute"
-    right="-40px"
-    top="50%"
-    transform="translateY(-50%)"
-    zIndex="2"
-    _hover={{ transform: "translateY(-50%) scale(1.2)" }}
-    cursor={"pointer"}
-  >
-    <Image src="/right-arrow.png" alt="Next" boxSize="40px" />
-  </Box>
-);
+  // Flecha derecha
+  const NextArrow = ({ onClick }) => (
+    <Box
+      as="button"
+      onClick={onClick}
+      position="absolute"
+      right="-40px"
+      top="50%"
+      transform="translateY(-50%)"
+      zIndex="2"
+      _hover={{ transform: "translateY(-50%) scale(1.2)" }}
+      cursor={"pointer"}
+    >
+      <Image src="/right-arrow.png" alt="Next" boxSize="40px" />
+    </Box>
+  );
 
   const sliderSettings = {
     dots: true,
@@ -311,10 +366,10 @@ const NextArrow = ({ onClick }) => (
     speed: 500,
     slidesToShow: 3,
     slidesToScroll: 1,
-      prevArrow: <PrevArrow />,
-  nextArrow: <NextArrow />,
+    prevArrow: showArrows ? <PrevArrow /> : undefined,
+  nextArrow: showArrows ? <NextArrow /> : undefined,
 
-    adaptiveHeight: true,
+    adaptiveHeight: false,
     responsive: [
       {
         breakpoint: 1024,
@@ -322,23 +377,25 @@ const NextArrow = ({ onClick }) => (
           slidesToShow: 1,
         },
       },
-      
     ],
   };
 
   const handleReplySubmit = async (reviewId: number, replyText: string) => {
     try {
-      const res = await fetchWithAuth(`http://localhost:4000/api/v1/reviews/${reviewId}/reply`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ reply: replyText }),
-      });
-  
+      const res = await fetchWithAuth(
+        `http://localhost:4000/api/v1/reviews/${reviewId}/reply`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ reply: replyText }),
+        }
+      );
+
       if (!res.ok) throw new Error("Error al responder la review");
-      
+
       await fetchMyReviews(); // recargamos las reviews actualizadas
       toaster.create({
         title: "Respuesta publicada",
@@ -355,14 +412,12 @@ const NextArrow = ({ onClick }) => (
       });
     }
   };
-  
 
   // --- RETURN ---
   return (
-    
     <Box minH="100vh" bg="pink.100">
-<Global
-  styles={`
+      <Global
+        styles={`
     .slick-dots li button:before {
       color: #fd6193 !important;
       opacity: 0.5;
@@ -375,8 +430,7 @@ const NextArrow = ({ onClick }) => (
       font-size: 12px; /* 👈 Igual acá para el activo */
     }
   `}
-/>
-
+      />
 
       <Header />
 
@@ -414,26 +468,76 @@ const NextArrow = ({ onClick }) => (
                 gap={{ base: 6, md: 10 }}
               >
                 <Flex
-                  h={{ base: "auto", md: "100%" }}
+                  position="relative"
+                  w={{ base: "150px", md: "250px" }}
+                  h={{ base: "150px", md: "250px" }}
                   align={{ base: "center", md: "flex-start" }}
+                  justify="center"
+                  flexShrink={0}
+                  flexGrow={0}
+                  overflow="hidden"
+                  borderRadius="full"
                 >
                   {profile.avatarUrl ? (
                     <Image
                       src={profile.avatarUrl}
                       alt={profile.name}
-                      boxSize={{ base: "150px", md: "250px" }}
+                      w="100%"
+                      h="100%"
                       borderRadius="full"
                       objectFit="cover"
-                      flexShrink={0}
                     />
                   ) : (
-                    <AvatarRoot colorPalette="pink">
+                    <AvatarRoot w="100%"
+                      h="100%"
+                      borderRadius="full"
+                      objectFit="cover" colorPalette="pink">
                       <AvatarFallback />
                     </AvatarRoot>
                   )}
-
-
-  
+                  {isEditing && (
+                    <>
+                      {/* Overlay */}
+                      <Box
+                        position="absolute"
+                        top="0"
+                        left="0"
+                        w="100%"
+                        h="100%"
+                        bg="rgba(0,0,0,0.5)"
+                        color="white"
+                        borderRadius="full"
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="center"
+                        opacity="0"
+                        transition="opacity 0.3s"
+                        _hover={{ opacity: 1 }}
+                        cursor="pointer"
+                        as="label"
+                      >
+                        Cambiar foto
+                        {/* input hidden dentro del label */}
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          display="none"
+                          onChange={(e) => {
+                            if (e.target.files && e.target.files[0]) {
+                              setNewProfilePicFile(e.target.files[0]);
+                              const previewUrl = URL.createObjectURL(
+                                e.target.files[0]
+                              );
+                              setProfile((prev) => ({
+                                ...prev,
+                                avatarUrl: previewUrl,
+                              }));
+                            }
+                          }}
+                        />
+                      </Box>
+                    </>
+                  )}
                 </Flex>
 
                 <Box>
@@ -581,7 +685,7 @@ const NextArrow = ({ onClick }) => (
                         bg="#fd6193"
                         _hover={{ bg: "#fc7faa" }}
                         color="white"
-                        onClick={() => setIsEditing(true)}
+                        onClick={() => startEditing()}
                         w={{ base: "100%", md: "auto" }}
                       >
                         Editar mis datos
@@ -598,32 +702,54 @@ const NextArrow = ({ onClick }) => (
                       </Button>
                     </Stack>
                   ) : (
-                    <Stack
+                    <Flex
                       direction={{ base: "column", md: "row" }}
-                      gap={4} // espacio entre botones
+                      align="center"
+                      justify="space-between"
+                      wrap="wrap"
+                      gap={4}
                       mt={6}
                       w="full"
                     >
-                      <Button
-                        bg="#7ed957"
-                        _hover={{ bg: "#9af574" }}
-                        color="white"
-                        onClick={handleSave}
-                        w={{ base: "100%", md: "auto" }}
+                      {/* Botones */}
+                      <Stack
+                        direction={{ base: "column", md: "row" }}
+                        gap={4}
+                        w={{ base: "full", md: "auto" }}
                       >
-                        Guardar cambios
-                      </Button>
-                      <Button
-                        variant="outline"
-                        bg="#ff3131"
-                        _hover={{ bg: "#f86767" }}
-                        color="white"
-                        onClick={() => setIsEditing(false)}
-                        w={{ base: "100%", md: "auto" }}
+                        <Button
+                          bg="#7ed957"
+                          _hover={{ bg: "#9af574" }}
+                          color="white"
+                          onClick={handleSave}
+                          isLoading={saving}
+                          w={{ base: "100%", md: "auto" }}
+                        >
+                          Guardar cambios
+                        </Button>
+                        <Button
+                          variant="outline"
+                          bg="#ff3131"
+                          _hover={{ bg: "#f86767" }}
+                          color="white"
+                          onClick={() => cancelEditing()}
+                          w={{ base: "100%", md: "auto" }}
+                        >
+                          Cancelar
+                        </Button>
+                      </Stack>
+
+                      {/* Texto */}
+                      <Box
+                        order={{ base: -1, md: 1 }}
+                        w={{ base: "full", md: "auto" }}
+                        textAlign={{ base: "left", md: "right" }}
                       >
-                        Cancelar
-                      </Button>
-                    </Stack>
+                        <Text fontSize="sm" color="gray.500">
+                          Presione la foto para editarla
+                        </Text>
+                      </Box>
+                    </Flex>
                   )}
                 </Box>
               </Flex>
@@ -647,26 +773,27 @@ const NextArrow = ({ onClick }) => (
             {services.length === 0 ? (
               <Text>Por el momento, no dispone de servicios publicados.</Text>
             ) : (
-              <Box px={{ base: 2, md: 6 }} >
- 
-
+              <Box px={{ base: 2, md: 6 }} height="100%">
                 <Slider {...sliderSettings}>
                   {services.map((service, index) => (
                     <Box
                       key={index}
                       p={4}
+                      pb={2}
                       bg="white"
                       borderRadius="xl"
                       boxShadow="md"
                       display="flex"
                       flexDirection="column"
-                      justifyContent="space-between"
+                      //justifyContent="space-between"
+                      //height="100%"
                       height="100%"
-                      minHeight="450px"
+                      minHeight="500px"
                       mx={2}
                       w="100%"
                       maxW="400px"
                     >
+                       <Box flex="1" >
                       <Flex
                         justify="space-between"
                         align="center"
@@ -740,28 +867,28 @@ const NextArrow = ({ onClick }) => (
                       </Flex>
 
                       {/* Detalles del servicio: precio, duración, ubicación e idioma */}
-                      
-      {/* Detalles del servicio: precio, duración, ubicación e idioma */}
-      <Box flexGrow={1} mb={4}>
-        <Flex align="center" fontSize={fontSizeCard} mb={1}>
-  <Image src="/dinero.webp" boxSize="1.5rem" mr={2} />
-  ${Number(service.price).toFixed(2)}
-</Flex>
 
-<Flex align="center" fontSize={fontSizeCard} mb={1}>
-  <Image src="/reloj.png" boxSize="1.5rem" mr={2} />
-  {service.duration} mins
-</Flex>
+                      {/* Detalles del servicio: precio, duración, ubicación e idioma */}
+                      <Box  mb={4}>
+                        <Flex align="center" fontSize={fontSizeCard} mb={1}>
+                          <Image src="/dinero.webp" boxSize="1.5rem" mr={2} />$
+                          {Number(service.price).toFixed(2)}
+                        </Flex>
 
-<Flex align="center" fontSize={fontSizeCard} mb={1}>
-  <Image src="/locacion.png" boxSize="1.5rem" mr={2} />
-  {service.location}
-</Flex>
+                        <Flex align="center" fontSize={fontSizeCard} mb={1}>
+                          <Image src="/reloj.png" boxSize="1.5rem" mr={2} />
+                          {service.duration} mins
+                        </Flex>
 
-<Flex align="center" fontSize={fontSizeCard} mb={1}>
-  <Image src="/idioma.png" boxSize="1.5rem" mr={2} />
-  {service.language}
-</Flex>
+                        <Flex align="center" fontSize={fontSizeCard} mb={1}>
+                          <Image src="/locacion.png" boxSize="1.5rem" mr={2} />
+                          {service.location}
+                        </Flex>
+
+                        <Flex align="center" fontSize={fontSizeCard} mb={1}>
+                          <Image src="/idioma.png" boxSize="1.5rem" mr={2} />
+                          {service.language}
+                        </Flex>
 
                         {/* Mostrar los horarios de `timeavailability` */}
                         {service.timeavailability ? (
@@ -784,10 +911,27 @@ const NextArrow = ({ onClick }) => (
                           </Text>
                         )}
                       </Box>
+                       
+                      </Box>
+                       <Button
+  as={RouterLink}
+  to={`/manage-class/${service.id}`} // 👈 o usa el param que necesites
+  bg="#fd6193"
+  color="white"
+  fontWeight="bold"
+  _hover={{ bg: "#fc7faa" }}
+  w="full"
+  fontFamily="Inter"
+    mt="auto" 
+>
+  Administrar clase
+</Button>
+                    
+
                     </Box>
+                    
                   ))}
                 </Slider>
-                
               </Box>
             )}
           </Box>
@@ -797,7 +941,7 @@ const NextArrow = ({ onClick }) => (
             fontSize={{ base: "2xl", md: "3xl" }}
             color="#fd6193"
             fontWeight="bold"
-            mt={4}
+            mt={8}
             mb={2}
             fontFamily={"Inter"}
           >
@@ -820,36 +964,42 @@ const NextArrow = ({ onClick }) => (
               p={4}
               bg="white"
             >
-            <TrainerStats stats={trainerStats} />
+              <TrainerStats stats={trainerStats} />
             </Box>
 
             <Box flex="2" minW={{ base: "100%", md: "500px" }}>
-            <Stack spacing={6} w="100%">
-            {reviews.length > 0 ? (
-              reviews.map((review, idx) => (
-                <ReviewCard
-                  key={idx}
-                  reviewId={review.reviewId}
-                  user={{ name: review.name }}  
-                  date={review.createdAt}
-                  training={review.description}
-                  rating={review.rating}
-                  comment={review.comment}
-                  reply={review.reply}
-                  isOwner={true}
-                  onReplySubmit={handleReplySubmit}
-                />
-              ))
-            ) : (
-              <Text>No hay reseñas disponibles.</Text>
-            )}
-          </Stack>
-
-              
+              <Stack spacing={6} w="100%">
+                {reviews.length > 0 ? (
+                  reviews.map((review, idx) => (
+                    <ReviewCard
+                      key={idx}
+                      reviewId={review.reviewId}
+                      user={{ name: review.name }}
+                      date={review.createdAt}
+                      training={review.description}
+                      rating={review.rating}
+                      comment={review.comment}
+                      reply={review.reply}
+                      isOwner={true}
+                      onReplySubmit={handleReplySubmit}
+                    />
+                  ))
+                ) : (
+                  <Text>No hay reseñas disponibles.</Text>
+                )}
+              </Stack>
             </Box>
           </Flex>
 
-          <Heading fontSize="2xl" color="#fd6193" mb={4}>
+                <Heading
+            as="h1"
+            fontSize={{ base: "2xl", md: "3xl" }}
+            color="#fd6193"
+            fontWeight="bold"
+            mt={8}
+            mb={2}
+            fontFamily={"Inter"}
+          >
             Gestionar servicios
           </Heading>
           <Box h="2px" w="100%" bg="#fd6193" mb={6} />
@@ -1012,6 +1162,8 @@ const NextArrow = ({ onClick }) => (
           </Box>
         </Flex>
       )}
+       <Footer/>
     </Box>
+   
   );
 }

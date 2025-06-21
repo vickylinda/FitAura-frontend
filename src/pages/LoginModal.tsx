@@ -98,8 +98,24 @@ export default function LoginModal({
 
       const profileData = await profileRes.json();
       const firstName = profileData.name?.split(" ")[0] || "Usuaria";
+      let profilePic = null;
 
-      login({ id: profileData.id, name: firstName }, data.jwt);
+// Si es entrenadora, traer foto:
+if (profileData.isTrainer) {
+  const trainerRes = await fetch(
+    `http://localhost:4000/api/v1/trainers/${profileData.id}/profile`,
+    {
+      headers: { Authorization: `Bearer ${data.jwt}` },
+    }
+  );
+  if (trainerRes.ok) {
+    const trainerData = await trainerRes.json();
+    profilePic = trainerData.profilePic || null;
+  }
+}
+
+      login({ id: profileData.id, name: firstName,     isTrainer: profileData.isTrainer,
+    profilePic: profilePic, }, data.jwt);
       handleClose();
       if (onLoginSuccess) {
         onLoginSuccess();
@@ -150,8 +166,25 @@ export default function LoginModal({
 
       const profileData = await profileRes.json();
       const firstName = profileData.name?.split(" ")[0] || "Usuaria";
+      let profilePic = null;
 
-      login({ id: profileData.id, name: firstName }, data.token);
+// Si es entrenadora, traer foto:
+if (profileData.isTrainer) {
+  const trainerRes = await fetch(
+    `http://localhost:4000/api/v1/trainers/${profileData.id}/profile`,
+    {
+      headers: { Authorization: `Bearer ${data.jwt}` },
+    }
+  );
+  if (trainerRes.ok) {
+    const trainerData = await trainerRes.json();
+    profilePic = trainerData.profilePic || null;
+  }
+}
+
+
+      login({ id: profileData.id, name: firstName,     isTrainer: profileData.isTrainer,
+    profilePic: profilePic, }, data.token);
       handleClose();
       if (onLoginSuccess) onLoginSuccess();
     } catch (err: any) {

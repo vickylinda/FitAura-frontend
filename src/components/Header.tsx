@@ -35,7 +35,7 @@ export default function Header() {
 
   const { user, logout, loading } = useAuth();
   if (loading) return null;
-  
+
   const handleLogout = () => {
     logout();
     navigate("/home");
@@ -202,7 +202,7 @@ export default function Header() {
                   <Image src="/misentrenamientos.svg" boxSize="20px" mr={2} />
                   Mis Entrenamientos
                 </MenuItem>
-                
+
                 {user ? (
                   <MenuItem
                     onClick={() => handleNavigate("/my-account")}
@@ -269,7 +269,6 @@ export default function Header() {
               textDecoration={
                 isActive("/trainings") ? "2px solid #fd6193" : "none"
               }
-               
             >
               Entrenamientos
             </Button>
@@ -281,31 +280,41 @@ export default function Header() {
               textDecoration={
                 isActive("/mytrainings") ? "2px solid #fd6193" : "none"
               }
-              
-  
             >
               Mis Entrenamientos
             </Button>
-           
+
             <Box flexGrow={1} />
 
             {user ? (
               <Menu>
-               <MenuButton
-  {...transparentButtonStyles}
-  color="black"
-  cursor="pointer"
->
-  <Flex align="center" gap={2}>
-    <AvatarRoot colorPalette="pink">
-      <AvatarFallback />
-    </AvatarRoot>
-    <Text fontFamily="League Spartan" fontWeight="semibold" fontSize="lg">
-      ¡Hola, {user.name}!
-    </Text>
-  </Flex>
-</MenuButton>
+                <MenuButton
+                  {...transparentButtonStyles}
+                  color="black"
+                  cursor="pointer"
+                >
+                  <Flex align="center" gap={2}>
+                    {user?.profilePic ? (
+                      <Image
+                        src={user.profilePic}
+                        boxSize={{ base: "40px", md: "50px" }}
+                        borderRadius="full"
+                      />
+                    ) : (
+                      <AvatarRoot colorPalette="pink">
+                        <AvatarFallback />
+                      </AvatarRoot>
+                    )}
 
+                    <Text
+                      fontFamily="League Spartan"
+                      fontWeight="semibold"
+                      fontSize="lg"
+                    >
+                      ¡Hola, {user.name}!
+                    </Text>
+                  </Flex>
+                </MenuButton>
 
                 <MenuList
                   bg="#fed2ea"

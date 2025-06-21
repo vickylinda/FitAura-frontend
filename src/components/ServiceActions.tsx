@@ -1,38 +1,47 @@
 import {
   Box,
-  Button,
-  Heading,
   HStack,
-  Text,
+  Link
 } from '@chakra-ui/react';
+import { Link as RouterLink } from 'react-router-dom';
 
 const ServiceActions = () => {
+  // Ahora cada acción tiene una ruta asociada 👇
   const actions = [
-    { label: 'Crear', bg: '#fd6193' },
-    { label: 'Modificar', bg: '#f87ca1' },
-    { label: 'Publicar', bg: '#fca4bf' },
-    { label: 'Despublicar', bg: '#fdd4e2' },
-    { label: 'Eliminar', bg: '#ffeef4' },
+    { label: 'Crear', bg: '#fd6193', to: '/create-service' },
+    { label: 'Modificar', bg: '#f87ca1', to: '/edit-service' },
+    { label: 'Publicar', bg: '#fca4bf', to: '/publish-service' },
+    { label: 'Despublicar', bg: '#fdd4e2', to: '/unpublish-service' },
+    { label: 'Eliminar', bg: '#ffeef4', to: '/delete-service' },
   ];
 
-  return (
+return (
     <Box mt={10}>
       <HStack gap={10} justify="center" wrap="wrap">
         {actions.map((action, idx) => (
-          <Button
+          <Link
             key={idx}
-            w="100px"
-            h="100px"
-            borderRadius="full"
-            bg={action.bg}
-            _hover={{ opacity: 0.8 }}
-            fontWeight="bold"
-            fontSize="md"
-            color="black"
-            boxShadow="sm"
+            as={RouterLink}
+            to={action.to}
+            _hover={{ textDecoration: "none", transform: "scale(1.05)" }}
+            transition="all 0.2s ease-in-out"
           >
-            {action.label}
-          </Button>
+            <Box
+              w="130px" // Agrandé un poco
+              h="130px"
+              borderRadius="full"
+              bg={action.bg}
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              fontWeight="bold"
+              fontSize="md"
+              color="black"
+              boxShadow="lg"
+            >
+              {action.label}
+            </Box>
+          </Link>
         ))}
       </HStack>
     </Box>

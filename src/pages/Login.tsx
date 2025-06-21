@@ -94,6 +94,23 @@ export default function Login() {
 
       const profileData = await profileRes.json();
       const firstName = profileData.name?.split(" ")[0] || "Usuaria";
+      let profilePic = null;
+
+// Si es entrenadora, traé la foto:
+if (profileData.isTrainer) {
+  const trainerRes = await fetch(
+    `http://localhost:4000/api/v1/trainers/${profileData.id}/profile`,
+    {
+      headers: {
+        Authorization: `Bearer ${data.token}`,
+      },
+    }
+  );
+  if (trainerRes.ok) {
+    const trainerData = await trainerRes.json();
+    profilePic = trainerData.profilePic || null;
+  }
+}
 
       // Guardamos en localStorage
       {
@@ -105,7 +122,8 @@ export default function Login() {
   
       navigate("/home");*/
       }
-      login({ id: profileData.id, name: firstName }, data.jwt);
+      login({ id: profileData.id, name: firstName ,    isTrainer: profileData.isTrainer,
+    profilePic: profilePic,}, data.jwt);
       navigate("/home");
     } catch (err: any) {
       console.error(err);
@@ -311,7 +329,23 @@ export default function Login() {
                     const profileData = await profileRes.json();
                     const firstName =
                       profileData.name?.split(" ")[0] || "Usuaria";
+let profilePic = null;
 
+// Si es entrenadora, traé la foto:
+if (profileData.isTrainer) {
+  const trainerRes = await fetch(
+    `http://localhost:4000/api/v1/trainers/${profileData.id}/profile`,
+    {
+      headers: {
+        Authorization: `Bearer ${data.token}`,
+      },
+    }
+  );
+  if (trainerRes.ok) {
+    const trainerData = await trainerRes.json();
+    profilePic = trainerData.profilePic || null;
+  }
+}
                     // Guardamos en localStorage
                     {
                       /*localStorage.setItem(
@@ -322,7 +356,8 @@ export default function Login() {
                     // Navegamos
                     navigate("/home"); */
                     }
-                    login({ id: profileData.id, name: firstName }, data.token);
+                    login({ id: profileData.id, name: firstName, isTrainer: profileData.isTrainer,
+    profilePic: profilePic, }, data.token);
                     navigate("/home");
                   } catch (err: any) {
                     setError(err.message || "Ocurrió un error");

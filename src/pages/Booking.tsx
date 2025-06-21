@@ -12,7 +12,7 @@ import {
   VStack,
   SimpleGrid,
   Stack,
-  Spinner, 
+  Spinner,
   Center,
   Textarea,
 } from "@chakra-ui/react";
@@ -20,21 +20,26 @@ import { Link as RouterLink } from "react-router-dom";
 import Header from "@/components/Header";
 import { useState } from "react";
 import dayjs from "dayjs";
-import 'dayjs/locale/es';
-dayjs.locale('es');
+import "dayjs/locale/es";
+dayjs.locale("es");
 
 import Footer from "@/components/Footer";
-import { useFetchWithAuth } from '@/utils/fetchWithAuth';
+import { useFetchWithAuth } from "@/utils/fetchWithAuth";
 import { useParams } from "react-router-dom";
 import { useEffect } from "react";
 import axios from "axios";
 import ReviewCard from "@/components/ReviewCard";
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { ThemeProvider, createTheme } from "@mui/material/styles";
+
 type ServiceData = {
   id: number;
   category: string;
   description: string;
   duration: number;
-  price: string; 
+  price: string;
   published: boolean;
   location: string;
   timeAvailability: {
@@ -49,15 +54,11 @@ type ServiceData = {
   trainerName: string;
   trainerPic: string;
   trainerDescription: string;
-  trainerRating: string; 
+  trainerRating: string;
   statusCode: number;
 };
 
-
-
-
 export default function Booking() {
-  
   const { serviceId } = useParams<{ serviceId: string }>();
   const [serviceData, setServiceData] = useState<ServiceData | null>(null);
   const [trainerStats, setTrainerStats] = useState<any>(null);
@@ -69,10 +70,11 @@ export default function Booking() {
   useEffect(() => {
     const fetchService = async () => {
       try {
-        const res = await axios.get(`http://localhost:4000/api/v2/services/${serviceId}`);
+        const res = await axios.get(
+          `http://localhost:4000/api/v2/services/${serviceId}`
+        );
         setServiceData(res.data);
       } catch (err) {
-        
         console.error("Error al cargar el servicio", err);
       }
     };
@@ -81,26 +83,26 @@ export default function Booking() {
   useEffect(() => {
     const fetchTrainerData = async () => {
       if (!serviceData?.trainerId) return;
-  
+
       const id = serviceData.trainerId;
-  
+
       try {
         const [statsRes, reviewsRes, profileRes] = await Promise.all([
           fetch(`http://localhost:4000/api/v1/users/${id}/trainer-statistics`),
           fetch(`http://localhost:4000/api/v1/reviews?trainerId=${id}`),
-          fetch(`http://localhost:4000/api/v1/trainers/${id}/profile`)
+          fetch(`http://localhost:4000/api/v1/trainers/${id}/profile`),
         ]);
-  
+
         if (statsRes.ok) {
           const statsData = await statsRes.json();
           setTrainerStats(statsData);
         }
-  
+
         if (reviewsRes.ok) {
           const reviewsData = await reviewsRes.json();
           setTrainerReviews(reviewsData.reviews);
         }
-  
+
         if (profileRes.ok) {
           const profileData = await profileRes.json();
           const joiningDateSeconds = profileData.joiningDate;
@@ -112,40 +114,42 @@ export default function Booking() {
       } catch (err) {
         console.error("Fallo al obtener datos del trainer:", err);
       } finally {
-        setIsLoading(false); 
+        setIsLoading(false);
       }
     };
-  
+
     fetchTrainerData();
   }, [serviceData]);
-  
+
   const handleBooking = async () => {
     if (!serviceData || !endDate || Object.keys(selectedHours).length === 0) {
       alert("Seleccioná al menos una fecha y horario.");
       return;
     }
-  
+
     const payload = {
       serviceId: serviceData.id,
       selectedSchedule: selectedHours,
       endDate: Math.floor(new Date(endDate).getTime() / 1000),
-      comment: comment.trim() || undefined, 
+      comment: comment.trim() || undefined,
     };
-    
-  
+
     try {
-      const response = await fetchWithAuth("http://localhost:4000/api/v1/client-trainings", {
-        method: "POST",
-        body: JSON.stringify(payload),
-      });
-  
+      const response = await fetchWithAuth(
+        "http://localhost:4000/api/v1/client-trainings",
+        {
+          method: "POST",
+          body: JSON.stringify(payload),
+        }
+      );
+
       if (!response.ok) {
         const errorData = await response.json();
         console.error("Error al reservar:", errorData);
         alert("Ocurrió un error al reservar.");
         return;
       }
-  
+
       alert("¡Reserva creada con éxito!");
       // opcional: redirigir a otra página
     } catch (error) {
@@ -153,28 +157,27 @@ export default function Booking() {
       alert("Error de conexión al reservar.");
     }
   };
-  
 
-  
-  
   const [endDate, setEndDate] = useState("");
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
-  const [selectedHours, setSelectedHours] = useState<{ [key: string]: string[] }>({});
+  const [selectedHours, setSelectedHours] = useState<{
+    [key: string]: string[];
+  }>({});
   const [comment, setComment] = useState("");
-  const pricePerClass = 15;
+  const pricePerClass = Number(serviceData?.price) ;
 
   const calculateClasses = () => {
-     if (!endDate) return 0;
+    if (!endDate) return 0;
     const today = dayjs().startOf("day");
     const end = dayjs(endDate).endOf("day");
     let total = 0;
     let current = today;
-     while (current.isBefore(end)) {
-    const dayName = current.format("dddd");
-    const numHours = selectedHours[dayName]?.length || 0;
-    total += numHours; // suma solo si hay horas (numHours > 0)
-    current = current.add(1, "day");
-  }
+    while (current.isBefore(end)) {
+      const dayName = current.format("dddd");
+      const numHours = selectedHours[dayName]?.length || 0;
+      total += numHours; // suma solo si hay horas (numHours > 0)
+      current = current.add(1, "day");
+    }
     return total;
   };
 
@@ -202,7 +205,15 @@ export default function Booking() {
       </Center>
     );
   }
-
+  const muiTheme = createTheme({
+  palette: {
+    primary: {
+      main: "#fd6193",
+      dark: "#fd6193",   // 👈 igual que main
+      contrastText: "#fff",
+    },
+  },
+});
 
   return (
     <Box minH="100vh" bg="white">
@@ -234,8 +245,8 @@ export default function Booking() {
               flex="1 1 100%"
               wordBreak="break-word"
             >
-              {serviceData?.category || "Cargando..."}
-              </Text>
+              {serviceData?.description || "Cargando..."}
+            </Text>
             <Flex
               as={RouterLink}
               to={`/trainer/${serviceData?.trainerId}`}
@@ -257,12 +268,11 @@ export default function Booking() {
                   fontFamily="Poppins"
                   lineHeight="1"
                 >
-                {serviceData?.trainerName || "Cargando..."}
-
+                  {serviceData?.trainerName || "Cargando..."}
                 </Text>
                 <Flex align="center" gap={1}>
                   <Text fontWeight="bold" fontSize="sm" color="black" mt={1}>
-                  {serviceData?.trainerRating ?? "aún sin reviews"}
+                    {serviceData?.trainerRating ?? "aún sin reviews"}
                   </Text>
                   <Image src="/estrella.png" boxSize="1rem" />
                 </Flex>
@@ -285,14 +295,49 @@ export default function Booking() {
           </Flex>
 
           {/* Fecha de finalización */}
-          <VStack align="start" mb={4}>
-            <Text fontWeight="bold">Fecha de finalización</Text>
-            <Input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-            />
-          </VStack>
+          <ThemeProvider theme={muiTheme}>
+<LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
+  <VStack align="start" mb={4} w="full">
+    <Text fontWeight="bold">Fecha de finalización</Text>
+    <DatePicker
+      format="DD/MM/YYYY"
+      value={endDate ? dayjs(endDate) : null}
+      onChange={(newValue) => {
+        if (newValue) {
+          setEndDate(newValue.format("YYYY-MM-DD"));
+        } else {
+          setEndDate("");
+        }
+      }}
+      slotProps={{
+        textField: {
+          fullWidth: true,
+          size: "small",
+          sx: {
+            "& label": { color: "#fd6193" },
+            "& label.Mui-focused": { color: "#fd6193" },
+            "& .MuiInputBase-root": {
+              "& fieldset": {
+                borderColor: "#fd6193",
+              },
+              "&:hover fieldset": {
+                borderColor: "#fd6193",
+              },
+              "&.Mui-focused fieldset": {
+                borderColor: "#fd6193",
+              },
+            },
+            "& .MuiSvgIcon-root": {
+              color: "#fd6193", // iconito del calendario
+            },
+          },
+        },
+      }}
+    />
+  </VStack>
+</LocalizationProvider>
+</ThemeProvider>
+
 
           {/* Selección de días y horas */}
           <VStack align="start" mb={4}>
@@ -307,22 +352,28 @@ export default function Booking() {
               >
                 <Checkbox.Root
                   checked={selectedDays.includes(day)}
-                  onCheckedChange={(checked) => {
-                    if (checked) {
-                      setSelectedDays((prev) => Array.from(new Set([...prev, day])));
-                    } else {
+                  onCheckedChange={({checked}) => {
+                    if (checked === true) {
+                      setSelectedDays((prev) =>
+                        Array.from(new Set([...prev, day]))
+                      );
+                    } else if (checked === false) {
                       setSelectedDays(selectedDays.filter((d) => d !== day));
                       const updatedHours = { ...selectedHours };
                       delete updatedHours[day];
                       setSelectedHours(updatedHours);
                     }
                   }}
+                  colorPalette="pink"
+                  variant="subtle"
                 >
                   {" "}
                   <Checkbox.HiddenInput />
-                  <Checkbox.Control />
-                  <Checkbox.Label>{day.charAt(0).toUpperCase() + day.slice(1)}</Checkbox.Label>
-                  </Checkbox.Root>
+                  <Checkbox.Control style={{ cursor: "pointer" }} />
+                  <Checkbox.Label style={{ cursor: "pointer" }}>
+                    {day.charAt(0).toUpperCase() + day.slice(1)}
+                  </Checkbox.Label>
+                </Checkbox.Root>
 
                 {selectedDays.includes(day) && (
                   <Flex mt={2} wrap="wrap" gap={2}>
@@ -363,23 +414,23 @@ export default function Booking() {
             {selectedDays.length > 0 && (
               <Text>
                 Reservaste {totalClasses} clases:{" "}
-
                 {selectedDays
-                 .filter((day) => (selectedHours[day] ?? []).length > 0)
+                  .filter((day) => (selectedHours[day] ?? []).length > 0)
                   .map((day) => {
                     const hours = selectedHours[day] || [];
-                    return `${day} a las [${hours.join(", ")}]`;
+                    return `${day} a las ${hours.join(", ")}`;
                   })
                   .join("; ")}
               </Text>
             )}
 
-              
-            <Text>Precio por clase: ${pricePerClass}</Text>
+            <Text>Precio por clase: ${pricePerClass} ARS</Text>
             <Text fontWeight="bold">Total a pagar: ${totalPrice}</Text>
           </VStack>
           <VStack align="start" mb={4} w="full">
-            <Text fontWeight="bold">Comentario para la entrenadora (opcional)</Text>
+            <Text fontWeight="bold">
+              Comentario para la entrenadora (opcional)
+            </Text>
             <Textarea
               placeholder="Contale a la entrenadora tus objetivos, lesiones o lo que quieras trabajar..."
               value={comment}
@@ -389,9 +440,10 @@ export default function Booking() {
             />
           </VStack>
 
-
           {/* Botón */}
-          <Button colorScheme="pink" w="full" onClick={handleBooking}>
+          <Button bg="#fd6193"
+            color={"white"}
+            _hover={{ bg: "#fd99bf" }} w="full" onClick={handleBooking}>
             Reservar y Pagar
           </Button>
         </Box>
@@ -409,8 +461,10 @@ export default function Booking() {
         </Heading>
         <Box h="2px" w="100%" bg="#fd6193" mb={6} />
 
-        <Text>         
+        <Text>
           {serviceData?.description || "Cargando..."}
+          <br />
+          Categoría: {serviceData?.category || "Cargando..."}
         </Text>
 
         <Heading
@@ -426,101 +480,97 @@ export default function Booking() {
         </Heading>
         <Box h="2px" w="100%" bg="#fd6193" mb={6} />
         {serviceData?.freeSlots ? (
-        <VStack align="start" spacing={3}>
-          {Object.entries(serviceData.freeSlots).map(([day, hours]) => (
-            <Box key={day}>
-              <Text fontWeight="bold" textTransform="capitalize">
-                {day}
-              </Text>
-              <Text>{hours.join(", ")}</Text>
-            </Box>
-          ))}
-        </VStack>
-      ) : (
-        <Text color="gray.500">Cargando disponibilidad...</Text>
-      )}
-      
-      <Heading
+          <VStack align="start" spacing={3}>
+            {Object.entries(serviceData.freeSlots).map(([day, hours]) => (
+              <Box key={day}>
+                <Text fontWeight="bold" textTransform="capitalize">
+                  {day}
+                </Text>
+                <Text>{hours.join(", ")}</Text>
+              </Box>
+            ))}
+          </VStack>
+        ) : (
+          <Text color="gray.500">Cargando disponibilidad...</Text>
+        )}
+
+        <Heading
           as="h1"
           fontSize={{ base: "2xl", md: "3xl" }}
           color="#fd6193"
           fontWeight="bold"
           mb={2}
-          mt={10} 
+          mt={10}
           fontFamily={"Inter"}
         >
           Más sobre la entrenadora
-
-          
         </Heading>
         <Box h="2px" w="100%" bg="#fd6193" mb={6} />
 
         <Flex
-  direction={{ base: "column", md: "row" }}
-  gap={6}
-  align="start"
-  mb={6}
-  width="100%"
->
-  {/* Columna de estadísticas */}
-  {trainerStats && (
-    <Box
-      bg="white"
-      p={6}
-      borderRadius="xl"
-      boxShadow="md"
-      border="1px solid #E2E8F0"
-      width={{ base: "100%", md: "50%" }}
-      flexShrink={0} 
-    >
-      <Text fontSize="2xl" fontWeight="bold" mb={6}>
-        {serviceData?.trainerName}
-      </Text>
+          direction={{ base: "column", md: "row" }}
+          gap={6}
+          align="start"
+          mb={6}
+          width="100%"
+        >
+          {/* Columna de estadísticas */}
+          {trainerStats && (
+            <Box
+              bg="white"
+              p={6}
+              borderRadius="xl"
+              boxShadow="md"
+              border="1px solid #E2E8F0"
+              width={{ base: "100%", md: "50%" }}
+              flexShrink={0}
+            >
+              <Text fontSize="2xl" fontWeight="bold" mb={6}>
+                {serviceData?.trainerName}
+              </Text>
 
-      <Flex align="center" gap={1} mb={2}>
-        <Text fontWeight="bold">{trainerStats.ratingaverage}/5</Text>
-        <Image src="/estrella.png" boxSize="1rem" />
-      </Flex>
-      <Text>{trainerStats.completedtrainings} entrenamientos dictados.</Text>
-      <Text>{trainerStats.activetrainees} alumnas activas.</Text>
-      {yearsUsingApp != null && (
-        <Text>
-          {yearsUsingApp < 1
-            ? "Aún no cumplió un año utilizando FitAura"
-            : `${yearsUsingApp} año${yearsUsingApp === 1 ? "" : "s"} usando FitAura`}
-        </Text>
-      )}
+              <Flex align="center" gap={1} mb={2}>
+                <Text fontWeight="bold">{trainerStats.ratingaverage}/5</Text>
+                <Image src="/estrella.png" boxSize="1rem" />
+              </Flex>
+              <Text>
+                {trainerStats.completedtrainings} entrenamientos dictados.
+              </Text>
+              <Text>{trainerStats.activetrainees} alumnas activas.</Text>
+              {yearsUsingApp != null && (
+                <Text>
+                  {yearsUsingApp < 1
+                    ? "Aún no cumplió un año utilizando FitAura"
+                    : `${yearsUsingApp} año${yearsUsingApp === 1 ? "" : "s"} usando FitAura`}
+                </Text>
+              )}
+            </Box>
+          )}
 
-    </Box>
-  )}
-
-  {/* Columna de reviews */}
-  <Box flex="1" w="100%">
-    {trainerReviews.length > 0 ? (
-      <Stack spacing={6}>
-        {trainerReviews.map((review, idx) => (
-          <ReviewCard
-            key={idx}
-            reviewId={review.reviewId}
-            user={{ name: review.name }}
-            date={review.createdAt}
-            training={review.description}
-            rating={review.rating}
-            comment={review.comment}
-            reply={review.reply}
-          />
-        ))}
-      </Stack>
-    ) : (
-      <Text>No hay reseñas disponibles.</Text>
-    )}
-  </Box>
-</Flex>
-
-        
-
-        </Box>
-        <Footer/>
+          {/* Columna de reviews */}
+          <Box flex="1" w="100%">
+            {trainerReviews.length > 0 ? (
+              <Stack spacing={6}>
+                {trainerReviews.map((review, idx) => (
+                  <ReviewCard
+                    key={idx}
+                    reviewId={review.reviewId}
+                    user={{ name: review.name }}
+                    date={review.createdAt}
+                    training={review.description}
+                    rating={review.rating}
+                    comment={review.comment}
+                    reply={review.reply}
+                  />
+                ))}
+              </Stack>
+            ) : (
+              <Text>No hay reseñas disponibles.</Text>
+            )}
+          </Box>
+        </Flex>
+      </Box>
+      <Footer />
     </Box>
   );
 }

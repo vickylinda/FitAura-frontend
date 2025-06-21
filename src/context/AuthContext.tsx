@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 
-type User = { id: number; name: string };
+type User = { id: number; name: string, isTrainer: boolean;
+  profilePic?: string; };
 
 interface AuthContextType {
   user: User | null;
@@ -53,9 +54,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (!res.ok) throw new Error("Token inválido");
         return res.json();
       })
-      .then((data) => {
+      .then(async(data) => {
         const firstName = data.name?.split(" ")[0] || "Usuaria";
-        const updatedUser = { id: data.id, name: firstName };
+        let profilePic = null;
+              if (data.isTrainer) {
+        const trainerRes = await fetch(
+          `${import.meta.env.VITE_API_URL}/trainers/${data.id}/profile`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        if (trainerRes.ok) {
+          const trainerData = await trainerRes.json();
+          profilePic = trainerData.profilePic || null;
+        }
+      }
+
+        const updatedUser = { id: data.id, name: firstName , isTrainer: data.isTrainer, profilePic};
         setUser(updatedUser);
         localStorage.setItem("fitauraUser", JSON.stringify(updatedUser));
       })
