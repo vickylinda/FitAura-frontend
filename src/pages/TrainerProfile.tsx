@@ -182,6 +182,14 @@ const TrainerProfile = () => {
   
     return data.reviews;
   };
+  const calculateYearsUsingApp = (joiningTimestampInSeconds: number): number => {
+    if (!joiningTimestampInSeconds) return 0;
+    const joiningDate = new Date(joiningTimestampInSeconds * 1000); // convertís a ms
+    const now = new Date();
+    const diffInMs = now.getTime() - joiningDate.getTime();
+    const years = diffInMs / (1000 * 60 * 60 * 24 * 365.25); // considerar años bisiestos
+    return Math.floor(years); // redondea para abajo
+  };
   
   
 
@@ -228,7 +236,11 @@ const TrainerProfile = () => {
               </Text> 
               <Text>{trainingsCount} entrenamientos dictados</Text>
               <Text>{activeStudents} alumnas activas</Text>
-              <Text>{yearsUsingApp} años usando FitAura</Text>
+              <Text>
+                {yearsUsingApp < 1
+                  ? "Aún no cumplió un año usando FitAura"
+                  : `${yearsUsingApp} año${yearsUsingApp === 1 ? "" : "s"} usando FitAura`}
+              </Text>
             </Box>
             <Box minW="140px">
             {avatarUrl ? (
@@ -301,7 +313,7 @@ const TrainerProfile = () => {
           rating={stats?.ratingaverage ?? null}
           trainingsCount={stats?.completedtrainings ?? 0}
           activeStudents={stats?.activetrainees ?? 0}
-          yearsUsingApp={2}
+          yearsUsingApp={calculateYearsUsingApp(profile.joiningDate)}
           bio={profile.description}
           avatarUrl={profile.profilePic}
         />
@@ -412,19 +424,36 @@ const TrainerProfile = () => {
         <Text fontSize={fontSizeCard} mt={2} fontWeight="bold">Horarios disponibles:</Text>
         
         {/* Mostrar los horarios de `timeavailability` */}
-        {service.timeavailability ? (
-          <Box mt={2}>
-            {Object.entries(service.timeavailability).map(([day, times]) => (
-              <Text key={day} fontSize={fontSizeCard}>
-                <strong>{day.charAt(0).toUpperCase() + day.slice(1)}:</strong> {times.join(", ")}
-              </Text>
-            ))}
+        {/* Horarios disponibles */}
+          <Text fontSize={fontSizeCard} mt={2} fontWeight="bold">Horarios disponibles:</Text>
+          <Box mt={2} mb={4}>
+            {service.timeavailability
+              ? Object.entries(service.timeavailability).map(([day, times]) => (
+                  <Text key={day} fontSize={fontSizeCard}>
+                    <strong>{day.charAt(0).toUpperCase() + day.slice(1)}:</strong> {times.join(", ")}
+                  </Text>
+                ))
+              : <Text fontSize={fontSizeCard} color="gray.500">No hay horarios disponibles.</Text>}
           </Box>
-        ) : (
-          <Text fontSize={fontSizeCard} color="gray.500">No hay horarios disponibles.</Text>
-        )}
+          <Button
+            as={RouterLink}
+            to={`/booking/${service.id}`}
+            bg="#fd6193"
+            w="full"
+            borderRadius="xl"
+            color="white"
+            _hover={{
+              color: "white",
+              boxShadow: "0 8px 14px rgba(0, 0, 0, 0.3)",
+            }}
+          >
+            Reservar clase
+          </Button>
+
       </Box>
+
     </Box>
+    
   ))}
 </SimpleGrid>
 

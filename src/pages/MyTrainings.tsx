@@ -4,9 +4,11 @@ import {
   Flex,
   SimpleGrid,
   Button,
-  Image
+  Image,
+  AvatarRoot,
+  AvatarFallback,
 } from '@chakra-ui/react';
-import { Avatar } from '@chakra-ui/avatar';
+import { Avatar} from '@chakra-ui/avatar';
 import { useFetchWithAuth } from '@/utils/fetchWithAuth';
 import Header from '@/components/Header';
 import { useEffect, useState } from 'react';
@@ -129,7 +131,9 @@ const MisEntrenamientos = () => {
             flexShrink={0}
           />
         ) : (
-          <Avatar name={training.trainerName} bg="pink.300" />
+          <AvatarRoot colorPalette="pink">
+              <AvatarFallback />
+            </AvatarRoot>
         )}
       </Flex>
     </Flex>

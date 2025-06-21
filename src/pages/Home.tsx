@@ -295,6 +295,8 @@ const Home = () => {
 
                 <Button
                   mt="auto"
+                  as={RouterLink}
+                  to={`/booking/${clase.id}`}
                   mb={1}
                   bg={"#fd6193"}
                   w="full"

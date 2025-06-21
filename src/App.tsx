@@ -35,7 +35,7 @@ function App() {
       <Route path="/booktraining" element={<BookingSection pricePerClass={15} trainerName={''} trainerRating={0} trainerAvatar={''}/>} />
       <Route path="trainersportal" element={<TrainerPortal />} />
       <Route path="create-service" element={<CreateService/>} />
-      <Route path="booking" element={<Booking/>} />
+      <Route path="booking/:serviceId" element={<Booking/>} />
 
     </Routes>
     <LoginModal isOpen={isOpen} onClose={closeModal} />
