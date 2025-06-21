@@ -13,6 +13,7 @@ import {
   AvatarRoot,
   AvatarFallback,
   Image,
+  Toaster,
   useBreakpointValue,
 } from "@chakra-ui/react";
 import { Global } from "@emotion/react";

@@ -90,7 +90,7 @@ const MisEntrenamientos = () => {
   >
     <Flex justify="space-between" align="center" mb={4} wrap="wrap" gap={2}>
       <Text fontWeight="semibold" fontSize={{ base: "md", md: "lg" }} fontFamily="Poppins">
-        {training.description}
+        {training.title}
       </Text>
 
       <Flex

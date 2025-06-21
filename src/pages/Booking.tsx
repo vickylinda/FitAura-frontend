@@ -16,6 +16,7 @@ import {
   Center,
   Textarea,
 } from "@chakra-ui/react";
+import { toaster } from "@/components/ui/toaster";
 import { Link as RouterLink } from "react-router-dom";
 import Header from "@/components/Header";
 import { useState } from "react";
@@ -124,7 +125,12 @@ export default function Booking() {
 
   const handleBooking = async () => {
     if (!serviceData || !endDate || Object.keys(selectedHours).length === 0) {
-      alert("Seleccioná al menos una fecha y horario.");
+      toaster.create({
+        title: "Error",
+        description: "Debes ingresar al menos un horario semanal y una fecha de finalización de la contratación.",
+        type: "error",
+        duration: 3000,
+      });
       return;
     }
 
@@ -147,12 +153,35 @@ export default function Booking() {
       if (!response.ok) {
         const errorData = await response.json();
         console.error("Error al reservar:", errorData);
-        alert("Ocurrió un error al reservar.");
+      
+        if (errorData.internalErrorCode === 1005) {
+          toaster.create({
+            title: "Error",
+            description: "No podés reservar un entrenamiento con vos misma.",
+            type: "error",
+            duration: 3000,
+          });
+        } else {
+          toaster.create({
+            title: "Error al reservar",
+            description: errorData.message || "Ocurrió un error inesperado.",
+            type: "error",
+            duration: 3000,
+          });
+        }
+      
         return;
       }
+      
+      
+      toaster.create({
+        title: "Reserva creada",
+        description: "¡Tu entrenamiento fue reservado correctamente!",
+        type: "success",
+        duration: 3000,
+      });
+      
 
-      alert("¡Reserva creada con éxito!");
-      // opcional: redirigir a otra página
     } catch (error) {
       console.error("Error inesperado:", error);
       alert("Error de conexión al reservar.");
