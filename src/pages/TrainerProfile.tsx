@@ -576,6 +576,7 @@ const TrainerProfile = () => {
 
 
     </Box>
+    </Box>
   );
 };
 
