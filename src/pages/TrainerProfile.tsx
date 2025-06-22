@@ -158,7 +158,7 @@ const TrainerProfile = () => {
     }
   };
   const fetchServices = async (trainerId: number) => {
-    const res = await fetch(`http://localhost:4000/api/v2/services?trainerId=${trainerId}`);
+    const res = await fetch(`http://localhost:4000/api/v2/services?trainerId=${trainerId}&&published=true`);
     const data = await res.json();
   
     if (!res.ok) {
