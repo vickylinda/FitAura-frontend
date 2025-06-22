@@ -15,10 +15,13 @@ import BookingSection from './components/Booking'
 import TrainerPortal from './pages/TrainerPortal'
 import CreateService from './pages/CreateService'
 import Booking from './pages/Booking'
-
-
+import EditService from './pages/ModifyService';
+import ChooseServiceToModify from './pages/ChooseServiceToModify'
+import ChooseServiceToPublish from './pages/ChooseServiceToPublish'
+import ChooseServiceToUnpublish from './pages/ChooseServiceToUnpublish'
+import ChooseServiceToDelete from './pages/ChooseServiceToDelete'
 function App() {
-  const { isOpen, closeModal } = useAuthModal();  //para poder ver el estado del modal
+  const { isOpen, closeModal } = useAuthModal();  
   return (
     <> 
     <Routes>
@@ -36,9 +39,14 @@ function App() {
       <Route path="trainersportal" element={<TrainerPortal />} />
       <Route path="create-service" element={<CreateService/>} />
       <Route path="booking/:serviceId" element={<Booking/>} />
-
+      <Route path="/edit-service/:serviceId" element={<EditService />} />
+      <Route path="/edit-service" element={<ChooseServiceToModify />} />
+      <Route path="/publish-service" element={<ChooseServiceToPublish />} />
+      <Route path="/unpublish-service" element={<ChooseServiceToUnpublish />} />
+      <Route path="/delete-service" element={<ChooseServiceToDelete />} />
     </Routes>
     <LoginModal isOpen={isOpen} onClose={closeModal} />
+
 
     </>
   )

@@ -170,7 +170,7 @@ const TrainerProfile = () => {
   };
   const fetchServices = async (trainerId: number) => {
     const res = await fetch(
-      `http://localhost:4000/api/v2/services?trainerId=${trainerId}`
+      `http://localhost:4000/api/v2/services?trainerId=${trainerId}&&published=true`
     );
     const data = await res.json();
 
@@ -392,40 +392,23 @@ const TrainerProfile = () => {
         {services.length === 0 ? (
           <Text>No hay servicios disponibles para esta entrenadora.</Text>
         ) : (
-          <SimpleGrid
-            columns={{ base: 1, sm: 2, md: 3 }}
-            gap={{ base: 6, md: 8 }}
-            px={{ base: 4, md: 12 }}
-            py={4}
-          >
-            {services.map((service, index) => (
-              <Box
-                key={index}
-                p={4}
-                bg="white"
-                borderRadius="xl"
-                boxShadow="md"
-                display="flex"
-                flexDirection="column"
-                height="100%"
-              >
-                <Flex
-                  justify="space-between"
-                  align="center"
-                  mb={4}
-                  wrap="wrap"
-                  gap={2}
-                >
-                  {/* Descripción del servicio */}
-                  <Text
-                    fontWeight="semibold"
-                    fontSize={{ base: "md", md: "lg" }}
-                    fontFamily="Poppins"
-                    flex="1 1 100%"
-                    wordBreak="break-word"
-                  >
-                    {service.description}
-                  </Text>
+          <SimpleGrid columns={{ base: 1, sm: 2, md: 3 }} gap={{ base: 6, md: 8 }} px={{ base: 4, md: 12 }} py={4}>
+  {services.map((service, index) => (
+    <Box
+      key={index}
+      p={4}
+      bg="white"
+      borderRadius="xl"
+      boxShadow="md"
+      display="flex"
+      flexDirection="column"
+      height="100%"
+    >
+      <Flex justify="space-between" align="center" mb={4} wrap="wrap" gap={2}>
+        {/* Título del servicio */}
+        <Text fontWeight="semibold" fontSize={{ base: "md", md: "lg" }} fontFamily="Poppins" flex="1 1 100%" wordBreak="break-word">
+          {service.title}
+        </Text>
 
                   {/* Información del entrenador */}
                   <Flex
@@ -564,40 +547,34 @@ const TrainerProfile = () => {
         )}
       </Box>
 
-      <Heading
-                as="h1"
-                fontSize={{ base: "2xl", md: "3xl" }}
-                color="#fd6193"
-                fontWeight="bold"
-                mb={2}
-                fontFamily={"Inter"}
-                mt={6}
-              >
-                Calificaciones
-              </Heading>
-              <Text color="gray.500" fontSize="sm" mb={2}>
-          Calificaciones realizadas por usuarias de la app que tomaron al menos 1 clase con la entrenadora.
-        </Text>
-              <Box h="2px" w="100%" bg="#fd6193" mb={10} />
-      <SimpleGrid columns={{ base: 1, md: 2 }} gap={10} mb={12} mt={8}>
-        {reviewsData.length > 0 ? (
-          reviewsData.map((review, idx) => (
-            <ReviewCard
-              key={idx}
-              reviewId={review.reviewId}
-              user={{ name: review.name }}
-              date={review.createdAt}
-              training={review.description}
-              rating={review.rating}
-              comment={review.comment}
-              reply={review.reply}
-            />
-          ))
-        ) : (
-          <Text>No hay reseñas disponibles.</Text>
-        )}
-      </SimpleGrid>
-      </Box>
+      
+      <Flex direction="column" mt={2} mb={2} gap={2}>
+  <Text color="#fd6193" fontWeight="bold" fontSize="2xl">Calificaciones</Text>
+  <Text color="gray.500" fontSize="sm" mb={2}>Calificaciones de usuarias reales.</Text>
+</Flex>
+<Box height="2px" width="100%" bg="#fd6193" borderRadius="full" mb={12} />
+<SimpleGrid columns={{ base: 1, md: 2 }} gap={10} mb={12} mt={8}>
+  {reviewsData.length > 0 ? (
+    reviewsData.map((review, idx) => (
+      <ReviewCard
+        key={idx}
+        reviewId={review.reviewId}
+        user={{ name: review.name }}  
+        date={review.createdAt}
+        training={review.title}
+        rating={review.rating}
+        comment={review.comment}
+        reply={review.reply}
+        
+      />
+    ))
+  ) : (
+    <Text>No hay reseñas disponibles.</Text>
+  )}
+</SimpleGrid>
+
+
+
     </Box>
   );
 };
