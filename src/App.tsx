@@ -20,7 +20,6 @@ import ChooseServiceToModify from './pages/ChooseServiceToModify'
 import ChooseServiceToPublish from './pages/ChooseServiceToPublish'
 import ChooseServiceToUnpublish from './pages/ChooseServiceToUnpublish'
 import ChooseServiceToDelete from './pages/ChooseServiceToDelete'
-import DeleteConfirmationDialog from './pages/ConfirmDeleteModal'
 function App() {
   const { isOpen, closeModal } = useAuthModal();  
   return (
