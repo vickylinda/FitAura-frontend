@@ -1,13 +1,21 @@
-import { Box, Text, Flex, SimpleGrid, Image, AvatarRoot, AvatarFallback,Button } from '@chakra-ui/react';
-import { Card, CardBody } from '@chakra-ui/card';
-import { FaStar } from 'react-icons/fa';
-import TrainingCard from '@/components/Card.entrenamiento';
-import Header from '@/components/Header';
-import ReviewCard from '@/components/ReviewCard';
-import { useParams } from 'react-router-dom';
-import { useState, useEffect, useRef } from 'react';
+import {
+  Box,
+  Text,
+  Flex,
+  SimpleGrid,
+  Image,
+  AvatarRoot,
+  AvatarFallback,
+  Button,
+  Heading,
+} from "@chakra-ui/react";
+import { FaStar } from "react-icons/fa";
+import Header from "@/components/Header";
+import ReviewCard from "@/components/ReviewCard";
+import { useParams } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
 import { Link as RouterLink } from "react-router-dom";
-import { useBreakpointValue } from '@chakra-ui/react';
+import { useBreakpointValue } from "@chakra-ui/react";
 
 const TrainerProfile = () => {
   const { trainerId } = useParams();
@@ -27,12 +35,12 @@ const TrainerProfile = () => {
     const fetchData = async () => {
       const numericId = Number(trainerId);
       console.log("Trainer ID detectado:", numericId);
-  
+
       if (isNaN(numericId) || numericId <= 0) {
         setProfileError("ID inválido");
         return;
       }
-  
+
       try {
         const profileData = await fetchTrainerProfile(numericId);
         setProfile(profileData);
@@ -40,7 +48,7 @@ const TrainerProfile = () => {
         console.error("Error al cargar perfil:", err);
         setProfileError(err.message);
       }
-  
+
       try {
         const statsData = await fetchTrainerStatistics(numericId);
         setStats(statsData);
@@ -53,45 +61,42 @@ const TrainerProfile = () => {
         const servicesData = await fetchServices(numericId);
         setServices(servicesData);
       } catch (err) {
-        
         console.error("Error al cargar servicios:", err);
         setErrorServices("No se pudieron cargar los servicios.");
       }
-      
+
       try {
-        const reviewsData = await fetchReviews(numericId); 
+        const reviewsData = await fetchReviews(numericId);
         setReviewsData(reviewsData);
       } catch (err) {
         console.error("Error al cargar reseñas:", err);
         setErrorReviews("No se pudieron cargar las reseñas.");
       }
-  
-  
-  
+
       if (!incrementedRef.current) {
         incrementedRef.current = true;
         incrementTrainerViews(numericId);
       }
-      
     };
-  
-    fetchData(); 
+
+    fetchData();
   }, [trainerId]);
-  
 
   const fetchTrainerProfile = async (trainerId: number) => {
-    const res = await fetch(`http://localhost:4000/api/v1/trainers/${trainerId}/profile`);
+    const res = await fetch(
+      `http://localhost:4000/api/v1/trainers/${trainerId}/profile`
+    );
     const data = await res.json();
 
     if (!res.ok) {
       const { internalErrorCode } = data;
       switch (internalErrorCode) {
         case 1002:
-          throw new Error('Petición incorrecta: ID inválido');
+          throw new Error("Petición incorrecta: ID inválido");
         case 1007:
-          throw new Error('Entrenadora no encontrada');
+          throw new Error("Entrenadora no encontrada");
         default:
-          throw new Error('Error del servidor al obtener el perfil');
+          throw new Error("Error del servidor al obtener el perfil");
       }
     }
 
@@ -101,12 +106,15 @@ const TrainerProfile = () => {
   const fetchTrainerStatistics = async (trainerId: number) => {
     const token = localStorage.getItem("token");
 
-    const res = await fetch(`http://localhost:4000/api/v1/users/${trainerId}/trainer-statistics`, {
-      headers: {
-        "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-    });
+    const res = await fetch(
+      `http://localhost:4000/api/v1/users/${trainerId}/trainer-statistics`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      }
+    );
 
     const data = await res.json();
 
@@ -114,14 +122,14 @@ const TrainerProfile = () => {
       const { internalErrorCode } = data;
       switch (internalErrorCode) {
         case 1002:
-          throw new Error('Petición incorrecta: ID inválido');
+          throw new Error("Petición incorrecta: ID inválido");
         case 1007:
-          throw new Error('Estadísticas no encontradas');
+          throw new Error("Estadísticas no encontradas");
         case 1100:
         case 1101:
-          throw new Error('Debes iniciar sesión para ver estadísticas');
+          throw new Error("Debes iniciar sesión para ver estadísticas");
         default:
-          throw new Error('Error del servidor al obtener estadísticas');
+          throw new Error("Error del servidor al obtener estadísticas");
       }
     }
 
@@ -132,13 +140,16 @@ const TrainerProfile = () => {
     try {
       const token = localStorage.getItem("token");
       //nota: acá el backend se fija de si es la misma persona o no antes de incrementar
-      const res = await fetch(`http://localhost:4000/api/v1/users/${trainerId}/trainer-statistics/visualizations`, {
-        method: 'PATCH',
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-      });
+      const res = await fetch(
+        `http://localhost:4000/api/v1/users/${trainerId}/trainer-statistics/visualizations`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        }
+      );
 
       if (!res.ok) {
         const data = await res.json();
@@ -146,43 +157,48 @@ const TrainerProfile = () => {
         switch (internalErrorCode) {
           case 1002:
           case 1007:
-            console.warn('No se pudo incrementar vistas');
+            console.warn("No se pudo incrementar vistas");
             break;
           default:
-            console.warn('Error interno al incrementar vistas');
+            console.warn("Error interno al incrementar vistas");
             break;
         }
       }
     } catch (err) {
-      console.error('Fallo la conexión al incrementar vistas:', err);
+      console.error("Fallo la conexión al incrementar vistas:", err);
     }
   };
   const fetchServices = async (trainerId: number) => {
-    const res = await fetch(`http://localhost:4000/api/v2/services?trainerId=${trainerId}`);
+    const res = await fetch(
+      `http://localhost:4000/api/v2/services?trainerId=${trainerId}`
+    );
     const data = await res.json();
-  
+
     if (!res.ok) {
       if (data.internalErrorCode === 1007) {
-      // No hay servicios disponibles (no es un error)
-      return [];
-    }
-    throw new Error('Error al cargar los servicios');
-
+        // No hay servicios disponibles (no es un error)
+        return [];
+      }
+      throw new Error("Error al cargar los servicios");
     }
     return data.services;
   };
 
   const fetchReviews = async (trainerId: number) => {
-    const res = await fetch(`http://localhost:4000/api/v1/reviews?trainerId=${trainerId}`);
+    const res = await fetch(
+      `http://localhost:4000/api/v1/reviews?trainerId=${trainerId}`
+    );
     const data = await res.json();
     console.log("Reseñas recibidas:", data.reviews);
     if (!res.ok) {
-      throw new Error('Error al cargar las reseñas');
+      throw new Error("Error al cargar las reseñas");
     }
-  
+
     return data.reviews;
   };
-  const calculateYearsUsingApp = (joiningTimestampInSeconds: number): number => {
+  const calculateYearsUsingApp = (
+    joiningTimestampInSeconds: number
+  ): number => {
     if (!joiningTimestampInSeconds) return 0;
     const joiningDate = new Date(joiningTimestampInSeconds * 1000); // convertís a ms
     const now = new Date();
@@ -190,10 +206,16 @@ const TrainerProfile = () => {
     const years = diffInMs / (1000 * 60 * 60 * 24 * 365.25); // considerar años bisiestos
     return Math.floor(years); // redondea para abajo
   };
-  
-  
-
-  const TrainerInfo = ({
+  type TrainerInfoProps = {
+    name: string;
+    rating: number | null;
+    trainingsCount: number;
+    activeStudents: number;
+    yearsUsingApp: number;
+    bio: string;
+    avatarUrl: string;
+  };
+  const TrainerInfo: React.FC<TrainerInfoProps> = ({
     name,
     rating,
     trainingsCount,
@@ -201,104 +223,115 @@ const TrainerProfile = () => {
     yearsUsingApp,
     bio,
     avatarUrl,
-  }: {
-    name: string;
-    rating: number;
-    trainingsCount: number;
-    activeStudents: number;
-    yearsUsingApp: number;
-    bio: string;
-    avatarUrl: string;
   }) => (
     <Flex
-      direction={{ base: 'column', md: 'row' }}
-      gap={4}
+      direction={{ base: "column", md: "row" }}
+      gap={6}
       w="100%"
-      mb={12}
-      flexWrap="wrap"
-      fontFamily="Poppins"
-      color="gray.800"
+      maxW="1200px"
+      mx="auto"
+      mb={10}
+      p={{ base: 4, md: 6 }}
+      borderRadius="xl"
     >
-      <Card flex={1} minW="280px" border="1px solid #E2E8F0" borderRadius="lg" p={4} boxShadow="md">
-        <CardBody>
-          <Flex justify="space-between" align="center" gap={6} direction={{ base: 'column', md: 'row' }}>
-            <Box>
-            <Text fontSize="lg" fontWeight="bold" mb={2}>{name}</Text>
-              <Text fontWeight="medium" mb={2} display="flex" alignItems="center">
-                {rating === null ? (
-                  <Text as="span" fontWeight="medium" color="gray.500">Sin reviews ⭐</Text>
-                ) : (
-                  <>
-                    <Text as="span" fontWeight="bold">{rating}/5</Text>
-                    <FaStar color="#ECC94B" style={{ marginLeft: 4 }} />
-                  </>
-                )}
-              </Text> 
-              <Text>{trainingsCount} entrenamientos dictados</Text>
-              <Text>{activeStudents} alumnas activas</Text>
-              <Text>
-                {yearsUsingApp < 1
-                  ? "Aún no cumplió un año usando FitAura"
-                  : `${yearsUsingApp} año${yearsUsingApp === 1 ? "" : "s"} usando FitAura`}
-              </Text>
-            </Box>
-            <Box minW="140px">
-            {avatarUrl ? (
-              <Image
-                src={avatarUrl}
-                alt={`Foto de ${name}`}
-                boxSize="140px"
-                objectFit="cover"
-                borderRadius="full"
-                border="2px solid #fd6193"
-              />
-            ) : (
-              <AvatarRoot colorPalette="pink" size="2xl">
-                <AvatarFallback />
-              </AvatarRoot>
-            )}
+      {/* Card info */}
+      <Box
+        flex="1"
+        bg="white"
+        border="1px solid #E2E8F0"
+        borderRadius="2xl"
+        p={8}
+        boxShadow="md"
+      >
+     <Text fontSize="2xl" fontWeight="bold" mb={4}>
+  {name}
+</Text>
 
-            </Box>
-          </Flex>
-        </CardBody>
-      </Card>
+<Text fontSize="lg" mb={2}>
+  {typeof rating === "number" ? (
+    <Flex as="span" align="center" display="inline-flex">
+      <Text as="span" fontWeight="bold">
+        {rating.toFixed(1)}
+      </Text>
+      /5
+      <Image
+        src="/estrella.png"
+        alt="estrella"
+        boxSize="1.2rem"
+        ml={1}
+      />
+    </Flex>
+  ) : (
+    <Flex as="span" align="center" display="inline-flex">
+      Sin reviews
+      <Image
+        src="/estrella.png"
+        alt="estrella"
+        boxSize="1.2rem"
+        ml={1}
+      />
+    </Flex>
+  )}
+</Text>
 
-      <Card flex={1} minW="280px" border="1px solid #E2E8F0" borderRadius="lg" p={4} boxShadow="md">
-        <CardBody>
-          <Text fontSize="lg" fontWeight="bold" mb={2}>Sobre mí</Text>
-          <Text fontWeight="medium" color="gray.700">
-            {bio?.trim()
-              ? bio
-              : `${name} no añadió una descripción...`}
-          </Text>
 
-        </CardBody>
-      </Card>
+        <Text mb={1}>{trainingsCount} entrenamientos dictados</Text>
+        <Text mb={1}>{activeStudents} alumnas activas</Text>
+        <Text>
+          {yearsUsingApp < 1
+            ? "Aún no cumplió un año usando FitAura"
+            : `${yearsUsingApp} año${yearsUsingApp > 1 ? "s" : ""} usando FitAura`}
+        </Text>
+      </Box>
+
+      {/* Card Avatar + Bio */}
+      <Box
+        flex="1"
+        bg="white"
+        border="1px solid #E2E8F0"
+        borderRadius="2xl"
+        p={8}
+        boxShadow="md"
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
+        textAlign="center"
+      >
+        {avatarUrl ? (
+          <Image
+            src={avatarUrl}
+            alt={`Foto de ${name}`}
+            boxSize="180px"
+            borderRadius="full"
+            objectFit="cover"
+            border="3px solid #fd6193"
+            mb={4}
+          />
+        ) : (
+          <AvatarRoot colorPalette="pink" size="2xl">
+            <AvatarFallback />
+          </AvatarRoot>
+        )}
+        <Text fontSize="lg" fontWeight="bold" mb={2}>
+          Sobre mí
+        </Text>
+        <Text color="gray.700">
+          {bio?.trim() ? bio : `${name} no añadió una descripción...`}
+        </Text>
+      </Box>
     </Flex>
   );
 
-  const trainings = [
-    {
-      title: "Pilates Cardio",
-      trainer: {
-        name: "María Paula",
-        rating: 4.7,
-        avatarUrl: "https://c.superprof.com/i/a/25195381/11487093/600/20240701132042/entrenadora-personal-online-planificacion-rutina-entrenamiento-personalizada-posibilidad-entrenamientos-online-ponte.jpg",
-      },
-      price: "$15",
-      duration: "45min",
-      location: "Palermo, CABA",
-      language: "Español",
-    },
-  ];
-
-  
   return (
-    <Box minH="100vh" w="100vw" bg="white" px={{ base: 4, md: 10 }} py={{ base: 4, md: 6 }}>
+    <Box minH="100vh" bg={"white"}>
       <Header />
+      <Box px={{ base: 4, md: 12 }} py={6} maxW="100%" mx="auto">
 
       {!profile && !profileError && (
-        <Text fontSize="md" color="gray.600" mb={6}>Cargando perfil de entrenadora...</Text>
+        <Text fontSize="md" color="gray.600" mb={6}>
+          Cargando perfil de entrenadora...
+        </Text>
       )}
 
       {profileError ? (
@@ -307,20 +340,28 @@ const TrainerProfile = () => {
             {profileError}
           </Text>
         </Box>
-      ) : profile && (
-        <TrainerInfo
-          name={profile.name}
-          rating={stats?.ratingaverage ?? null}
-          trainingsCount={stats?.completedtrainings ?? 0}
-          activeStudents={stats?.activetrainees ?? 0}
-          yearsUsingApp={calculateYearsUsingApp(profile.joiningDate)}
-          bio={profile.description}
-          avatarUrl={profile.profilePic}
-        />
+      ) : (
+        profile && (
+          <TrainerInfo
+            name={profile.name}
+            rating={
+              typeof stats?.ratingaverage === "number"
+                ? stats.ratingaverage
+                : null
+            } // ✅
+            trainingsCount={stats?.completedtrainings ?? 0}
+            activeStudents={stats?.activetrainees ?? 0}
+            yearsUsingApp={calculateYearsUsingApp(profile.joiningDate)}
+            bio={profile.description}
+            avatarUrl={profile.profilePic}
+          />
+        )
       )}
 
       {!stats && !statsError && (
-        <Text fontSize="sm" color="gray.500" mb={2}>Cargando estadísticas...</Text>
+        <Text fontSize="sm" color="gray.500" mb={2}>
+          Cargando estadísticas...
+        </Text>
       )}
 
       {statsError && (
@@ -331,164 +372,232 @@ const TrainerProfile = () => {
         </Box>
       )}
 
-      <Flex direction="column" mt={2} mb={2} gap={2}>
-        <Text color="#fd6193" fontWeight="bold" fontSize="2xl">Servicios</Text>
-        <Text color="gray.500" fontSize="sm" mb={2}>Servicios dictados por la entrenadora.</Text>
-      </Flex>
+      <Heading
+                as="h1"
+                fontSize={{ base: "2xl", md: "3xl" }}
+                color="#fd6193"
+                fontWeight="bold"
+                mb={2}
+                fontFamily={"Inter"}
+              >
+                Servicios
+              </Heading>
+              <Text color="gray.500" fontSize="sm" mb={2}>
+          Servicios dictados por ésta entrenadora.
+        </Text>
+              <Box h="2px" w="100%" bg="#fd6193" mb={10} />
       {/* Servicios de la Entrenadora */}
       <Box>
         {errorServices && <Text color="red">{errorServices}</Text>}
         {services.length === 0 ? (
           <Text>No hay servicios disponibles para esta entrenadora.</Text>
         ) : (
-          <SimpleGrid columns={{ base: 1, sm: 2, md: 3 }} gap={{ base: 6, md: 8 }} px={{ base: 4, md: 12 }} py={4}>
-  {services.map((service, index) => (
-    <Box
-      key={index}
-      p={4}
-      bg="white"
-      borderRadius="xl"
-      boxShadow="md"
-      display="flex"
-      flexDirection="column"
-      height="100%"
-    >
-      <Flex justify="space-between" align="center" mb={4} wrap="wrap" gap={2}>
-        {/* Descripción del servicio */}
-        <Text fontWeight="semibold" fontSize={{ base: "md", md: "lg" }} fontFamily="Poppins" flex="1 1 100%" wordBreak="break-word">
-          {service.description}
-        </Text>
-
-        {/* Información del entrenador */}
-        <Flex
-          as={RouterLink}
-          to={`/trainer/${service.trainerid}`}
-          _hover={{ transform: "scale(1.05)", boxShadow: "md" }}
-          transition="all 0.2s ease-in-out"
-          align="center"
-          border="1px solid #fd6193"
-          borderRadius="lg"
-          px={3}
-          py={2}
-          bg="white"
-          boxShadow="sm"
-        >
-          <Box mr={2}>
-            <Text fontWeight="extrabold" color="#fd6193" fontSize="md" fontFamily="Poppins" lineHeight="1">
-              {service.trainer_name}
-            </Text>
-            <Flex align="center" gap={1}>
-              <Text fontWeight="bold" fontSize="sm" color="black">
-                {service.trainer_rating ? `${service.trainer_rating.toFixed(1)}/5` : "Sin reviews"}
-              </Text>
-              <Image src="/estrella.png" boxSize="1rem" />
-            </Flex>
-          </Box>
-          {service.profile_pic ? (
-            <Image
-              src={service.profile_pic}
-              alt={service.trainer_name}
-              boxSize={{ base: "40px", md: "50px" }}
-              borderRadius="full"
-              objectFit="cover"
-              flexShrink={0}
-            />
-          ) : (
-            <AvatarRoot colorPalette="pink">
-              <AvatarFallback />
-            </AvatarRoot>
-          )}
-
-        </Flex>
-      </Flex>
-
-      {/* Detalles del servicio: precio, duración, ubicación e idioma */}
-      <Box flexGrow={1} mb={4}>
-        <Text fontSize={fontSizeCard}>
-          <Image src="/dinero.webp" display="inline" boxSize="1.5rem" verticalAlign="-0.30rem" />{" "}
-          ${Number(service.price).toFixed(2)}
-        </Text>
-        <Text fontSize={fontSizeCard}>
-          <Image src="/reloj.png" display="inline" boxSize="1.5rem" verticalAlign="-0.30rem" />{" "}
-          {service.duration} mins
-        </Text>
-        <Text fontSize={fontSizeCard}>
-          <Image src="/locacion.png" display="inline" boxSize="1.5rem" verticalAlign="-0.30rem" />{" "}
-          {service.location}
-        </Text>
-        <Text fontSize={fontSizeCard}>
-          <Image src="/idioma.png" display="inline" boxSize="1.5rem" verticalAlign="-0.30rem" />{" "}
-          {service.language}
-        </Text>
-        {/* Horarios disponibles */}
-        <Text fontSize={fontSizeCard} mt={2} fontWeight="bold">Horarios disponibles:</Text>
-        
-        {/* Mostrar los horarios de `timeavailability` */}
-        {/* Horarios disponibles */}
-          <Text fontSize={fontSizeCard} mt={2} fontWeight="bold">Horarios disponibles:</Text>
-          <Box mt={2} mb={4}>
-            {service.timeavailability
-              ? Object.entries(service.timeavailability).map(([day, times]) => (
-                  <Text key={day} fontSize={fontSizeCard}>
-                    <strong>{day.charAt(0).toUpperCase() + day.slice(1)}:</strong> {times.join(", ")}
-                  </Text>
-                ))
-              : <Text fontSize={fontSizeCard} color="gray.500">No hay horarios disponibles.</Text>}
-          </Box>
-          <Button
-            as={RouterLink}
-            to={`/booking/${service.id}`}
-            bg="#fd6193"
-            w="full"
-            borderRadius="xl"
-            color="white"
-            _hover={{
-              color: "white",
-              boxShadow: "0 8px 14px rgba(0, 0, 0, 0.3)",
-            }}
+          <SimpleGrid
+            columns={{ base: 1, sm: 2, md: 3 }}
+            gap={{ base: 6, md: 8 }}
+            px={{ base: 4, md: 12 }}
+            py={4}
           >
-            Reservar clase
-          </Button>
+            {services.map((service, index) => (
+              <Box
+                key={index}
+                p={4}
+                bg="white"
+                borderRadius="xl"
+                boxShadow="md"
+                display="flex"
+                flexDirection="column"
+                height="100%"
+              >
+                <Flex
+                  justify="space-between"
+                  align="center"
+                  mb={4}
+                  wrap="wrap"
+                  gap={2}
+                >
+                  {/* Descripción del servicio */}
+                  <Text
+                    fontWeight="semibold"
+                    fontSize={{ base: "md", md: "lg" }}
+                    fontFamily="Poppins"
+                    flex="1 1 100%"
+                    wordBreak="break-word"
+                  >
+                    {service.description}
+                  </Text>
 
-      </Box>
+                  {/* Información del entrenador */}
+                  <Flex
+                    as={RouterLink}
+                    to={`/trainer/${service.trainerid}`}
+                    _hover={{ transform: "scale(1.05)", boxShadow: "md" }}
+                    transition="all 0.2s ease-in-out"
+                    align="center"
+                    border="1px solid #fd6193"
+                    borderRadius="lg"
+                    px={3}
+                    py={2}
+                    bg="white"
+                    boxShadow="sm"
+                  >
+                    <Box mr={2}>
+                      <Text
+                        fontWeight="extrabold"
+                        color="#fd6193"
+                        fontSize="md"
+                        fontFamily="Poppins"
+                        lineHeight="1"
+                      >
+                        {service.trainer_name}
+                      </Text>
+                      <Flex align="center" gap={1}>
+                        <Text fontWeight="bold" fontSize="sm" color="black">
+                          {service.trainer_rating
+                            ? `${service.trainer_rating.toFixed(1)}/5`
+                            : "Sin reviews"}
+                        </Text>
+                        <Image src="/estrella.png" boxSize="1rem" />
+                      </Flex>
+                    </Box>
+                    {service.profile_pic ? (
+                      <Image
+                        src={service.profile_pic}
+                        alt={service.trainer_name}
+                        boxSize={{ base: "40px", md: "50px" }}
+                        borderRadius="full"
+                        objectFit="cover"
+                        flexShrink={0}
+                      />
+                    ) : (
+                      <AvatarRoot colorPalette="pink">
+                        <AvatarFallback />
+                      </AvatarRoot>
+                    )}
+                  </Flex>
+                </Flex>
 
-    </Box>
-    
-  ))}
-</SimpleGrid>
+                {/* Detalles del servicio: precio, duración, ubicación e idioma */}
+                <Box flexGrow={1} mb={4}>
+                  <Text fontSize={fontSizeCard}>
+                    <Image
+                      src="/dinero.webp"
+                      display="inline"
+                      boxSize="1.5rem"
+                      verticalAlign="-0.30rem"
+                    />{" "}
+                    ${Number(service.price).toFixed(2)}
+                  </Text>
+                  <Text fontSize={fontSizeCard}>
+                    <Image
+                      src="/reloj.png"
+                      display="inline"
+                      boxSize="1.5rem"
+                      verticalAlign="-0.30rem"
+                    />{" "}
+                    {service.duration} mins
+                  </Text>
+                  <Text fontSize={fontSizeCard}>
+                    <Image
+                      src="/locacion.png"
+                      display="inline"
+                      boxSize="1.5rem"
+                      verticalAlign="-0.30rem"
+                    />{" "}
+                    {service.location}
+                  </Text>
+                  <Text fontSize={fontSizeCard}>
+                    <Image
+                      src="/idioma.png"
+                      display="inline"
+                      boxSize="1.5rem"
+                      verticalAlign="-0.30rem"
+                    />{" "}
+                    {service.language}
+                  </Text>
+                  {/* Horarios disponibles */}
+                  <Text fontSize={fontSizeCard} mt={2} fontWeight="bold">
+                    Horarios disponibles:
+                  </Text>
 
-
+                  {/* Mostrar los horarios de `timeavailability` */}
+                  {/* Horarios disponibles */}
+                  <Text fontSize={fontSizeCard} mt={2} fontWeight="bold">
+                    Horarios disponibles:
+                  </Text>
+                  <Box mt={2} mb={4}>
+                    {service.timeavailability ? (
+                      Object.entries(service.timeavailability).map(
+                        ([day, times]) => (
+                          <Text key={day} fontSize={fontSizeCard}>
+                            <strong>
+                              {day.charAt(0).toUpperCase() + day.slice(1)}:
+                            </strong>{" "}
+                            {times.join(", ")}
+                          </Text>
+                        )
+                      )
+                    ) : (
+                      <Text fontSize={fontSizeCard} color="gray.500">
+                        No hay horarios disponibles.
+                      </Text>
+                    )}
+                  </Box>
+                  <Button
+                    as={RouterLink}
+                    to={`/booking/${service.id}`}
+                    bg="#fd6193"
+                    w="full"
+                    borderRadius="xl"
+                    color="white"
+                    _hover={{
+                      color: "white",
+                      boxShadow: "0 8px 14px rgba(0, 0, 0, 0.3)",
+                    }}
+                  >
+                    Reservar clase
+                  </Button>
+                </Box>
+              </Box>
+            ))}
+          </SimpleGrid>
         )}
       </Box>
 
-      
-      <Flex direction="column" mt={2} mb={2} gap={2}>
-  <Text color="#fd6193" fontWeight="bold" fontSize="2xl">Calificaciones</Text>
-  <Text color="gray.500" fontSize="sm" mb={2}>Calificaciones de usuarias reales.</Text>
-</Flex>
-<Box height="2px" width="100%" bg="#fd6193" borderRadius="full" mb={12} />
-<SimpleGrid columns={{ base: 1, md: 2 }} gap={10} mb={12} mt={8}>
-  {reviewsData.length > 0 ? (
-    reviewsData.map((review, idx) => (
-      <ReviewCard
-        key={idx}
-        reviewId={review.reviewId}
-        user={{ name: review.name }}  
-        date={review.createdAt}
-        training={review.description}
-        rating={review.rating}
-        comment={review.comment}
-        reply={review.reply}
-        
-      />
-    ))
-  ) : (
-    <Text>No hay reseñas disponibles.</Text>
-  )}
-</SimpleGrid>
-
-
-
+      <Heading
+                as="h1"
+                fontSize={{ base: "2xl", md: "3xl" }}
+                color="#fd6193"
+                fontWeight="bold"
+                mb={2}
+                fontFamily={"Inter"}
+                mt={6}
+              >
+                Calificaciones
+              </Heading>
+              <Text color="gray.500" fontSize="sm" mb={2}>
+          Calificaciones realizadas por usuarias de la app que tomaron al menos 1 clase con la entrenadora.
+        </Text>
+              <Box h="2px" w="100%" bg="#fd6193" mb={10} />
+      <SimpleGrid columns={{ base: 1, md: 2 }} gap={10} mb={12} mt={8}>
+        {reviewsData.length > 0 ? (
+          reviewsData.map((review, idx) => (
+            <ReviewCard
+              key={idx}
+              reviewId={review.reviewId}
+              user={{ name: review.name }}
+              date={review.createdAt}
+              training={review.description}
+              rating={review.rating}
+              comment={review.comment}
+              reply={review.reply}
+            />
+          ))
+        ) : (
+          <Text>No hay reseñas disponibles.</Text>
+        )}
+      </SimpleGrid>
+      </Box>
     </Box>
   );
 };
