@@ -210,7 +210,7 @@ const showArrows = useBreakpointValue({ base: false, md: true });
       const updatedUser = {
         id: user?.id || 0,
         name: profile.name.split(" ")[0] || "Usuaria",
-        profilePic: uploadedPicUrl, // 👈 NUEVO
+        profilePic: uploadedPicUrl, 
       };
 
       // ⏫ Actualizá el AuthContext
@@ -247,7 +247,7 @@ const showArrows = useBreakpointValue({ base: false, md: true });
       const data = await res.json();
       if (!res.ok) {
         if (data.internalErrorCode === 1007) {
-          // No hay servicios publicados
+          // No hay servicios
           setServices([]);
           setErrorServices(null);
           return;
@@ -772,7 +772,7 @@ const showArrows = useBreakpointValue({ base: false, md: true });
           <Box>
             {errorServices && <Text color="red">{errorServices}</Text>}
             {services.length === 0 ? (
-              <Text>Por el momento, no dispone de servicios publicados.</Text>
+              <Text>Por el momento, no dispone de servicios.</Text>
             ) : (
               <Box px={{ base: 2, md: 6 }} height="100%">
                 <Slider {...sliderSettings}>
@@ -867,7 +867,6 @@ const showArrows = useBreakpointValue({ base: false, md: true });
                         </Flex>
                       </Flex>
 
-                      {/* Detalles del servicio: precio, duración, ubicación e idioma */}
 
                       {/* Detalles del servicio: precio, duración, ubicación e idioma */}
                       <Box  mb={4}>
@@ -890,7 +889,9 @@ const showArrows = useBreakpointValue({ base: false, md: true });
                           <Image src="/idioma.png" boxSize="1.5rem" mr={2} />
                           {service.language}
                         </Flex>
-
+                        <Text fontSize={fontSizeCard} mt={2}>
+                        <strong>Publicado:</strong> {service.published ? "Sí" : "No"}
+                        </Text>
                         {/* Mostrar los horarios de `timeavailability` */}
                         {service.timeavailability ? (
                           <Box mt={2}>
