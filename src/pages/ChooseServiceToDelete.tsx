@@ -21,6 +21,7 @@ import { toaster } from "@/components/ui/toaster";
 import DeleteConfirmationDialog from "./ConfirmDeleteModal";
 import Footer from "@/components/Footer";
 
+
 const ChooseServiceToDelete = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const fetchWithAuth = useFetchWithAuth();
@@ -106,10 +107,6 @@ const ChooseServiceToDelete = () => {
     );
   }
 
-  const handleOpenDialog = (id: number) => {
-    setServiceToDelete(id);
-    setIsDialogOpen(true);
-  };
 
   const handleConfirmDelete = () => {
     if (serviceToDelete !== null) {
@@ -118,6 +115,55 @@ const ChooseServiceToDelete = () => {
     }
     setIsDialogOpen(false);
   };
+
+  const validateCanDelete = async (serviceId: number) => {
+  try {
+    const res = await fetchWithAuth(
+      `http://localhost:4000/api/v2/services/${serviceId}`,
+      {
+        method: "DELETE",
+        headers: { "X-Validate-Only": "true" }, 
+      }
+    );
+    const data = await res.json();
+
+    if (!res.ok) {
+      // si es 1010 es que tiene alumnas
+      if (data.internalErrorCode === 1010) {
+        toaster.create({
+          title: "No se puede eliminar",
+          description: data.message || "Este servicio tiene alumnas activas.",
+          type: "error",
+          duration: 4000,
+        });
+        return false; 
+      }
+      throw new Error(data.message || "No se puede eliminar este servicio.");
+    }
+
+    return true; 
+  } catch (err: any) {
+    console.error("Error al validar:", err);
+    toaster.create({
+      title: "Error",
+      description:
+        err.message || "Ocurrió un error al validar este servicio.",
+      type: "error",
+      duration: 4000,
+    });
+    return false; 
+  }
+};
+
+const handleOpenDialog = async (id: number) => {
+  const canDelete = await validateCanDelete(id);
+  if (canDelete) {
+    setServiceToDelete(id);
+    setIsDialogOpen(true);
+  }
+};
+
+
 
   return (
     <Box minH="100vh" bg="white">
