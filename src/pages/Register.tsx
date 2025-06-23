@@ -13,9 +13,7 @@ import {
 } from "@chakra-ui/react";
 import { ToggleTip } from "@/components/ui/toggle-tip";
 import { toaster } from "@/components/ui/toaster";
-import {
-  FormControl
-} from "@chakra-ui/form-control";
+import { FormControl } from "@chakra-ui/form-control";
 import { Info } from "lucide-react";
 import { InputGroup, InputRightElement } from "@chakra-ui/input";
 import { useEffect, useState } from "react";
@@ -31,11 +29,14 @@ export default function Register() {
   const [password, setPassword] = useState("");
   const [birthDateError, setBirthDateError] = useState<string | null>(null);
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [confirmPasswordError, setConfirmPasswordError] = useState<string | null>(null);
+  const [confirmPasswordError, setConfirmPasswordError] = useState<
+    string | null
+  >(null);
   const [emailError, setEmailError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [isTrainer, setIsTrainer] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleTogglePassword = () => setShowPassword(!showPassword);
 
@@ -70,6 +71,7 @@ export default function Register() {
   }, [password, confirmPassword]);
 
   const handleRegister = async () => {
+    setLoading(true);
     try {
       const errors: string[] = [];
 
@@ -139,17 +141,21 @@ export default function Register() {
         joiningDate: joiningDateTimestamp,
       };
 
-      const response = await fetch("http://localhost:4000/api/v1/users/sign-up", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
+      const response = await fetch(
+        "http://localhost:4000/api/v1/users/sign-up",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        }
+      );
 
       const data = await response.json();
 
       if (response.ok) {
         toaster.create({
-          description: "Usuario registrado con éxito. Ahora podés iniciar sesión.",
+          description:
+            "Usuario registrado con éxito. Ahora podés iniciar sesión.",
           type: "success",
         });
         setTimeout(() => {
@@ -189,6 +195,8 @@ export default function Register() {
         description: "Error inesperado. Intenta nuevamente.",
         type: "error",
       });
+    } finally {
+      setLoading(false);
     }
   };
   return (
@@ -201,7 +209,6 @@ export default function Register() {
       overflowX="hidden"
     >
       <HeaderLoginRegister />
-    
 
       <Box px={{ base: 4, md: 8 }}>
         <Flex
@@ -265,9 +272,9 @@ export default function Register() {
             >
               <Box order={{ base: 1, md: 1 }}>
                 <Flex justify="space-between" align="baseline" mb={1}>
-                <Text fontWeight="semibold" fontSize={labelFontSize} mb={1}>
-                  Nombre y Apellido
-                </Text>
+                  <Text fontWeight="semibold" fontSize={labelFontSize} mb={1}>
+                    Nombre y Apellido
+                  </Text>
                 </Flex>
                 <Input
                   placeholder="Ingresá tu nombre completo"
@@ -461,7 +468,6 @@ export default function Register() {
                       <ToggleTip
                         positioning={{ placement: "top" }}
                         content="Debe tener 8 caracteres, 1 mayúscula, 1 número y 1 caracter especial"
-                        
                       >
                         <button>
                           <Info size={16} cursor="pointer" />
@@ -506,8 +512,8 @@ export default function Register() {
                         const value = e.target.value;
                         setPassword(value);
 
-                        const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
-
+                        const passwordRegex =
+                          /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
 
                         if (!passwordRegex.test(value)) {
                           setPasswordError(
@@ -542,7 +548,7 @@ export default function Register() {
                       Repetí tu contraseña
                     </Text>
                     {confirmPasswordError ? (
-  <Text
+                      <Text
                         color="red"
                         fontSize="xs"
                         mt={1}
@@ -566,7 +572,6 @@ export default function Register() {
                         Contraseñas coinciden
                       </Text>
                     ) : null}
-
                   </Flex>
                   <InputGroup>
                     <Input
@@ -579,9 +584,7 @@ export default function Register() {
                         setConfirmPassword(value);
 
                         if (password && value !== password) {
-                          setConfirmPasswordError(
-                            "No coinciden"
-                          );
+                          setConfirmPasswordError("No coinciden");
                         } else {
                           setConfirmPasswordError(null);
                         }
@@ -615,6 +618,7 @@ export default function Register() {
                 fontSize={inputSize}
                 _hover={{ bg: "#fd6193" }}
                 onClick={handleRegister}
+                isLoading={loading}
               >
                 Registrarme
               </Button>

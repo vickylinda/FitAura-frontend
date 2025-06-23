@@ -42,7 +42,7 @@ export default function Landing() {
             as="span"
             fontFamily="Poppins"
             fontStyle="italic"
-            fontWeight={800} 
+            fontWeight={800}
           >
             FIT
           </Text>
@@ -50,7 +50,7 @@ export default function Landing() {
             as="span"
             fontFamily="Poppins"
             fontStyle="italic"
-            fontWeight={400} 
+            fontWeight={400}
           >
             AURA
           </Text>
@@ -67,23 +67,23 @@ export default function Landing() {
           <Image
             src="/brillito.webp"
             display="inline"
-            boxSize="2.5rem" 
+            boxSize="2.5rem"
             ml={-2}
             verticalAlign="-0.30rem"
           />
         </Text>
         <Button
-        as={RouterLink}
-  to="/home"
+          as={RouterLink}
+          to="/home"
           fontSize={{ base: "sm", md: "md" }}
           fontFamily="Poppins"
           px={{ base: 6, md: 8 }}
           py={{ base: 4, md: 6 }}
-          bg="whiteAlpha.300" 
+          bg="whiteAlpha.300"
           color="white"
           borderRadius="full"
           border="1px solid white"
-          boxShadow="0 6px 10px rgba(0, 0, 0, 0.25)" 
+          boxShadow="0 6px 10px rgba(0, 0, 0, 0.25)"
           _hover={{
             transform: "scale(1.05)",
             boxShadow: "0 8px 14px rgba(0, 0, 0, 0.3)",

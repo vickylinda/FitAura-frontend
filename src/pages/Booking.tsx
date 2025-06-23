@@ -7,32 +7,31 @@ import {
   AvatarFallback,
   Image,
   Checkbox,
-  Input,
   Text,
   VStack,
-  SimpleGrid,
   Stack,
   Spinner,
-  Center,
   Textarea,
 } from "@chakra-ui/react";
-import { toaster } from "@/components/ui/toaster";
 import { Link as RouterLink } from "react-router-dom";
 import Header from "@/components/Header";
 import { useState } from "react";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
 dayjs.locale("es");
-
+import { useAuth } from "@/context/AuthContext";
+import LoginModal from "@/pages/LoginModal";
+import PaymentModal from "./PaymentModal";
+import PaymentSuccess from "./PaymentSuccess";
 import Footer from "@/components/Footer";
 import { useFetchWithAuth } from "@/utils/fetchWithAuth";
 import { useParams } from "react-router-dom";
 import { useEffect } from "react";
 import axios from "axios";
 import ReviewCard from "@/components/ReviewCard";
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 
 type ServiceData = {
@@ -67,7 +66,10 @@ export default function Booking() {
   const [trainerReviews, setTrainerReviews] = useState<any[]>([]);
   const [yearsUsingApp, setYearsUsingApp] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const fetchWithAuth = useFetchWithAuth();
+  const { user } = useAuth();
+  const [showLogin, setShowLogin] = useState(false);
+  const [showPayment, setShowPayment] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => {
     const fetchService = async () => {
@@ -123,69 +125,15 @@ export default function Booking() {
     fetchTrainerData();
   }, [serviceData]);
 
-  const handleBooking = async () => {
-    if (!serviceData || !endDate || Object.keys(selectedHours).length === 0) {
-      toaster.create({
-        title: "Error",
-        description: "Debes ingresar al menos un horario semanal y una fecha de finalización de la contratación.",
-        type: "error",
-        duration: 3000,
-      });
+  const handleBooking = () => {
+    if (!user) {
+      // Si no está logueada, abrí el modal de login
+      setShowLogin(true);
       return;
     }
 
-    const payload = {
-      serviceId: serviceData.id,
-      selectedSchedule: selectedHours,
-      endDate: Math.floor(new Date(endDate).getTime() / 1000),
-      comment: comment.trim() || undefined,
-    };
-
-    try {
-      const response = await fetchWithAuth(
-        "http://localhost:4000/api/v1/client-trainings",
-        {
-          method: "POST",
-          body: JSON.stringify(payload),
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Error al reservar:", errorData);
-      
-        if (errorData.internalErrorCode === 1005) {
-          toaster.create({
-            title: "Error",
-            description: "No podés reservar un entrenamiento con vos misma.",
-            type: "error",
-            duration: 3000,
-          });
-        } else {
-          toaster.create({
-            title: "Error al reservar",
-            description: errorData.message || "Ocurrió un error inesperado.",
-            type: "error",
-            duration: 3000,
-          });
-        }
-      
-        return;
-      }
-      
-      
-      toaster.create({
-        title: "Reserva creada",
-        description: "¡Tu entrenamiento fue reservado correctamente!",
-        type: "success",
-        duration: 3000,
-      });
-      
-
-    } catch (error) {
-      console.error("Error inesperado:", error);
-      alert("Error de conexión al reservar.");
-    }
+    // Si está logueada, abre el modal de pago
+    setShowPayment(true);
   };
 
   const [endDate, setEndDate] = useState("");
@@ -194,7 +142,7 @@ export default function Booking() {
     [key: string]: string[];
   }>({});
   const [comment, setComment] = useState("");
-  const pricePerClass = Number(serviceData?.price) ;
+  const pricePerClass = Number(serviceData?.price);
 
   const calculateClasses = () => {
     if (!endDate) return 0;
@@ -230,20 +178,21 @@ export default function Booking() {
 
   if (isLoading || !serviceData) {
     return (
-      <Center minH="100vh">
-        <Spinner size="xl" color="pink.400" />
-      </Center>
+      <VStack justify="center" align="center" minH="50vh">
+        <Spinner size="xl" color="#fd6193" />
+        <Text color="#fd6193">Cargando...</Text>
+      </VStack>
     );
   }
   const muiTheme = createTheme({
-  palette: {
-    primary: {
-      main: "#fd6193",
-      dark: "#fd6193",   // 👈 igual que main
-      contrastText: "#fff",
+    palette: {
+      primary: {
+        main: "#fd6193",
+        dark: "#fd6193",
+        contrastText: "#fff",
+      },
     },
-  },
-});
+  });
 
   return (
     <Box minH="100vh" bg="white">
@@ -324,52 +273,51 @@ export default function Booking() {
             </Flex>
           </Flex>
 
-          {/* Fecha de finalización */}
+          {/* fecha de finalización */}
           <ThemeProvider theme={muiTheme}>
-<LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
-  <VStack align="start" mb={4} w="full">
-    <Text fontWeight="bold">Fecha de finalización</Text>
-    <DatePicker
-      format="DD/MM/YYYY"
-      value={endDate ? dayjs(endDate) : null}
-      onChange={(newValue) => {
-        if (newValue) {
-          setEndDate(newValue.format("YYYY-MM-DD"));
-        } else {
-          setEndDate("");
-        }
-      }}
-      slotProps={{
-        textField: {
-          fullWidth: true,
-          size: "small",
-          sx: {
-            "& label": { color: "#fd6193" },
-            "& label.Mui-focused": { color: "#fd6193" },
-            "& .MuiInputBase-root": {
-              "& fieldset": {
-                borderColor: "#fd6193",
-              },
-              "&:hover fieldset": {
-                borderColor: "#fd6193",
-              },
-              "&.Mui-focused fieldset": {
-                borderColor: "#fd6193",
-              },
-            },
-            "& .MuiSvgIcon-root": {
-              color: "#fd6193", // iconito del calendario
-            },
-          },
-        },
-      }}
-    />
-  </VStack>
-</LocalizationProvider>
-</ThemeProvider>
+            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
+              <VStack align="start" mb={4} w="full">
+                <Text fontWeight="bold">Fecha de finalización</Text>
+                <DatePicker
+                  format="DD/MM/YYYY"
+                  value={endDate ? dayjs(endDate) : null}
+                  onChange={(newValue) => {
+                    if (newValue) {
+                      setEndDate(newValue.format("YYYY-MM-DD"));
+                    } else {
+                      setEndDate("");
+                    }
+                  }}
+                  slotProps={{
+                    textField: {
+                      fullWidth: true,
+                      size: "small",
+                      sx: {
+                        "& label": { color: "#fd6193" },
+                        "& label.Mui-focused": { color: "#fd6193" },
+                        "& .MuiInputBase-root": {
+                          "& fieldset": {
+                            borderColor: "#fd6193",
+                          },
+                          "&:hover fieldset": {
+                            borderColor: "#fd6193",
+                          },
+                          "&.Mui-focused fieldset": {
+                            borderColor: "#fd6193",
+                          },
+                        },
+                        "& .MuiSvgIcon-root": {
+                          color: "#fd6193",
+                        },
+                      },
+                    },
+                  }}
+                />
+              </VStack>
+            </LocalizationProvider>
+          </ThemeProvider>
 
-
-          {/* Selección de días y horas */}
+          {/* selección de días y horas */}
           <VStack align="start" mb={4}>
             <Text fontWeight="bold">Selecciona días y horarios</Text>
             {Object.keys(serviceData?.freeSlots || {}).map((day) => (
@@ -379,10 +327,17 @@ export default function Booking() {
                 borderRadius="md"
                 p={2}
                 w="100%"
+                color="black"
+                bg="white"
+                _dark={{
+                  bg: "white",
+                  color: "black",
+                  borderColor: "#ddd",
+                }}
               >
                 <Checkbox.Root
                   checked={selectedDays.includes(day)}
-                  onCheckedChange={({checked}) => {
+                  onCheckedChange={({ checked }) => {
                     if (checked === true) {
                       setSelectedDays((prev) =>
                         Array.from(new Set([...prev, day]))
@@ -417,8 +372,22 @@ export default function Booking() {
                           size="sm"
                           variant={isSelected ? "solid" : "outline"}
                           colorScheme="pink"
+                          bg={isSelected ? "#fd6193" : "white"}
+                          color={isSelected ? "white" : "black"}
+                          borderColor="#fd6193"
+                          _hover={{
+                            bg: isSelected ? "#fd99bf" : "#fff0f5",
+                          }}
+                          _dark={{
+                            bg: isSelected ? "#fd6193" : "white",
+                            color: isSelected ? "white" : "black",
+                            borderColor: "#fd6193",
+                            _hover: {
+                              bg: isSelected ? "#fd99bf" : "#fff0f5",
+                            },
+                          }}
                           onClick={() => {
-                            const currentHours = selectedHours[day] ?? []; // asegura array
+                            const currentHours = selectedHours[day] ?? [];
 
                             const newHours = isSelected
                               ? currentHours.filter((h) => h !== hour)
@@ -448,7 +417,7 @@ export default function Booking() {
                   .filter((day) => (selectedHours[day] ?? []).length > 0)
                   .map((day) => {
                     const hours = selectedHours[day] || [];
-                    return `${day} a las ${hours.join(", ")}`;
+                    return `${day} a las ${hours.join(", ")} `;
                   })
                   .join("; ")}
               </Text>
@@ -470,10 +439,13 @@ export default function Booking() {
             />
           </VStack>
 
-          {/* Botón */}
-          <Button bg="#fd6193"
+          <Button
+            bg="#fd6193"
             color={"white"}
-            _hover={{ bg: "#fd99bf" }} w="full" onClick={handleBooking}>
+            _hover={{ bg: "#fd99bf" }}
+            w="full"
+            onClick={handleBooking}
+          >
             Reservar y Pagar
           </Button>
         </Box>
@@ -510,7 +482,7 @@ export default function Booking() {
         </Heading>
         <Box h="2px" w="100%" bg="#fd6193" mb={6} />
         {serviceData?.freeSlots ? (
-          <VStack align="start" spacing={3}>
+          <VStack align="start" gap={3}>
             {Object.entries(serviceData.freeSlots).map(([day, hours]) => (
               <Box key={day}>
                 <Text fontWeight="bold" textTransform="capitalize">
@@ -544,7 +516,7 @@ export default function Booking() {
           mb={6}
           width="100%"
         >
-          {/* Columna de estadísticas */}
+          {/* estadísticas */}
           {trainerStats && (
             <Box
               bg="white"
@@ -580,14 +552,14 @@ export default function Booking() {
           {/* Columna de reviews */}
           <Box flex="1" w="100%">
             {trainerReviews.length > 0 ? (
-              <Stack spacing={6}>
+              <Stack gap={6}>
                 {trainerReviews.map((review, idx) => (
                   <ReviewCard
                     key={idx}
                     reviewId={review.reviewId}
                     user={{ name: review.name }}
                     date={review.createdAt}
-                    training={review.description}
+                    training={review.title}
                     rating={review.rating}
                     comment={review.comment}
                     reply={review.reply}
@@ -600,7 +572,37 @@ export default function Booking() {
           </Box>
         </Flex>
       </Box>
+
       <Footer />
+      <LoginModal
+        isOpen={showLogin}
+        onClose={() => setShowLogin(false)}
+        onLoginSuccess={() => {
+          setShowLogin(false);
+          setShowPayment(true); // abre pago tras login
+        }}
+      />
+
+      <PaymentModal
+        isOpen={showPayment}
+        onClose={() => setShowPayment(false)}
+        onPaymentSuccess={() => {
+          setShowPayment(false);
+          setShowSuccess(true);
+        }}
+        serviceData={serviceData}
+        selectedHours={selectedHours}
+        endDate={endDate}
+        comment={comment}
+      />
+
+      <PaymentSuccess
+        isOpen={showSuccess}
+        onClose={() => {
+          setShowSuccess(false);
+          window.location.href = "/mytrainings";
+        }}
+      />
     </Box>
   );
 }

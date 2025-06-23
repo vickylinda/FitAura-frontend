@@ -15,8 +15,6 @@ import { useNavigate } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
 import HeaderLoginRegister from "@/components/HeaderLoginRegister";
 
-
-
 export default function ResetPassword() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
@@ -33,10 +31,8 @@ export default function ResetPassword() {
   const [countdown, setCountdown] = useState(5);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
- 
-
 
   useEffect(() => {
     if (showSuccess) {
@@ -54,27 +50,30 @@ export default function ResetPassword() {
     }
   }, [showSuccess, navigate]);
 
-
   const handleResetPassword = async () => {
     if (!token) {
       alert("Token inválido o faltante.");
       return;
     }
-  
+
     if (password !== confirmPassword) {
       alert("Las contraseñas no coinciden.");
       return;
     }
-  
+
     try {
-      const response = await fetch(`http://localhost:4000/api/v1/users/reset-password`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password, token }),
-      });
-  
+      setLoading(true);
+      const response = await fetch(
+        `http://localhost:4000/api/v1/users/reset-password`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ password, token }),
+        }
+      );
+
       const data = await response.json();
-  
+
       if (response.ok) {
         setShowSuccess(true);
       } else {
@@ -86,7 +85,9 @@ export default function ResetPassword() {
             alert("La contraseña no cumple con los requisitos de seguridad.");
             break;
           case 1008:
-            alert("Token inválido o expirado. Por favor vuelve a solicitar el enlace.");
+            alert(
+              "Token inválido o expirado. Por favor vuelve a solicitar el enlace."
+            );
             break;
           case 1009:
             alert("Usuario no encontrado.");
@@ -99,14 +100,14 @@ export default function ResetPassword() {
     } catch (err) {
       console.error(err);
       alert("Hubo un problema al resetear la contraseña.");
+    } finally {
+      setLoading(false);
     }
   };
-  
-  
+
   return (
-    
     <Box minH="100vh" bg="white">
-      <HeaderLoginRegister/>
+      <HeaderLoginRegister />
 
       <Flex
         direction="column"
@@ -211,8 +212,7 @@ export default function ResetPassword() {
               fontFamily="Inter"
               _hover={{ bg: "#fd6193" }}
               onClick={handleResetPassword}
-              //onClick={() => setShowSuccess(true)}
-              
+              isLoading={loading}
             >
               Reestablecer Contraseña
             </Button>

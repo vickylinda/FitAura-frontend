@@ -13,8 +13,8 @@ import {
   AvatarRoot,
   AvatarFallback,
   Image,
-  Toaster,
   useBreakpointValue,
+  Spinner,
 } from "@chakra-ui/react";
 import { Global } from "@emotion/react";
 import Footer from "@/components/Footer";
@@ -36,8 +36,9 @@ export default function MyAccount() {
   const { user, setUser } = useAuth();
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
-const showArrows = useBreakpointValue({ base: false, md: true });
-
+  const showArrows = useBreakpointValue({ base: false, md: true });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const fontSizeCard = useBreakpointValue({ base: "sm", md: "md" }) || "md";
   const [errorServices, setErrorServices] = useState<string | null>(null);
   const [services, setServices] = useState<any[]>([]);
@@ -57,9 +58,9 @@ const showArrows = useBreakpointValue({ base: false, md: true });
     description: "",
   });
   const [newProfilePicFile, setNewProfilePicFile] = useState<File | null>(null);
-  const [saving, setSaving] = useState(false);
-  const CLOUD_NAME = "dfvnyxs4i"; // 👈 el que se ve arriba a la izquierda en tu consola!
-  const UPLOAD_PRESET = "fitaura_unsigned"; // 👈 o el nombre que le pusiste!
+
+  const CLOUD_NAME = "dfvnyxs4i";
+  const UPLOAD_PRESET = "fitaura_unsigned";
   const [originalProfile, setOriginalProfile] = useState(profile);
 
   const startEditing = () => {
@@ -77,6 +78,7 @@ const showArrows = useBreakpointValue({ base: false, md: true });
 
   useEffect(() => {
     const fetchProfile = async () => {
+      setLoading(true);
       if (!token) {
         navigate("/home");
         return;
@@ -106,7 +108,7 @@ const showArrows = useBreakpointValue({ base: false, md: true });
           birthDate: birthDateFormatted,
           joiningDate: joiningDateFormatted,
           isTrainer: data.isTrainer,
-          avatarUrl: "", // estos dos últimos pertenecen solo al perfil de entrenadoras
+          avatarUrl: "",
           description: "",
         };
         // Si es entrenadora, pedimos el perfil con foto y descripción
@@ -131,6 +133,8 @@ const showArrows = useBreakpointValue({ base: false, md: true });
           type: "error",
           duration: 3000,
         });
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -145,6 +149,7 @@ const showArrows = useBreakpointValue({ base: false, md: true });
   const handleSave = async () => {
     try {
       setSaving(true);
+
       const [day, month, year] = profile.birthDate.split("/");
       const birthDateTimestamp = Math.floor(
         new Date(`${year}-${month}-${day}`).getTime() / 1000
@@ -152,7 +157,7 @@ const showArrows = useBreakpointValue({ base: false, md: true });
       let uploadedPicUrl = profile.avatarUrl;
 
       if (newProfilePicFile) {
-        // ✅ Subir a Cloudinary
+        // Subir a Cloudinary
         const formData = new FormData();
         formData.append("file", newProfilePicFile);
         formData.append("upload_preset", UPLOAD_PRESET);
@@ -206,17 +211,14 @@ const showArrows = useBreakpointValue({ base: false, md: true });
           throw new Error("No se pudo actualizar el perfil de entrenadora");
       }
 
-      // 🗂️  Construí el nuevo user global
       const updatedUser = {
         id: user?.id || 0,
         name: profile.name.split(" ")[0] || "Usuaria",
-        profilePic: uploadedPicUrl, 
+        profilePic: uploadedPicUrl,
       };
 
-      // ⏫ Actualizá el AuthContext
       setUser(updatedUser);
 
-      // 💾 Y el localStorage
       localStorage.setItem("fitauraUser", JSON.stringify(updatedUser));
       await fetchMyServices();
 
@@ -254,7 +256,7 @@ const showArrows = useBreakpointValue({ base: false, md: true });
         }
         throw new Error("Error al obtener tus servicios.");
       }
-      setServices(data.services); // ajustá si es data directamente
+      setServices(data.services);
     } catch (err) {
       console.error(err);
       setErrorServices("No se pudieron cargar tus servicios.");
@@ -316,24 +318,13 @@ const showArrows = useBreakpointValue({ base: false, md: true });
     }
   }, [profile.isTrainer, user?.id]);
 
-  // MOCKS para la vista Trainer:
-  const mockReviews = [
-    {
-      user: { name: "Hanna", avatarUrl: "" },
-      date: "Febrero 2025",
-      training: "Pilates Cardio con María Paula",
-      rating: 5,
-      comment: "Me encantó la clase! María Paula es excelente profesora.",
-    },
-  ];
-
   // Flecha izquierda
   const PrevArrow = ({ onClick }) => (
     <Box
       as="button"
       onClick={onClick}
       position="absolute"
-      left="-40px" // Ajustá según tu diseño
+      left="-40px"
       top="50%"
       transform="translateY(-50%)"
       zIndex="2"
@@ -344,7 +335,6 @@ const showArrows = useBreakpointValue({ base: false, md: true });
     </Box>
   );
 
-  // Flecha derecha
   const NextArrow = ({ onClick }) => (
     <Box
       as="button"
@@ -368,7 +358,7 @@ const showArrows = useBreakpointValue({ base: false, md: true });
     slidesToShow: 3,
     slidesToScroll: 1,
     prevArrow: showArrows ? <PrevArrow /> : undefined,
-  nextArrow: showArrows ? <NextArrow /> : undefined,
+    nextArrow: showArrows ? <NextArrow /> : undefined,
 
     adaptiveHeight: false,
     responsive: [
@@ -414,7 +404,14 @@ const showArrows = useBreakpointValue({ base: false, md: true });
     }
   };
 
-  // --- RETURN ---
+  if (loading || saving) {
+    return (
+      <VStack justify="center" align="center" minH="50vh">
+        <Spinner size="xl" color="#fd6193" />
+      </VStack>
+    );
+  }
+
   return (
     <Box minH="100vh" bg="pink.100">
       <Global
@@ -422,20 +419,17 @@ const showArrows = useBreakpointValue({ base: false, md: true });
     .slick-dots li button:before {
       color: #fd6193 !important;
       opacity: 0.5;
-      bottom: -90px; /* más separación */
-      font-size: 12px; /* 👈 Cambiá el tamaño a gusto */
-    }
+      bottom: -90px; 
+      font-size: 12px; 
     .slick-dots li.slick-active button:before {
       color: #fd6193 !important;
       opacity: 1;
-      font-size: 12px; /* 👈 Igual acá para el activo */
+      font-size: 12px; 
     }
   `}
       />
-
       <Header />
 
-      {/* TITULO */}
       <Box px={{ base: 4, md: 12 }} py={6} maxW="100%" mx="auto">
         <Heading
           as="h1"
@@ -461,11 +455,9 @@ const showArrows = useBreakpointValue({ base: false, md: true });
                 p={6}
                 borderRadius="xl"
                 boxShadow="xl"
-                maxW="1000px" // <- más ancho
-                //w="full" // <- que use todo el ancho disponible dentro del contenedor
+                maxW="1000px"
                 mx="auto"
                 align={{ base: "center", md: "flex-start" }}
-                //justify="space-between"
                 gap={{ base: 6, md: 10 }}
               >
                 <Flex
@@ -489,10 +481,13 @@ const showArrows = useBreakpointValue({ base: false, md: true });
                       objectFit="cover"
                     />
                   ) : (
-                    <AvatarRoot w="100%"
+                    <AvatarRoot
+                      w="100%"
                       h="100%"
                       borderRadius="full"
-                      objectFit="cover" colorPalette="pink">
+                      objectFit="cover"
+                      colorPalette="pink"
+                    >
                       <AvatarFallback />
                     </AvatarRoot>
                   )}
@@ -678,7 +673,7 @@ const showArrows = useBreakpointValue({ base: false, md: true });
                   {!isEditing ? (
                     <Stack
                       direction={{ base: "column", md: "row" }}
-                      gap={4} // espacio entre botones
+                      gap={4}
                       mt={6}
                       w="full"
                     >
@@ -712,7 +707,6 @@ const showArrows = useBreakpointValue({ base: false, md: true });
                       mt={6}
                       w="full"
                     >
-                      {/* Botones */}
                       <Stack
                         direction={{ base: "column", md: "row" }}
                         gap={4}
@@ -740,7 +734,6 @@ const showArrows = useBreakpointValue({ base: false, md: true });
                         </Button>
                       </Stack>
 
-                      {/* Texto */}
                       <Box
                         order={{ base: -1, md: 1 }}
                         w={{ base: "full", md: "auto" }}
@@ -786,152 +779,151 @@ const showArrows = useBreakpointValue({ base: false, md: true });
                       boxShadow="md"
                       display="flex"
                       flexDirection="column"
-                      //justifyContent="space-between"
-                      //height="100%"
                       height="100%"
                       minHeight="500px"
                       mx={2}
                       w="100%"
                       maxW="400px"
                     >
-                       <Box flex="1" >
-                      <Flex
-                        justify="space-between"
-                        align="center"
-                        mb={4}
-                        wrap="wrap"
-                        gap={2}
-                      >
-                        {/* Título del servicio */}
-                        <Text
-                          fontWeight="semibold"
-                          fontSize={{ base: "md", md: "lg" }}
-                          fontFamily="Poppins"
-                          flex="1 1 100%"
-                          wordBreak="break-word"
-                        >
-                          {service.title}
-                        </Text>
-
-                        {/* Información del entrenador */}
+                      <Box flex="1">
                         <Flex
-                          as={RouterLink}
-                          to={`/trainer/${service.trainerid}`}
-                          _hover={{ transform: "scale(1.05)", boxShadow: "md" }}
-                          transition="all 0.2s ease-in-out"
+                          justify="space-between"
                           align="center"
-                          border="1px solid #fd6193"
-                          borderRadius="lg"
-                          px={3}
-                          py={2}
-                          bg="white"
-                          boxShadow="sm"
+                          mb={4}
+                          wrap="wrap"
+                          gap={2}
                         >
-                          <Box mr={2}>
-                            <Text
-                              fontWeight="extrabold"
-                              color="#fd6193"
-                              fontSize="md"
-                              fontFamily="Poppins"
-                              lineHeight="1"
-                            >
-                              {service.trainer_name}
-                            </Text>
-                            <Flex align="center" gap={1}>
-                              <Text
-                                fontWeight="bold"
-                                fontSize="sm"
-                                color="black"
-                              >
-                                {service.trainer_rating
-                                  ? `${service.trainer_rating.toFixed(1)}/5`
-                                  : "Sin reviews"}
-                              </Text>
-                              <Image src="/estrella.png" boxSize="1rem" />
-                            </Flex>
-                          </Box>
-                          {service.profile_pic ? (
-                            <Image
-                              src={service.profile_pic}
-                              alt={service.trainer_name}
-                              boxSize={{ base: "40px", md: "50px" }}
-                              borderRadius="full"
-                              objectFit="cover"
-                              flexShrink={0}
-                            />
-                          ) : (
-                            <AvatarRoot colorPalette="pink">
-                              <AvatarFallback />
-                            </AvatarRoot>
-                          )}
-                        </Flex>
-                      </Flex>
-
-
-                      {/* Detalles del servicio: precio, duración, ubicación e idioma */}
-                      <Box  mb={4}>
-                        <Flex align="center" fontSize={fontSizeCard} mb={1}>
-                          <Image src="/dinero.webp" boxSize="1.5rem" mr={2} />$
-                          {Number(service.price).toFixed(2)}
-                        </Flex>
-
-                        <Flex align="center" fontSize={fontSizeCard} mb={1}>
-                          <Image src="/reloj.png" boxSize="1.5rem" mr={2} />
-                          {service.duration} mins
-                        </Flex>
-
-                        <Flex align="center" fontSize={fontSizeCard} mb={1}>
-                          <Image src="/locacion.png" boxSize="1.5rem" mr={2} />
-                          {service.location}
-                        </Flex>
-
-                        <Flex align="center" fontSize={fontSizeCard} mb={1}>
-                          <Image src="/idioma.png" boxSize="1.5rem" mr={2} />
-                          {service.language}
-                        </Flex>
-                        <Text fontSize={fontSizeCard} mt={2}>
-                        <strong>Publicado:</strong> {service.published ? "Sí" : "No"}
-                        </Text>
-                        {/* Mostrar los horarios de `timeavailability` */}
-                        {service.timeavailability ? (
-                          <Box mt={2}>
-                            {Object.entries(service.timeavailability).map(
-                              ([day, times]) => (
-                                <Text key={day} fontSize={fontSizeCard}>
-                                  <strong>
-                                    {day.charAt(0).toUpperCase() + day.slice(1)}
-                                    :
-                                  </strong>{" "}
-                                  {times.join(", ")}
-                                </Text>
-                              )
-                            )}
-                          </Box>
-                        ) : (
-                          <Text fontSize={fontSizeCard} color="gray.500">
-                            No hay horarios disponibles.
+                          <Text
+                            fontWeight="semibold"
+                            fontSize={{ base: "md", md: "lg" }}
+                            fontFamily="Poppins"
+                            flex="1 1 100%"
+                            wordBreak="break-word"
+                          >
+                            {service.title}
                           </Text>
-                        )}
-                      </Box>
-                       
-                      </Box>
-                       <Button
-  as={RouterLink}
-  to={`/manage-class/${service.id}`} // 👈 o usa el param que necesites
-  bg="#fd6193"
-  color="white"
-  fontWeight="semibold"
-  _hover={{ bg: "#fc7faa" }}
-  w="full"
-  fontFamily="Inter"
-    mt="auto" 
->
-  Administrar clase
-</Button>
-                    
 
+                          <Flex
+                            as={RouterLink}
+                            to={`/trainer/${service.trainerid}`}
+                            _hover={{
+                              transform: "scale(1.05)",
+                              boxShadow: "md",
+                            }}
+                            transition="all 0.2s ease-in-out"
+                            align="center"
+                            border="1px solid #fd6193"
+                            borderRadius="lg"
+                            px={3}
+                            py={2}
+                            bg="white"
+                            boxShadow="sm"
+                          >
+                            <Box mr={2}>
+                              <Text
+                                fontWeight="extrabold"
+                                color="#fd6193"
+                                fontSize="md"
+                                fontFamily="Poppins"
+                                lineHeight="1"
+                              >
+                                {service.trainer_name}
+                              </Text>
+                              <Flex align="center" gap={1}>
+                                <Text
+                                  fontWeight="bold"
+                                  fontSize="sm"
+                                  color="black"
+                                >
+                                  {service.trainer_rating
+                                    ? `${service.trainer_rating.toFixed(1)}/5`
+                                    : "Sin reviews"}
+                                </Text>
+                                <Image src="/estrella.png" boxSize="1rem" />
+                              </Flex>
+                            </Box>
+                            {service.profile_pic ? (
+                              <Image
+                                src={service.profile_pic}
+                                alt={service.trainer_name}
+                                boxSize={{ base: "40px", md: "50px" }}
+                                borderRadius="full"
+                                objectFit="cover"
+                                flexShrink={0}
+                              />
+                            ) : (
+                              <AvatarRoot colorPalette="pink">
+                                <AvatarFallback />
+                              </AvatarRoot>
+                            )}
+                          </Flex>
+                        </Flex>
+
+                        <Box mb={4}>
+                          <Flex align="center" fontSize={fontSizeCard} mb={1}>
+                            <Image src="/dinero.webp" boxSize="1.5rem" mr={2} />
+                            ${Number(service.price).toFixed(2)}
+                          </Flex>
+
+                          <Flex align="center" fontSize={fontSizeCard} mb={1}>
+                            <Image src="/reloj.png" boxSize="1.5rem" mr={2} />
+                            {service.duration} mins
+                          </Flex>
+
+                          <Flex align="center" fontSize={fontSizeCard} mb={1}>
+                            <Image
+                              src="/locacion.png"
+                              boxSize="1.5rem"
+                              mr={2}
+                            />
+                            {service.location}
+                          </Flex>
+
+                          <Flex align="center" fontSize={fontSizeCard} mb={1}>
+                            <Image src="/idioma.png" boxSize="1.5rem" mr={2} />
+                            {service.language}
+                          </Flex>
+                          <Text fontSize={fontSizeCard} mt={2}>
+                            <strong>Publicado:</strong>{" "}
+                            {service.published ? "Sí" : "No"}
+                          </Text>
+                          {service.timeavailability ? (
+                            <Box mt={2}>
+                              {Object.entries(service.timeavailability).map(
+                                ([day, times]) => (
+                                  <Text key={day} fontSize={fontSizeCard}>
+                                    <strong>
+                                      {day.charAt(0).toUpperCase() +
+                                        day.slice(1)}
+                                      :
+                                    </strong>{" "}
+                                    {times.join(", ")}
+                                  </Text>
+                                )
+                              )}
+                            </Box>
+                          ) : (
+                            <Text fontSize={fontSizeCard} color="gray.500">
+                              No hay horarios disponibles.
+                            </Text>
+                          )}
+                        </Box>
+                      </Box>
+                      <Button
+                        as={RouterLink}
+                        to={`/manage-class/${service.id || service.serviceId}`}
+                        state={{ service }}
+                        bg="#fd6193"
+                        color="white"
+                        fontWeight="semibold"
+                        _hover={{ bg: "#fc7faa" }}
+                        w="full"
+                        fontFamily="Inter"
+                        mt="auto"
+                      >
+                        Administrar clase
+                      </Button>
                     </Box>
-                    
                   ))}
                 </Slider>
               </Box>
@@ -970,7 +962,7 @@ const showArrows = useBreakpointValue({ base: false, md: true });
             </Box>
 
             <Box flex="2" minW={{ base: "100%", md: "500px" }}>
-              <Stack spacing={6} w="100%">
+              <Stack gap={6} w="100%">
                 {reviews.length > 0 ? (
                   reviews.map((review, idx) => (
                     <ReviewCard
@@ -993,7 +985,7 @@ const showArrows = useBreakpointValue({ base: false, md: true });
             </Box>
           </Flex>
 
-                <Heading
+          <Heading
             as="h1"
             fontSize={{ base: "2xl", md: "3xl" }}
             color="#fd6193"
@@ -1021,6 +1013,7 @@ const showArrows = useBreakpointValue({ base: false, md: true });
             borderRadius="lg"
             boxShadow="xl"
             w="full"
+            mb={4}
           >
             <Stack gap={4} w="full">
               {isEditing ? (
@@ -1108,7 +1101,7 @@ const showArrows = useBreakpointValue({ base: false, md: true });
               {!isEditing ? (
                 <Stack
                   direction={{ base: "column", md: "row" }}
-                  gap={4} // espacio entre botones
+                  gap={4}
                   mt={6}
                   w="full"
                 >
@@ -1135,7 +1128,7 @@ const showArrows = useBreakpointValue({ base: false, md: true });
               ) : (
                 <Stack
                   direction={{ base: "column", md: "row" }}
-                  gap={4} // espacio entre botones
+                  gap={4}
                   mt={6}
                   w="full"
                 >
@@ -1164,8 +1157,7 @@ const showArrows = useBreakpointValue({ base: false, md: true });
           </Box>
         </Flex>
       )}
-       <Footer/>
+      <Footer />
     </Box>
-   
   );
 }

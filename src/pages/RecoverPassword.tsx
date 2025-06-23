@@ -12,7 +12,6 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import HeaderLoginRegister from "@/components/HeaderLoginRegister";
 
-
 export default function RecoverPassword() {
   const headingSize = useBreakpointValue({
     base: "2xl",
@@ -22,9 +21,9 @@ export default function RecoverPassword() {
   const [showSuccess, setShowSuccess] = useState(false);
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
- 
-
+  const [loading, setLoading] = useState(false);
   const handleRecoverPassword = async () => {
+    setLoading(true);
     try {
       const response = await fetch(
         `http://localhost:4000/api/v1/users/forgot-password`,
@@ -34,9 +33,9 @@ export default function RecoverPassword() {
           body: JSON.stringify({ email }),
         }
       );
-  
+
       const data = await response.json();
-  
+
       if (response.ok) {
         setShowSuccess(true);
       } else {
@@ -55,12 +54,14 @@ export default function RecoverPassword() {
     } catch (err) {
       console.error(err);
       alert("Hubo un error al contactar con el servidor.");
+    } finally {
+      setLoading(false);
     }
   };
-  
+
   return (
     <Box minH="100vh" bg="white">
-      <HeaderLoginRegister/>
+      <HeaderLoginRegister />
       <Flex
         direction="column"
         align="flex-start"
@@ -118,7 +119,6 @@ export default function RecoverPassword() {
             fontFamily={"Inter"}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-
           />
 
           <ChakraLink
@@ -163,6 +163,7 @@ export default function RecoverPassword() {
                 borderColor: "transparent",
               }}
               onClick={handleRecoverPassword}
+              isLoading={loading}
             >
               Recuperar Contraseña
             </Button>
@@ -173,7 +174,7 @@ export default function RecoverPassword() {
                 left="0"
                 w="100vw"
                 h="100vh"
-                bg="rgba(0, 0, 0, 0.4)" // fondo oscuro semitransparente
+                bg="rgba(0, 0, 0, 0.4)"
                 zIndex="1000"
                 display="flex"
                 alignItems="center"
@@ -189,26 +190,24 @@ export default function RecoverPassword() {
                   maxW="600px"
                   w="90%"
                 >
-                <Flex align="center" justify="space-between">
+                  <Flex align="center" justify="space-between">
                     <Text fontSize="sm" color="green.800">
-                      ✅ Enviamos un correo a {email}. Ingresá a tu
-                      casilla y seguí las instrucciones para continuar con la
-                      recuperación de la contraseña.
+                      ✅ Enviamos un correo a {email}. Ingresá a tu casilla y
+                      seguí las instrucciones para continuar con la recuperación
+                      de la contraseña.
                     </Text>
                     <Button
                       size="sm"
-                        onClick={() => {
-    
-    navigate("/home"); 
-  }}
+                      onClick={() => {
+                        navigate("/home");
+                      }}
                       variant="ghost"
                       colorScheme="green"
-                      _hover={{bg: "green.300"}}
+                      _hover={{ bg: "green.300" }}
                     >
                       ✖
                     </Button>
                   </Flex>
-                
                 </Box>
               </Box>
             )}

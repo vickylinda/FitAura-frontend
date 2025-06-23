@@ -1,4 +1,4 @@
-import { AvatarRoot, AvatarFallback } from '@chakra-ui/react';
+import { AvatarRoot, AvatarFallback, Image } from '@chakra-ui/react';
 import { Box, Text, Flex } from '@chakra-ui/react';
 import { FaStar } from 'react-icons/fa';
 import { FaReply } from 'react-icons/fa6'; 
@@ -54,9 +54,17 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ reviewId, user, date, training,
       </Flex>
 
       <Text fontSize="sm" mb={1}><strong>Entrenamiento:</strong> {training}</Text>
-      <Text fontSize="sm" mb={1}>
-        <strong>Calificación:</strong> {rating}/5 <FaStar color="#ECC94B" style={{ display: 'inline' }} />
-      </Text>
+ <Flex align="center" gap={1} fontSize="sm" mb={1}>
+  <strong>Calificación:</strong>{" "}
+  <Text as="span">{rating}/5</Text>
+  <Image 
+    src="/estrella.png" 
+    alt="estrella" 
+    boxSize="1.2rem" 
+    position="relative"
+     top="-2px" 
+  />
+</Flex>
       <Text fontSize="sm"><strong>Comentario:</strong> {comment}</Text>
 
       {reply && (

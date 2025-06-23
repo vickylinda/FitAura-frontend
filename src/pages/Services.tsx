@@ -13,14 +13,15 @@ import {
   Input,
   Slider,
   RadioGroup,
-  Separator
+  Separator,
+  VStack,
+  Spinner,
 } from "@chakra-ui/react";
 import { Link as RouterLink } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useSearchParams } from "react-router-dom";
-
 
 const Services = () => {
   const [searchParams] = useSearchParams();
@@ -41,29 +42,19 @@ const Services = () => {
   // Filtros
   const [locations, setLocations] = useState<string[]>([]);
   const [languages, setLanguages] = useState<string[]>([]);
-  const [ratingMin, setRatingMin] = useState<boolean>(false);/*
-  const [maxPrice, setMaxPrice] = useState<number>(1000);
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
-  const [minInput, setMinInput] = useState("0");
-  const [maxInput, setMaxInput] = useState("1000");*/
+  const [ratingMin, setRatingMin] = useState<boolean>(false); 
   const [maxPrice, setMaxPrice] = useState<number>(1000);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, Infinity]);
   const [minInput, setMinInput] = useState("0");
   const [maxInput, setMaxInput] = useState("");
   const [globalMaxPrice, setGlobalMaxPrice] = useState<number>(1000);
-  const [hasFetchedGlobalMax, setHasFetchedGlobalMax] = useState<boolean>(false);
+  const [hasFetchedGlobalMax, setHasFetchedGlobalMax] =
+    useState<boolean>(false);
 
-  
-
- /*useEffect(() => {
-  setMinInput(priceRange[0].toString());
-  setMaxInput(priceRange[1].toString());
-}, [priceRange]);*/
   useEffect(() => {
     setMinInput(priceRange[0].toString());
     setMaxInput(priceRange[1] === Infinity ? "" : priceRange[1].toString());
   }, [priceRange]);
-
 
   const [search, setSearch] = useState<string>("");
 
@@ -82,11 +73,9 @@ const Services = () => {
       if (languages.length > 0) params.append("languages", languages.join(","));
       if (durations.length > 0) params.append("durations", durations.join(","));
       if (ratingMin) params.append("ratingMin", "4.5");
-      // Antes de usar priceMin / priceMax:
-      /*if (priceRange[0]) params.append("priceMin", priceRange[0].toString());
-      if (priceRange[1]) params.append("priceMax", priceRange[1].toString());*/
       if (priceRange[0]) params.append("priceMin", priceRange[0].toString());
-      if (priceRange[1] !== Infinity) params.append("priceMax", priceRange[1].toString());
+      if (priceRange[1] !== Infinity)
+        params.append("priceMax", priceRange[1].toString());
 
       params.append("published", "true");
 
@@ -98,19 +87,15 @@ const Services = () => {
 
       if (!response.ok) {
         if (data.internalErrorCode === 1007) {
-          setServices([]); 
+          setServices([]);
           return;
         }
         setError(data.message || "Error interno en el servidor.");
         return;
       }
-      
 
       const fetchedServices = data.services || [];
       setServices(fetchedServices);
-
-      
-
     } catch (err) {
       console.error("Error al cargar servicios:", err);
       setError("Error interno en el servidor.");
@@ -122,24 +107,26 @@ const Services = () => {
   useEffect(() => {
     const fetchGlobalMax = async () => {
       try {
-        const response = await fetch("http://localhost:4000/api/v2/services?published=true");
+        const response = await fetch(
+          "http://localhost:4000/api/v2/services?published=true"
+        );
         const data = await response.json();
-        const prices = (data.services || []).map((s: any) => Number(s.price) || 0);
+        const prices = (data.services || []).map(
+          (s: any) => Number(s.price) || 0
+        );
         const highest = prices.length > 0 ? Math.max(...prices) : 1000;
         setGlobalMaxPrice(highest);
-        setMaxPrice(highest); // inicializa el slider
+        setMaxPrice(highest); 
         setPriceRange([0, highest]);
         setHasFetchedGlobalMax(true);
       } catch (e) {
         console.error("Error obteniendo precio máximo global", e);
       }
     };
-  
+
     fetchGlobalMax();
   }, []);
-  
 
-  // ⚠️ SOLO para cargar todo al entrar una vez:
   useEffect(() => {
     fetchServices();
   }, []);
@@ -173,7 +160,6 @@ const Services = () => {
         gap={10}
         direction={{ base: "column", md: "row" }}
       >
-        {/* Sidebar Filtros */}
         <Box w={{ base: "100%", md: "250px" }} flexShrink={0}>
           <Text fontWeight="bold" mb={4}>
             Filtros
@@ -191,10 +177,8 @@ const Services = () => {
           <Text fontWeight="semibold" mb={2}>
             Tipo de entrenamiento
           </Text>
-          
-          
+
           <Stack mb={4} gap={2}>
-            
             <Button
               variant={category === null ? "solid" : "ghost"}
               colorScheme="pink"
@@ -246,7 +230,7 @@ const Services = () => {
               </Checkbox.Root>
             ))}
           </Stack>
-          <Separator color={"#fc7faa"} mb={2}/>
+          <Separator color={"#fc7faa"} mb={2} />
 
           {/* Duración */}
           <Text fontWeight="semibold" mb={2}>
@@ -258,7 +242,7 @@ const Services = () => {
               ["btw45and60", "45–60 mins"],
               ["btw30and45", "30–45 mins"],
               ["lt30", "-30 mins"],
-              ["solo15", "-15 mins"]
+              ["solo15", "-15 mins"],
             ].map(([value, label]) => (
               <Checkbox.Root
                 key={value}
@@ -273,7 +257,7 @@ const Services = () => {
               </Checkbox.Root>
             ))}
           </Stack>
-          <Separator color={"#fc7faa"} mb={2}/>
+          <Separator color={"#fc7faa"} mb={2} />
 
           {/* Idioma */}
           <Text fontWeight="semibold" mb={2}>
@@ -294,7 +278,7 @@ const Services = () => {
               </Checkbox.Root>
             ))}
           </Stack>
-          <Separator color={"#fc7faa"} mb={2}/>
+          <Separator color={"#fc7faa"} mb={2} />
 
           {/* Rating Min */}
           <Text fontWeight="semibold" mb={2}>
@@ -327,15 +311,16 @@ const Services = () => {
               </RadioGroup.Item>
             </Stack>
           </RadioGroup.Root>
-          <Separator color={"#fc7faa"} mb={2}/>
+          <Separator color={"#fc7faa"} mb={2} />
 
           {/* Slider de precio */}
           <Text fontWeight="semibold" mb={2}>
-            Precio: ${priceRange[0]} - {priceRange[1] === Infinity ? "∞" : `$${priceRange[1]}`}
+            Precio: ${priceRange[0]} -{" "}
+            {priceRange[1] === Infinity ? "∞" : `$${priceRange[1]}`}
           </Text>
 
           <Slider.Root
-          mb={4}
+            mb={4}
             maxW="md"
             min={0}
             max={maxPrice}
@@ -344,50 +329,53 @@ const Services = () => {
               setPriceRange(details.value as [number, number])
             }
             minStepsBetweenThumbs={1}
-             step={10}
-             colorScheme="pink"
+            step={10}
+            colorScheme="pink"
           >
             <Slider.Control>
               <Slider.Track bg="gray.200">
-                <Slider.Range bg="pink.400"/>
+                <Slider.Range bg="pink.400" />
               </Slider.Track>
-              <Slider.Thumbs bg= "pink.600" border="2px solid white" cursor={"grab"} _active={{cursor:"grabbing"}}/>
+              <Slider.Thumbs
+                bg="pink.600"
+                border="2px solid white"
+                cursor={"grab"}
+                _active={{ cursor: "grabbing" }}
+              />
             </Slider.Control>
           </Slider.Root>
 
-{/* Inputs sincronizados */}
-{/* Inputs de precio con validación robusta */}
-<Flex gap={2} mb={4}>
-  <Input
-    type="number"
-    value={minInput}
-    onChange={(e) => setMinInput(e.target.value)}
-    onBlur={() => {
-      const val = Number(minInput);
-      const safeVal = Math.max(0, Math.min(val, priceRange[1]));
-      setPriceRange([safeVal, priceRange[1]]);
-    }}
-  />
+          {/* Inputs sincronizados */}
+          <Flex gap={2} mb={4}>
+            <Input
+              type="number"
+              value={minInput}
+              onChange={(e) => setMinInput(e.target.value)}
+              onBlur={() => {
+                const val = Number(minInput);
+                const safeVal = Math.max(0, Math.min(val, priceRange[1]));
+                setPriceRange([safeVal, priceRange[1]]);
+              }}
+            />
 
-  <Input
-  type="number"
-  value={maxInput}
-  onChange={(e) => setMaxInput(e.target.value)}
-  onBlur={() => {
-    const val = Number(maxInput);
-    if (isNaN(val) || maxInput.trim() === "") {
-      setPriceRange([priceRange[0], Infinity]);
-    } else {
-      const safeVal = Math.min(Math.max(val, priceRange[0]), maxPrice);
-      setPriceRange([priceRange[0], safeVal]);
-    }
-  }}
-/>
-
-</Flex>
-
-
-
+            <Input
+              type="number"
+              value={maxInput}
+              onChange={(e) => setMaxInput(e.target.value)}
+              onBlur={() => {
+                const val = Number(maxInput);
+                if (isNaN(val) || maxInput.trim() === "") {
+                  setPriceRange([priceRange[0], Infinity]);
+                } else {
+                  const safeVal = Math.min(
+                    Math.max(val, priceRange[0]),
+                    maxPrice
+                  );
+                  setPriceRange([priceRange[0], safeVal]);
+                }
+              }}
+            />
+          </Flex>
 
           <Button
             w="100%"
@@ -395,6 +383,8 @@ const Services = () => {
             color={"black"}
             _hover={{ bg: "#fd99bf" }}
             onClick={fetchServices}
+            isLoading={loading}
+            loadingText="Cargando..."
           >
             Aplicar filtros
           </Button>
@@ -407,7 +397,11 @@ const Services = () => {
             gap={{ base: 6, md: 8 }}
           >
             {loading ? (
-              <Text>Cargando entrenamientos...</Text>
+              <VStack justify="center" align="center" minH="100px">
+                <Spinner size="xl" color="#fd6193" />
+
+                <Text>Cargando entrenamientos...</Text>
+              </VStack>
             ) : error ? (
               <Text color="red">{error}</Text>
             ) : services.length === 0 ? (
@@ -465,7 +459,12 @@ const Services = () => {
                           {clase.trainer_name}
                         </Text>
                         <Flex align="center" gap={1}>
-                          <Text fontWeight="bold" fontSize="sm" color="black" mt={1}>
+                          <Text
+                            fontWeight="bold"
+                            fontSize="sm"
+                            color="black"
+                            mt={1}
+                          >
                             {clase.trainer_rating
                               ? `${clase.trainer_rating.toFixed(1)}/5`
                               : "Sin reviews"}
@@ -494,32 +493,41 @@ const Services = () => {
                   <Box flexGrow={1} mb={4}>
                     <Text fontSize={fontSizeCard}>
                       <Image
-                      src="/dinero.webp"
-                      display="inline"
-                      boxSize="1.5rem"
-                      verticalAlign="-0.30rem"
-                    />{" "} ${Number(clase.price).toFixed(2)}
+                        src="/dinero.webp"
+                        display="inline"
+                        boxSize="1.5rem"
+                        verticalAlign="-0.30rem"
+                      />{" "}
+                      ${Number(clase.price).toFixed(2)}
                     </Text>
                     <Text fontSize={fontSizeCard}>
                       <Image
-                      src="/reloj.png"
-                      display="inline"
-                      boxSize="1.5rem"
-                      verticalAlign="-0.30rem"
-                    />{" "} {clase.duration} mins
+                        src="/reloj.png"
+                        display="inline"
+                        boxSize="1.5rem"
+                        verticalAlign="-0.30rem"
+                      />{" "}
+                      {clase.duration} mins
                     </Text>
-                    <Text fontSize={fontSizeCard}>   <Image
-                      src="/locacion.png"
-                      display="inline"
-                      boxSize="1.5rem"
-                      verticalAlign="-0.30rem"
-                    />{" "} {clase.location}</Text>
-                    <Text fontSize={fontSizeCard}><Image
-                      src="/idioma.png"
-                      display="inline"
-                      boxSize="1.5rem"
-                      verticalAlign="-0.30rem"
-                    />{" "} {clase.language}</Text>
+                    <Text fontSize={fontSizeCard}>
+                      {" "}
+                      <Image
+                        src="/locacion.png"
+                        display="inline"
+                        boxSize="1.5rem"
+                        verticalAlign="-0.30rem"
+                      />{" "}
+                      {clase.location}
+                    </Text>
+                    <Text fontSize={fontSizeCard}>
+                      <Image
+                        src="/idioma.png"
+                        display="inline"
+                        boxSize="1.5rem"
+                        verticalAlign="-0.30rem"
+                      />{" "}
+                      {clase.language}
+                    </Text>
                   </Box>
 
                   <Button

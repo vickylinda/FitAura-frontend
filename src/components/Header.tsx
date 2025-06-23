@@ -8,6 +8,8 @@ import {
   useBreakpointValue,
   AvatarRoot,
   AvatarFallback,
+  VStack,
+  Spinner,
 } from "@chakra-ui/react";
 import { Menu, MenuButton, MenuList, MenuItem } from "@chakra-ui/menu";
 import { useNavigate } from "react-router-dom";
@@ -15,13 +17,21 @@ import { Link as RouterLink } from "react-router-dom";
 import { Link } from "@chakra-ui/react";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
+import { useState } from "react";
 
 export default function Header() {
   const navigate = useNavigate();
   const location = useLocation();
   const isActive = (path: string) => location.pathname === path;
+    const isMobile = useBreakpointValue({ base: true, xl: false });
+ const [accountLoading, setAccountLoading] = useState(false);
+ 
+const handleNavigateAccount = () => {
+  setAccountLoading(true);
+  navigate("/my-account");
+};
 
-  const isMobile = useBreakpointValue({ base: true, xl: false });
+
 
   const handleNavigate = (path: string) => {
     navigate(path);
@@ -93,6 +103,15 @@ export default function Header() {
       }
     }
   }, []); */
+  }
+  
+  if (accountLoading) {
+    return (
+      <VStack justify="center" align="center" minH="50vh">
+        <Spinner size="xl" color="#fd6193" />
+        <Text color="#fd6193">Cargando...</Text>
+      </VStack>
+    );
   }
 
   return (
@@ -205,7 +224,7 @@ export default function Header() {
 
                 {user ? (
                   <MenuItem
-                    onClick={() => handleNavigate("/my-account")}
+                    onClick={() => handleNavigateAccount()}
                     fontFamily={"Inter"}
                     fontWeight={"bold"}
                     cursor="pointer"
@@ -225,7 +244,7 @@ export default function Header() {
                       cursor="pointer"
                       _hover={{ bg: "#fd99bf", color: "black" }}
                     >
-                      <Image src="login.svg" boxSize="20px" mr={2} />
+                      <Image src="/login.svg" boxSize="20px" mr={2} />
                       Ingresar
                     </MenuItem>
 
@@ -237,7 +256,7 @@ export default function Header() {
                       cursor="pointer"
                       _hover={{ bg: "#fd99bf", color: "black" }}
                     >
-                      <Image src="register.svg" boxSize="20px" mr={2} />
+                      <Image src="/register.svg" boxSize="20px" mr={2} />
                       Registrarse
                     </MenuItem>
                   </>
@@ -329,7 +348,7 @@ export default function Header() {
                   }}
                 >
                   <MenuItem
-                    onClick={() => handleNavigate("/my-account")}
+                    onClick={() => handleNavigateAccount()}
                     fontFamily="Inter"
                     fontWeight="bold"
                     cursor="pointer"
@@ -364,7 +383,7 @@ export default function Header() {
                     textDecoration: "underline",
                   }}
                 >
-                  <Image src="login.svg" boxSize="20px" mr={0} />
+                  <Image src="/login.svg" boxSize="20px" mr={0} />
                   Ingresar
                 </Button>
 
@@ -379,7 +398,7 @@ export default function Header() {
                     textDecoration: "underline",
                   }}
                 >
-                  <Image src="register.svg" boxSize="20px" mr={0} />
+                  <Image src="/register.svg" boxSize="20px" mr={0} />
                   Registrarse
                 </Button>
               </>

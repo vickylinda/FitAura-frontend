@@ -24,7 +24,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuthModal } from "@/context/AuthModalContext";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import {InputGroup, InputRightElement } from "@chakra-ui/input";
+import { InputGroup, InputRightElement } from "@chakra-ui/input";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -52,8 +52,8 @@ export default function LoginModal({
     md: "3xl",
     lg: "4xl",
   });
-    const inputSize = useBreakpointValue({ base: "sm", md: "md", lg: "lg" });
-    const inputSize2 = useBreakpointValue({ base: "sm", md: "sm", lg: "md" });
+  const inputSize = useBreakpointValue({ base: "sm", md: "md", lg: "lg" });
+  const inputSize2 = useBreakpointValue({ base: "sm", md: "sm", lg: "md" });
 
   const handleTogglePassword = () => setShowPassword((prev) => !prev);
 
@@ -100,22 +100,29 @@ export default function LoginModal({
       const firstName = profileData.name?.split(" ")[0] || "Usuaria";
       let profilePic = null;
 
-// Si es entrenadora, traer foto:
-if (profileData.isTrainer) {
-  const trainerRes = await fetch(
-    `http://localhost:4000/api/v1/trainers/${profileData.id}/profile`,
-    {
-      headers: { Authorization: `Bearer ${data.jwt}` },
-    }
-  );
-  if (trainerRes.ok) {
-    const trainerData = await trainerRes.json();
-    profilePic = trainerData.profilePic || null;
-  }
-}
+      // Si es entrenadora, traer foto:
+      if (profileData.isTrainer) {
+        const trainerRes = await fetch(
+          `http://localhost:4000/api/v1/trainers/${profileData.id}/profile`,
+          {
+            headers: { Authorization: `Bearer ${data.jwt}` },
+          }
+        );
+        if (trainerRes.ok) {
+          const trainerData = await trainerRes.json();
+          profilePic = trainerData.profilePic || null;
+        }
+      }
 
-      login({ id: profileData.id, name: firstName,     isTrainer: profileData.isTrainer,
-    profilePic: profilePic, }, data.jwt);
+      login(
+        {
+          id: profileData.id,
+          name: firstName,
+          isTrainer: profileData.isTrainer,
+          profilePic: profilePic,
+        },
+        data.jwt
+      );
       handleClose();
       if (onLoginSuccess) {
         onLoginSuccess();
@@ -168,23 +175,29 @@ if (profileData.isTrainer) {
       const firstName = profileData.name?.split(" ")[0] || "Usuaria";
       let profilePic = null;
 
-// Si es entrenadora, traer foto:
-if (profileData.isTrainer) {
-  const trainerRes = await fetch(
-    `http://localhost:4000/api/v1/trainers/${profileData.id}/profile`,
-    {
-      headers: { Authorization: `Bearer ${data.jwt}` },
-    }
-  );
-  if (trainerRes.ok) {
-    const trainerData = await trainerRes.json();
-    profilePic = trainerData.profilePic || null;
-  }
-}
+      // Si es entrenadora, traer foto:
+      if (profileData.isTrainer) {
+        const trainerRes = await fetch(
+          `http://localhost:4000/api/v1/trainers/${profileData.id}/profile`,
+          {
+            headers: { Authorization: `Bearer ${data.jwt}` },
+          }
+        );
+        if (trainerRes.ok) {
+          const trainerData = await trainerRes.json();
+          profilePic = trainerData.profilePic || null;
+        }
+      }
 
-
-      login({ id: profileData.id, name: firstName,     isTrainer: profileData.isTrainer,
-    profilePic: profilePic, }, data.token);
+      login(
+        {
+          id: profileData.id,
+          name: firstName,
+          isTrainer: profileData.isTrainer,
+          profilePic: profilePic,
+        },
+        data.token
+      );
       handleClose();
       if (onLoginSuccess) onLoginSuccess();
     } catch (err: any) {
@@ -244,21 +257,35 @@ if (profileData.isTrainer) {
                     : "Necesitás iniciar sesión para continuar."}
                 </Text>
 
-                <Flex w="100%" alignItems="center" justifyContent="flex-start" gap={4}>
+                <Flex
+                  w="100%"
+                  alignItems="center"
+                  justifyContent="flex-start"
+                  gap={4}
+                >
                   <GoogleLogin
                     onSuccess={handleGoogleSuccess}
                     onError={handleGoogleError}
                     size="large"
                   />
-                  <Text fontSize={inputSize2} fontFamily={"Inter"} fontWeight={"medium"} color="black" textAlign="center">
+                  <Text
+                    fontSize={inputSize2}
+                    fontFamily={"Inter"}
+                    fontWeight={"medium"}
+                    color="black"
+                    textAlign="center"
+                  >
                     o con email:
                   </Text>
                 </Flex>
 
                 <Box>
-                  <Text  mb={1} fontFamily="Inter"
-                  fontSize={inputSize}
-                  fontWeight="semibold">
+                  <Text
+                    mb={1}
+                    fontFamily="Inter"
+                    fontSize={inputSize}
+                    fontWeight="semibold"
+                  >
                     Email
                   </Text>
                   <Input
@@ -271,35 +298,36 @@ if (profileData.isTrainer) {
                 </Box>
 
                 <Box position="relative">
-                  <Text fontFamily="Inter"
-                  fontSize={inputSize}
-                  fontWeight="semibold" mb={1}>
+                  <Text
+                    fontFamily="Inter"
+                    fontSize={inputSize}
+                    fontWeight="semibold"
+                    mb={1}
+                  >
                     Contraseña
                   </Text>
                   <InputGroup>
-                  <Input
-                    placeholder="Ingresá tu contraseña"
-                    type={showPassword ? "text" : "password"}
-                    bg="#dcd3f0"
-                    border="none"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                  <InputRightElement h="full">
-                  <ChakraButton
-                    variant="ghost"
-                    
-                    onClick={handleTogglePassword}
-                    _hover={{ bg: "transparent" }}
-                    
-                  >
-                    {showPassword ? (
-                      <EyeOff size={20} color="black" />
-                    ) : (
-                      <Eye size={20} color="black" />
-                    )}
-                  </ChakraButton>
-                  </InputRightElement>
+                    <Input
+                      placeholder="Ingresá tu contraseña"
+                      type={showPassword ? "text" : "password"}
+                      bg="#dcd3f0"
+                      border="none"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                    />
+                    <InputRightElement h="full">
+                      <ChakraButton
+                        variant="ghost"
+                        onClick={handleTogglePassword}
+                        _hover={{ bg: "transparent" }}
+                      >
+                        {showPassword ? (
+                          <EyeOff size={20} color="black" />
+                        ) : (
+                          <Eye size={20} color="black" />
+                        )}
+                      </ChakraButton>
+                    </InputRightElement>
                   </InputGroup>
                 </Box>
 

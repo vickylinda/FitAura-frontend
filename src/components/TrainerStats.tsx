@@ -1,14 +1,5 @@
-import {
-  Box,
-  Text,
-  Stack,
-  Flex,
-  HStack,
-  Image,
-  RatingGroup,
-} from "@chakra-ui/react";
+import { Box, Text, Stack, Flex, Image, RatingGroup } from "@chakra-ui/react";
 import { FaStar } from "react-icons/fa";
-import { colorPalettes } from "compositions/lib/color-palettes";
 
 interface TrainerStatsProps {
   stats: {
@@ -52,7 +43,6 @@ const TrainerStats: React.FC<TrainerStatsProps> = ({ stats }) => {
 
   return (
     <Stack gap={6} w="100%">
-      {/* Métricas básicas */}
       <Stack gap={3} w="100%">
         <StyledStatBox
           label={
@@ -185,4 +175,3 @@ const TrainerStats: React.FC<TrainerStatsProps> = ({ stats }) => {
 };
 
 export default TrainerStats;
-

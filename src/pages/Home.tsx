@@ -61,7 +61,7 @@ const Home = () => {
 
   return (
     <Box>
-      <Header/>
+      <Header />
 
       {/* Hero */}
       <Box
@@ -111,18 +111,37 @@ const Home = () => {
         </Text>
         <SimpleGrid columns={{ base: 3, sm: 4, md: 6 }} gap={4}>
           {[
-             { label: "YOGA", src: "/yoga.jpg", to: "/trainings?category=Yoga" },
-             { label: "FUERZA", src: "/fuerza.jpg", to: "/trainings?category=Fuerza" },
-             { label: "PILATES", src: "/pilates.jpg", to: "/trainings?category=Pilates" },
-             { label: "SOLO 15'", src: "/15min.jpg", to: "/trainings?durations=solo15" },
-             { label: "CARDIO", src: "/cardio.jpg", to: "/trainings?category=Cardio" },
-             { label: "OTROS", src: "/otros.jpg", to: "/trainings?category=Otros" },
-           
+            { label: "YOGA", src: "/yoga.jpg", to: "/trainings?category=Yoga" },
+            {
+              label: "FUERZA",
+              src: "/fuerza.jpg",
+              to: "/trainings?category=Fuerza",
+            },
+            {
+              label: "PILATES",
+              src: "/pilates.jpg",
+              to: "/trainings?category=Pilates",
+            },
+            {
+              label: "SOLO 15'",
+              src: "/15min.jpg",
+              to: "/trainings?durations=solo15",
+            },
+            {
+              label: "CARDIO",
+              src: "/cardio.jpg",
+              to: "/trainings?category=Cardio",
+            },
+            {
+              label: "OTROS",
+              src: "/otros.jpg",
+              to: "/trainings?category=Otros",
+            },
           ].map((item, i) => (
             <Link
               key={i}
               as={RouterLink}
-              to={item.to} 
+              to={item.to}
               _hover={{ textDecoration: "none", transform: "scale(1.05)" }}
               transition="all 0.2s ease-in-out"
             >
@@ -315,7 +334,11 @@ const Home = () => {
         </SimpleGrid>
 
         <Flex justify="center" mt={10}>
-          <Link as={RouterLink} to="/trainings" _hover={{ textDecoration: "none" }}>
+          <Link
+            as={RouterLink}
+            to="/trainings"
+            _hover={{ textDecoration: "none" }}
+          >
             <Button
               variant="outline"
               fontWeight="bold"

@@ -9,20 +9,19 @@ import {
   Button,
   Heading,
 } from "@chakra-ui/react";
-import { FaStar } from "react-icons/fa";
 import Header from "@/components/Header";
 import ReviewCard from "@/components/ReviewCard";
 import { useParams } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import { Link as RouterLink } from "react-router-dom";
 import { useBreakpointValue } from "@chakra-ui/react";
+import Footer from "@/components/Footer";
 
 const TrainerProfile = () => {
   const { trainerId } = useParams();
   const [profile, setProfile] = useState<any>(null);
   const [profileError, setProfileError] = useState<string | null>(null);
   const fontSizeCard = useBreakpointValue({ base: "sm", md: "md" }) || "md";
-
   const [stats, setStats] = useState<any>(null);
   const [statsError, setStatsError] = useState<string | null>(null);
   const incrementedRef = useRef(false);
@@ -78,7 +77,6 @@ const TrainerProfile = () => {
         incrementTrainerViews(numericId);
       }
     };
-
     fetchData();
   }, [trainerId]);
 
@@ -243,37 +241,36 @@ const TrainerProfile = () => {
         p={8}
         boxShadow="md"
       >
-     <Text fontSize="2xl" fontWeight="bold" mb={4}>
-  {name}
-</Text>
+        <Text fontSize="2xl" fontWeight="bold" mb={4}>
+          {name}
+        </Text>
 
-<Text fontSize="lg" mb={2}>
-  {typeof rating === "number" ? (
-    <Flex as="span" align="center" display="inline-flex">
-      <Text as="span" fontWeight="bold">
-        {rating.toFixed(1)}
-      </Text>
-      /5
-      <Image
-        src="/estrella.png"
-        alt="estrella"
-        boxSize="1.2rem"
-        ml={1}
-      />
-    </Flex>
-  ) : (
-    <Flex as="span" align="center" display="inline-flex">
-      Sin reviews
-      <Image
-        src="/estrella.png"
-        alt="estrella"
-        boxSize="1.2rem"
-        ml={1}
-      />
-    </Flex>
-  )}
-</Text>
-
+        <Text fontSize="lg" mb={2}>
+          {typeof rating === "number" ? (
+            <Flex as="span" align="center" display="inline-flex">
+              <Text as="span" fontWeight="bold">
+                {rating.toFixed(1)}
+              </Text>
+              /5
+              <Image
+                src="/estrella.png"
+                alt="estrella"
+                boxSize="1.2rem"
+                ml={1}
+              />
+            </Flex>
+          ) : (
+            <Flex as="span" align="center" display="inline-flex">
+              Sin reviews
+              <Image
+                src="/estrella.png"
+                alt="estrella"
+                boxSize="1.2rem"
+                ml={1}
+              />
+            </Flex>
+          )}
+        </Text>
 
         <Text mb={1}>{trainingsCount} entrenamientos dictados</Text>
         <Text mb={1}>{activeStudents} alumnas activas</Text>
@@ -327,255 +324,276 @@ const TrainerProfile = () => {
     <Box minH="100vh" bg={"white"}>
       <Header />
       <Box px={{ base: 4, md: 12 }} py={6} maxW="100%" mx="auto">
-
-      {!profile && !profileError && (
-        <Text fontSize="md" color="gray.600" mb={6}>
-          Cargando perfil de entrenadora...
-        </Text>
-      )}
-
-      {profileError ? (
-        <Box my={4}>
-          <Text color="red.500" fontWeight="bold" fontSize="lg">
-            {profileError}
+        {!profile && !profileError && (
+          <Text fontSize="md" color="gray.600" mb={6}>
+            Cargando perfil de entrenadora...
           </Text>
-        </Box>
-      ) : (
-        profile && (
-          <TrainerInfo
-            name={profile.name}
-            rating={
-              typeof stats?.ratingaverage === "number"
-                ? stats.ratingaverage
-                : null
-            } // ✅
-            trainingsCount={stats?.completedtrainings ?? 0}
-            activeStudents={stats?.activetrainees ?? 0}
-            yearsUsingApp={calculateYearsUsingApp(profile.joiningDate)}
-            bio={profile.description}
-            avatarUrl={profile.profilePic}
-          />
-        )
-      )}
+        )}
 
-      {!stats && !statsError && (
-        <Text fontSize="sm" color="gray.500" mb={2}>
-          Cargando estadísticas...
-        </Text>
-      )}
+        {profileError ? (
+          <Box my={4}>
+            <Text color="red.500" fontWeight="bold" fontSize="lg">
+              {profileError}
+            </Text>
+          </Box>
+        ) : (
+          profile && (
+            <TrainerInfo
+              name={profile.name}
+              rating={
+                typeof stats?.ratingaverage === "number"
+                  ? stats.ratingaverage
+                  : null
+              } // ✅
+              trainingsCount={stats?.completedtrainings ?? 0}
+              activeStudents={stats?.activetrainees ?? 0}
+              yearsUsingApp={calculateYearsUsingApp(profile.joiningDate)}
+              bio={profile.description}
+              avatarUrl={profile.profilePic}
+            />
+          )
+        )}
 
-      {statsError && (
-        <Box my={2}>
-          <Text color="red.500" fontWeight="semibold" fontSize="md">
-            {statsError}
+        {!stats && !statsError && (
+          <Text fontSize="sm" color="gray.500" mb={2}>
+            Cargando estadísticas...
           </Text>
-        </Box>
-      )}
+        )}
 
-      <Heading
-                as="h1"
-                fontSize={{ base: "2xl", md: "3xl" }}
-                color="#fd6193"
-                fontWeight="bold"
-                mb={2}
-                fontFamily={"Inter"}
-              >
-                Servicios
-              </Heading>
-              <Text color="gray.500" fontSize="sm" mb={2}>
+        {statsError && (
+          <Box my={2}>
+            <Text color="red.500" fontWeight="semibold" fontSize="md">
+              {statsError}
+            </Text>
+          </Box>
+        )}
+
+        <Heading
+          as="h1"
+          fontSize={{ base: "2xl", md: "3xl" }}
+          color="#fd6193"
+          fontWeight="bold"
+          mb={2}
+          fontFamily={"Inter"}
+        >
+          Servicios
+        </Heading>
+        <Text color="gray.500" fontSize="sm" mb={2}>
           Servicios dictados por ésta entrenadora.
         </Text>
-              <Box h="2px" w="100%" bg="#fd6193" mb={10} />
-      {/* Servicios de la Entrenadora */}
-      <Box>
-        {errorServices && <Text color="red">{errorServices}</Text>}
-        {services.length === 0 ? (
-          <Text>No hay servicios disponibles para esta entrenadora.</Text>
-        ) : (
-          <SimpleGrid columns={{ base: 1, sm: 2, md: 3 }} gap={{ base: 6, md: 8 }} px={{ base: 4, md: 12 }} py={4}>
-  {services.map((service, index) => (
-    <Box
-      key={index}
-      p={4}
-      bg="white"
-      borderRadius="xl"
-      boxShadow="md"
-      display="flex"
-      flexDirection="column"
-      height="100%"
-    >
-      <Flex justify="space-between" align="center" mb={4} wrap="wrap" gap={2}>
-        {/* Título del servicio */}
-        <Text fontWeight="semibold" fontSize={{ base: "md", md: "lg" }} fontFamily="Poppins" flex="1 1 100%" wordBreak="break-word">
-          {service.title}
-        </Text>
-
-                  {/* Información del entrenador */}
+        <Box h="2px" w="100%" bg="#fd6193" mb={10} />
+        {/* Servicios de la Entrenadora */}
+        <Box>
+          {errorServices && <Text color="red">{errorServices}</Text>}
+          {services.length === 0 ? (
+            <Text>No hay servicios disponibles para esta entrenadora.</Text>
+          ) : (
+            <SimpleGrid
+              columns={{ base: 1, sm: 2, md: 3 }}
+              gap={{ base: 6, md: 8 }}
+              px={{ base: 4, md: 12 }}
+              py={4}
+            >
+              {services.map((service, index) => (
+                <Box
+                  key={index}
+                  p={4}
+                  bg="white"
+                  borderRadius="xl"
+                  boxShadow="md"
+                  display="flex"
+                  flexDirection="column"
+                  height="100%"
+                >
                   <Flex
-                    as={RouterLink}
-                    to={`/trainer/${service.trainerid}`}
-                    _hover={{ transform: "scale(1.05)", boxShadow: "md" }}
-                    transition="all 0.2s ease-in-out"
+                    justify="space-between"
                     align="center"
-                    border="1px solid #fd6193"
-                    borderRadius="lg"
-                    px={3}
-                    py={2}
-                    bg="white"
-                    boxShadow="sm"
+                    mb={4}
+                    wrap="wrap"
+                    gap={2}
                   >
-                    <Box mr={2}>
-                      <Text
-                        fontWeight="extrabold"
-                        color="#fd6193"
-                        fontSize="md"
-                        fontFamily="Poppins"
-                        lineHeight="1"
-                      >
-                        {service.trainer_name}
-                      </Text>
-                      <Flex align="center" gap={1}>
-                        <Text fontWeight="bold" fontSize="sm" color="black">
-                          {service.trainer_rating
-                            ? `${service.trainer_rating.toFixed(1)}/5`
-                            : "Sin reviews"}
+                    {/* Título del servicio */}
+                    <Text
+                      fontWeight="semibold"
+                      fontSize={{ base: "md", md: "lg" }}
+                      fontFamily="Poppins"
+                      flex="1 1 100%"
+                      wordBreak="break-word"
+                    >
+                      {service.title}
+                    </Text>
+
+                    {/* Información del entrenador */}
+                    <Flex
+                      as={RouterLink}
+                      to={`/trainer/${service.trainerid}`}
+                      _hover={{ transform: "scale(1.05)", boxShadow: "md" }}
+                      transition="all 0.2s ease-in-out"
+                      align="center"
+                      border="1px solid #fd6193"
+                      borderRadius="lg"
+                      px={3}
+                      py={2}
+                      bg="white"
+                      boxShadow="sm"
+                    >
+                      <Box mr={2}>
+                        <Text
+                          fontWeight="extrabold"
+                          color="#fd6193"
+                          fontSize="md"
+                          fontFamily="Poppins"
+                          lineHeight="1"
+                        >
+                          {service.trainer_name}
                         </Text>
-                        <Image src="/estrella.png" boxSize="1rem" />
-                      </Flex>
-                    </Box>
-                    {service.profile_pic ? (
-                      <Image
-                        src={service.profile_pic}
-                        alt={service.trainer_name}
-                        boxSize={{ base: "40px", md: "50px" }}
-                        borderRadius="full"
-                        objectFit="cover"
-                        flexShrink={0}
-                      />
-                    ) : (
-                      <AvatarRoot colorPalette="pink">
-                        <AvatarFallback />
-                      </AvatarRoot>
-                    )}
-                  </Flex>
-                </Flex>
-
-                {/* Detalles del servicio: precio, duración, ubicación e idioma */}
-                <Box flexGrow={1} mb={4}>
-                  <Text fontSize={fontSizeCard}>
-                    <Image
-                      src="/dinero.webp"
-                      display="inline"
-                      boxSize="1.5rem"
-                      verticalAlign="-0.30rem"
-                    />{" "}
-                    ${Number(service.price).toFixed(2)}
-                  </Text>
-                  <Text fontSize={fontSizeCard}>
-                    <Image
-                      src="/reloj.png"
-                      display="inline"
-                      boxSize="1.5rem"
-                      verticalAlign="-0.30rem"
-                    />{" "}
-                    {service.duration} mins
-                  </Text>
-                  <Text fontSize={fontSizeCard}>
-                    <Image
-                      src="/locacion.png"
-                      display="inline"
-                      boxSize="1.5rem"
-                      verticalAlign="-0.30rem"
-                    />{" "}
-                    {service.location}
-                  </Text>
-                  <Text fontSize={fontSizeCard}>
-                    <Image
-                      src="/idioma.png"
-                      display="inline"
-                      boxSize="1.5rem"
-                      verticalAlign="-0.30rem"
-                    />{" "}
-                    {service.language}
-                  </Text>
-                  {/* Horarios disponibles */}
-                  <Text fontSize={fontSizeCard} mt={2} fontWeight="bold">
-                    Horarios disponibles:
-                  </Text>
-
-                  {/* Mostrar los horarios de `timeavailability` */}
-                  {/* Horarios disponibles */}
-                  <Text fontSize={fontSizeCard} mt={2} fontWeight="bold">
-                    Horarios disponibles:
-                  </Text>
-                  <Box mt={2} mb={4}>
-                    {service.timeavailability ? (
-                      Object.entries(service.timeavailability).map(
-                        ([day, times]) => (
-                          <Text key={day} fontSize={fontSizeCard}>
-                            <strong>
-                              {day.charAt(0).toUpperCase() + day.slice(1)}:
-                            </strong>{" "}
-                            {times.join(", ")}
+                        <Flex align="center" gap={1}>
+                          <Text fontWeight="bold" fontSize="sm" color="black">
+                            {service.trainer_rating
+                              ? `${service.trainer_rating.toFixed(1)}/5`
+                              : "Sin reviews"}
                           </Text>
+                          <Image src="/estrella.png" boxSize="1rem" />
+                        </Flex>
+                      </Box>
+                      {service.profile_pic ? (
+                        <Image
+                          src={service.profile_pic}
+                          alt={service.trainer_name}
+                          boxSize={{ base: "40px", md: "50px" }}
+                          borderRadius="full"
+                          objectFit="cover"
+                          flexShrink={0}
+                        />
+                      ) : (
+                        <AvatarRoot colorPalette="pink">
+                          <AvatarFallback />
+                        </AvatarRoot>
+                      )}
+                    </Flex>
+                  </Flex>
+
+                  {/* Detalles del servicio: precio, duración, ubicación e idioma */}
+                  <Box flexGrow={1} mb={4}>
+                    <Text fontSize={fontSizeCard}>
+                      <Image
+                        src="/dinero.webp"
+                        display="inline"
+                        boxSize="1.5rem"
+                        verticalAlign="-0.30rem"
+                      />{" "}
+                      ${Number(service.price).toFixed(2)}
+                    </Text>
+                    <Text fontSize={fontSizeCard}>
+                      <Image
+                        src="/reloj.png"
+                        display="inline"
+                        boxSize="1.5rem"
+                        verticalAlign="-0.30rem"
+                      />{" "}
+                      {service.duration} mins
+                    </Text>
+                    <Text fontSize={fontSizeCard}>
+                      <Image
+                        src="/locacion.png"
+                        display="inline"
+                        boxSize="1.5rem"
+                        verticalAlign="-0.30rem"
+                      />{" "}
+                      {service.location}
+                    </Text>
+                    <Text fontSize={fontSizeCard}>
+                      <Image
+                        src="/idioma.png"
+                        display="inline"
+                        boxSize="1.5rem"
+                        verticalAlign="-0.30rem"
+                      />{" "}
+                      {service.language}
+                    </Text>
+                    {/* Horarios disponibles */}
+                    <Text fontSize={fontSizeCard} mt={2} fontWeight="bold">
+                      Horarios disponibles:
+                    </Text>
+
+                    {/* Mostrar los horarios de `timeavailability` */}
+                    <Text fontSize={fontSizeCard} mt={2} fontWeight="bold">
+                      Horarios disponibles:
+                    </Text>
+                    <Box mt={2} mb={4}>
+                      {service.timeavailability ? (
+                        Object.entries(service.timeavailability).map(
+                          ([day, times]) => (
+                            <Text key={day} fontSize={fontSizeCard}>
+                              <strong>
+                                {day.charAt(0).toUpperCase() + day.slice(1)}:
+                              </strong>{" "}
+                              {times.join(", ")}
+                            </Text>
+                          )
                         )
-                      )
-                    ) : (
-                      <Text fontSize={fontSizeCard} color="gray.500">
-                        No hay horarios disponibles.
-                      </Text>
-                    )}
+                      ) : (
+                        <Text fontSize={fontSizeCard} color="gray.500">
+                          No hay horarios disponibles.
+                        </Text>
+                      )}
+                    </Box>
+                    <Button
+                      as={RouterLink}
+                      to={`/booking/${service.id}`}
+                      bg="#fd6193"
+                      w="full"
+                      borderRadius="xl"
+                      color="white"
+                      _hover={{
+                        color: "white",
+                        boxShadow: "0 8px 14px rgba(0, 0, 0, 0.3)",
+                      }}
+                    >
+                      Reservar clase
+                    </Button>
                   </Box>
-                  <Button
-                    as={RouterLink}
-                    to={`/booking/${service.id}`}
-                    bg="#fd6193"
-                    w="full"
-                    borderRadius="xl"
-                    color="white"
-                    _hover={{
-                      color: "white",
-                      boxShadow: "0 8px 14px rgba(0, 0, 0, 0.3)",
-                    }}
-                  >
-                    Reservar clase
-                  </Button>
                 </Box>
-              </Box>
-            ))}
-          </SimpleGrid>
-        )}
+              ))}
+            </SimpleGrid>
+          )}
+        </Box>
+
+        <Heading
+          as="h1"
+          fontSize={{ base: "2xl", md: "3xl" }}
+          color="#fd6193"
+          fontWeight="bold"
+          mb={2}
+          fontFamily={"Inter"}
+        >
+          Calificaciones
+        </Heading>
+        <Text color="gray.500" fontSize="sm" mb={2}>
+          Calificaciones de usuarias reales.
+        </Text>
+        <Box h="2px" w="100%" bg="#fd6193" mb={10} />
+
+        <SimpleGrid columns={{ base: 1, md: 2 }} gap={10} mb={12} mt={8}>
+          {reviewsData.length > 0 ? (
+            reviewsData.map((review, idx) => (
+              <ReviewCard
+                key={idx}
+                reviewId={review.reviewId}
+                user={{ name: review.name }}
+                date={review.createdAt}
+                training={review.title}
+                rating={review.rating}
+                comment={review.comment}
+                reply={review.reply}
+              />
+            ))
+          ) : (
+            <Text>No hay reseñas disponibles.</Text>
+          )}
+        </SimpleGrid>
       </Box>
-
-      
-      <Flex direction="column" mt={2} mb={2} gap={2}>
-  <Text color="#fd6193" fontWeight="bold" fontSize="2xl">Calificaciones</Text>
-  <Text color="gray.500" fontSize="sm" mb={2}>Calificaciones de usuarias reales.</Text>
-</Flex>
-<Box height="2px" width="100%" bg="#fd6193" borderRadius="full" mb={12} />
-<SimpleGrid columns={{ base: 1, md: 2 }} gap={10} mb={12} mt={8}>
-  {reviewsData.length > 0 ? (
-    reviewsData.map((review, idx) => (
-      <ReviewCard
-        key={idx}
-        reviewId={review.reviewId}
-        user={{ name: review.name }}  
-        date={review.createdAt}
-        training={review.title}
-        rating={review.rating}
-        comment={review.comment}
-        reply={review.reply}
-        
-      />
-    ))
-  ) : (
-    <Text>No hay reseñas disponibles.</Text>
-  )}
-</SimpleGrid>
-
-
-
-    </Box>
+      <Footer />
     </Box>
   );
 };

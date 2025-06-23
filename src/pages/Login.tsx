@@ -76,9 +76,6 @@ export default function Login() {
       }
 
       const data = await response.json();
-      //localStorage.setItem("token", data.jwt);
-
-      // Paso 2: Obtener perfil con el token (igual que en login normal)
       const profileRes = await fetch(
         "http://localhost:4000/api/v1/users/profile",
         {
@@ -96,34 +93,30 @@ export default function Login() {
       const firstName = profileData.name?.split(" ")[0] || "Usuaria";
       let profilePic = null;
 
-// Si es entrenadora, traé la foto:
-if (profileData.isTrainer) {
-  const trainerRes = await fetch(
-    `http://localhost:4000/api/v1/trainers/${profileData.id}/profile`,
-    {
-      headers: {
-        Authorization: `Bearer ${data.token}`,
-      },
-    }
-  );
-  if (trainerRes.ok) {
-    const trainerData = await trainerRes.json();
-    profilePic = trainerData.profilePic || null;
-  }
-}
-
-      // Guardamos en localStorage
-      {
-        /*}
-      localStorage.setItem(
-        "fitauraUser",
-        JSON.stringify({ id: profileData.id, name: firstName })
-      );
-  
-      navigate("/home");*/
+      // Si es entrenadora, traé la foto:
+      if (profileData.isTrainer) {
+        const trainerRes = await fetch(
+          `http://localhost:4000/api/v1/trainers/${profileData.id}/profile`,
+          {
+            headers: {
+              Authorization: `Bearer ${data.token}`,
+            },
+          }
+        );
+        if (trainerRes.ok) {
+          const trainerData = await trainerRes.json();
+          profilePic = trainerData.profilePic || null;
+        }
       }
-      login({ id: profileData.id, name: firstName ,    isTrainer: profileData.isTrainer,
-    profilePic: profilePic,}, data.jwt);
+      login(
+        {
+          id: profileData.id,
+          name: firstName,
+          isTrainer: profileData.isTrainer,
+          profilePic: profilePic,
+        },
+        data.jwt
+      );
       navigate("/home");
     } catch (err: any) {
       console.error(err);
@@ -148,7 +141,7 @@ if (profileData.isTrainer) {
       position="relative"
       overflowX="hidden"
     >
-      <HeaderLoginRegister/>
+      <HeaderLoginRegister />
       <Box px={{ base: 4, md: 8 }}>
         <Flex
           maxW="1200px"
@@ -182,7 +175,6 @@ if (profileData.isTrainer) {
 
             <Flex
               align="center"
-              //fontSize="xl"
               mb={6}
               mt={6}
               fontFamily="Inter"
@@ -290,7 +282,7 @@ if (profileData.isTrainer) {
 
                   setLoading(true);
                   try {
-                    // Paso 1: Login
+                    // Login
                     const response = await fetch(
                       "http://localhost:4000/api/v1/users/log-in",
                       {
@@ -310,9 +302,8 @@ if (profileData.isTrainer) {
                     }
 
                     const data = await response.json();
-                    //localStorage.setItem("token", data.token);
 
-                    // Paso 2: Obtener perfil con el token
+                    // Obtener perfil con el token
                     const profileRes = await fetch(
                       "http://localhost:4000/api/v1/users/profile",
                       {
@@ -329,35 +320,33 @@ if (profileData.isTrainer) {
                     const profileData = await profileRes.json();
                     const firstName =
                       profileData.name?.split(" ")[0] || "Usuaria";
-let profilePic = null;
+                    let profilePic = null;
 
-// Si es entrenadora, traé la foto:
-if (profileData.isTrainer) {
-  const trainerRes = await fetch(
-    `http://localhost:4000/api/v1/trainers/${profileData.id}/profile`,
-    {
-      headers: {
-        Authorization: `Bearer ${data.token}`,
-      },
-    }
-  );
-  if (trainerRes.ok) {
-    const trainerData = await trainerRes.json();
-    profilePic = trainerData.profilePic || null;
-  }
-}
-                    // Guardamos en localStorage
-                    {
-                      /*localStorage.setItem(
-                      "fitauraUser",
-                      JSON.stringify({ id: profileData.id, name: firstName })
-                    );
-
-                    // Navegamos
-                    navigate("/home"); */
+                    // Si es entrenadora, traé la foto:
+                    if (profileData.isTrainer) {
+                      const trainerRes = await fetch(
+                        `http://localhost:4000/api/v1/trainers/${profileData.id}/profile`,
+                        {
+                          headers: {
+                            Authorization: `Bearer ${data.token}`,
+                          },
+                        }
+                      );
+                      if (trainerRes.ok) {
+                        const trainerData = await trainerRes.json();
+                        profilePic = trainerData.profilePic || null;
+                      }
                     }
-                    login({ id: profileData.id, name: firstName, isTrainer: profileData.isTrainer,
-    profilePic: profilePic, }, data.token);
+                
+                    login(
+                      {
+                        id: profileData.id,
+                        name: firstName,
+                        isTrainer: profileData.isTrainer,
+                        profilePic: profilePic,
+                      },
+                      data.token
+                    );
                     navigate("/home");
                   } catch (err: any) {
                     setError(err.message || "Ocurrió un error");
@@ -413,7 +402,6 @@ if (profileData.isTrainer) {
             </Stack>
           </Box>
 
-          {/* Derecha: imagen */}
           {showImage && (
             <Box
               flex="1"

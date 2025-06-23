@@ -11,8 +11,6 @@ import Services from './pages/Services';
 import LoginModal from "@/pages/LoginModal";
 import MyAccount from './pages/MyAccount'
 import {useAuthModal} from "@/context/AuthModalContext";
-import BookingSection from './components/Booking'
-import TrainerPortal from './pages/TrainerPortal'
 import CreateService from './pages/CreateService'
 import Booking from './pages/Booking'
 import EditService from './pages/ModifyService';
@@ -20,6 +18,9 @@ import ChooseServiceToModify from './pages/ChooseServiceToModify'
 import ChooseServiceToPublish from './pages/ChooseServiceToPublish'
 import ChooseServiceToUnpublish from './pages/ChooseServiceToUnpublish'
 import ChooseServiceToDelete from './pages/ChooseServiceToDelete'
+import RateTraining from './pages/RateTraining'
+import ManageClass from './pages/ManageClass'
+import AttachmentsPage from './pages/AttachmentsPage'
 function App() {
   const { isOpen, closeModal } = useAuthModal();  
   return (
@@ -35,8 +36,6 @@ function App() {
       <Route path="/mytrainings" element={<MyTrainings/>} />
       <Route path="/trainings" element={<Services/>} />
       <Route path="/my-account" element ={<MyAccount/>} />
-      <Route path="/booktraining" element={<BookingSection pricePerClass={15} trainerName={''} trainerRating={0} trainerAvatar={''}/>} />
-      <Route path="trainersportal" element={<TrainerPortal />} />
       <Route path="create-service" element={<CreateService/>} />
       <Route path="booking/:serviceId" element={<Booking/>} />
       <Route path="/edit-service/:serviceId" element={<EditService />} />
@@ -44,6 +43,11 @@ function App() {
       <Route path="/publish-service" element={<ChooseServiceToPublish />} />
       <Route path="/unpublish-service" element={<ChooseServiceToUnpublish />} />
       <Route path="/delete-service" element={<ChooseServiceToDelete />} />
+      <Route path="/training/:trainingId/rate" element={<RateTraining />} />
+      <Route path="/manage-class/:serviceId" element={<ManageClass />} />
+      <Route path="/training/:trainingId/attachments" element={<AttachmentsPage />} /> 
+
+
     </Routes>
     <LoginModal isOpen={isOpen} onClose={closeModal} />
 
