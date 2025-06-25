@@ -10,7 +10,6 @@ import {
   Text,
   VStack,
   Stack,
-  Spinner,
   Textarea,
 } from "@chakra-ui/react";
 import { Link as RouterLink } from "react-router-dom";
@@ -24,7 +23,6 @@ import LoginModal from "@/pages/LoginModal";
 import PaymentModal from "./PaymentModal";
 import PaymentSuccess from "./PaymentSuccess";
 import Footer from "@/components/Footer";
-import { useFetchWithAuth } from "@/utils/fetchWithAuth";
 import { useParams } from "react-router-dom";
 import { useEffect } from "react";
 import axios from "axios";
@@ -33,6 +31,9 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
+import { PropagateLoader } from "react-spinners";
+import { ToggleTip } from "@/components/ui/toggle-tip";
+import { Info } from "lucide-react";
 
 type ServiceData = {
   id: number;
@@ -127,12 +128,12 @@ export default function Booking() {
 
   const handleBooking = () => {
     if (!user) {
-      // Si no está logueada, abrí el modal de login
+      // si no está logueada, abrí el modal de login
       setShowLogin(true);
       return;
     }
 
-    // Si está logueada, abre el modal de pago
+    // si está logueada, abre el modal de pago
     setShowPayment(true);
   };
 
@@ -158,29 +159,15 @@ export default function Booking() {
     }
     return total;
   };
-
   const totalClasses = calculateClasses();
   const totalPrice = totalClasses * pricePerClass;
-
-  /*Esto era para el mock. Ahora que integramos con el back lo dejo comentado.
-  const daysOfWeek = [
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-    "Sunday",
-  ];
-
-  const availableHours = ["08:00", "09:00", "10:00", "18:00", "19:00", "20:00"];
-*/
-
   if (isLoading || !serviceData) {
     return (
       <VStack justify="center" align="center" minH="50vh">
-        <Spinner size="xl" color="#fd6193" />
-        <Text color="#fd6193">Cargando...</Text>
+        <Text mb={6} fontSize="lg" color="#fd6193" fontWeight="medium">
+          Cargando página de reserva...
+        </Text>
+        <PropagateLoader size="15" color="#fd6193" speedMultiplier={1} />
       </VStack>
     );
   }
@@ -277,7 +264,18 @@ export default function Booking() {
           <ThemeProvider theme={muiTheme}>
             <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
               <VStack align="start" mb={4} w="full">
+                <Flex align="baseline" gap={2}>
                 <Text fontWeight="bold">Fecha de finalización</Text>
+
+                <ToggleTip
+                  positioning={{ placement: "top" }}
+                  content="Corresponde al día en que se completó el entrenamiento con esta alumna"
+                >
+                  <button>
+                    <Info size={16} cursor="pointer" />
+                  </button>
+                </ToggleTip>
+                </Flex>
                 <DatePicker
                   format="DD/MM/YYYY"
                   value={endDate ? dayjs(endDate) : null}
@@ -549,7 +547,7 @@ export default function Booking() {
             </Box>
           )}
 
-          {/* Columna de reviews */}
+          {/* reviews */}
           <Box flex="1" w="100%">
             {trainerReviews.length > 0 ? (
               <Stack gap={6}>
@@ -579,7 +577,7 @@ export default function Booking() {
         onClose={() => setShowLogin(false)}
         onLoginSuccess={() => {
           setShowLogin(false);
-          setShowPayment(true); // abre pago tras login
+          setShowPayment(true); // abre pago desp d login
         }}
       />
 

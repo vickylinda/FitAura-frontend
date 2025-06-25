@@ -15,7 +15,6 @@ import {
   RadioGroup,
   Separator,
   VStack,
-  Spinner,
   Drawer,
   Portal,
   CloseButton,
@@ -25,6 +24,7 @@ import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useSearchParams } from "react-router-dom";
+import { PropagateLoader } from "react-spinners";
 
 const Services = () => {
   const [searchParams] = useSearchParams();
@@ -183,232 +183,246 @@ const Services = () => {
                   <Drawer.Context>
                     {(store) => (
                       <Drawer.Body pt="6" spaceY="3">
-                       {/* Buscador */}
-            <Input
-              placeholder="Buscar..."
-              mb={4}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
+                        {/* Buscador */}
+                        <Input
+                          placeholder="Buscar..."
+                          mb={4}
+                          value={search}
+                          onChange={(e) => setSearch(e.target.value)}
+                        />
 
-            {/* Categoría */}
-            <Text fontWeight="semibold" mb={2}>
-              Tipo de entrenamiento
-            </Text>
+                        {/* Categoría */}
+                        <Text fontWeight="semibold" mb={2}>
+                          Tipo de entrenamiento
+                        </Text>
 
-            <Stack mb={4} gap={2}>
-              <Button
-                variant={category === null ? "solid" : "ghost"}
-                colorScheme="pink"
-                size="sm"
-                onClick={() => setCategory(null)}
-                width="100%"
-                justifyContent="flex-start"
-                bg={category === null ? "#fc7faa" : "transparent"}
-                color="black"
-                _hover={{ bg: category === null ? "#fc7faa" : "#ffd3e5" }}
-              >
-                Ver todos
-              </Button>
-              {["Yoga", "Fuerza", "Pilates", "Cardio", "Otros"].map((cat) => (
-                <Button
-                  key={cat}
-                  variant={category === cat ? "solid" : "ghost"}
-                  colorScheme="pink"
-                  size="sm"
-                  onClick={() => setCategory(cat)}
-                  width="100%"
-                  justifyContent="flex-start"
-                  bg={category === cat ? "#fc7faa" : "transparent"}
-                  color="black"
-                  _hover={{ bg: category === cat ? "#fc7faa" : "#ffd3e5" }}
-                >
-                  {cat}
-                </Button>
-              ))}
-            </Stack>
-            <Separator color={"#fc7faa"} mb={2} />
+                        <Stack mb={4} gap={2}>
+                          <Button
+                            variant={category === null ? "solid" : "ghost"}
+                            colorScheme="pink"
+                            size="sm"
+                            onClick={() => setCategory(null)}
+                            width="100%"
+                            justifyContent="flex-start"
+                            bg={category === null ? "#fc7faa" : "transparent"}
+                            color="black"
+                            _hover={{
+                              bg: category === null ? "#fc7faa" : "#ffd3e5",
+                            }}
+                          >
+                            Ver todos
+                          </Button>
+                          {["Yoga", "Fuerza", "Pilates", "Cardio", "Otros"].map(
+                            (cat) => (
+                              <Button
+                                key={cat}
+                                variant={category === cat ? "solid" : "ghost"}
+                                colorScheme="pink"
+                                size="sm"
+                                onClick={() => setCategory(cat)}
+                                width="100%"
+                                justifyContent="flex-start"
+                                bg={
+                                  category === cat ? "#fc7faa" : "transparent"
+                                }
+                                color="black"
+                                _hover={{
+                                  bg: category === cat ? "#fc7faa" : "#ffd3e5",
+                                }}
+                              >
+                                {cat}
+                              </Button>
+                            )
+                          )}
+                        </Stack>
+                        <Separator color={"#fc7faa"} mb={2} />
 
-            {/* Ubicación */}
-            <Text fontWeight="semibold" mb={2}>
-              Ubicación
-            </Text>
-            <Stack mb={4}>
-              {["Virtual por Zoom", "CABA", "PBA", "Otras"].map((loc) => (
-                <Checkbox.Root
-                  key={loc}
-                  checked={locations.includes(loc)}
-                  onCheckedChange={() => toggleLocation(loc)}
-                  colorPalette="pink"
-                  variant="subtle"
-                >
-                  <Checkbox.HiddenInput />
-                  <Checkbox.Control />
-                  <Checkbox.Label>{loc}</Checkbox.Label>
-                </Checkbox.Root>
-              ))}
-            </Stack>
-            <Separator color={"#fc7faa"} mb={2} />
+                        {/* Ubicación */}
+                        <Text fontWeight="semibold" mb={2}>
+                          Ubicación
+                        </Text>
+                        <Stack mb={4}>
+                          {["Virtual por Zoom", "CABA", "PBA", "Otras"].map(
+                            (loc) => (
+                              <Checkbox.Root
+                                key={loc}
+                                checked={locations.includes(loc)}
+                                onCheckedChange={() => toggleLocation(loc)}
+                                colorPalette="pink"
+                                variant="subtle"
+                              >
+                                <Checkbox.HiddenInput />
+                                <Checkbox.Control />
+                                <Checkbox.Label>{loc}</Checkbox.Label>
+                              </Checkbox.Root>
+                            )
+                          )}
+                        </Stack>
+                        <Separator color={"#fc7faa"} mb={2} />
 
-            {/* Duración */}
-            <Text fontWeight="semibold" mb={2}>
-              Duración
-            </Text>
-            <Stack mb={4}>
-              {[
-                ["gt60", "+60 mins"],
-                ["btw45and60", "45–60 mins"],
-                ["btw30and45", "30–45 mins"],
-                ["lt30", "-30 mins"],
-                ["solo15", "-15 mins"],
-              ].map(([value, label]) => (
-                <Checkbox.Root
-                  key={value}
-                  checked={durations.includes(value)}
-                  onCheckedChange={() => toggleDuration(value)}
-                  colorPalette="pink"
-                  variant="subtle"
-                >
-                  <Checkbox.HiddenInput />
-                  <Checkbox.Control />
-                  <Checkbox.Label>{label}</Checkbox.Label>
-                </Checkbox.Root>
-              ))}
-            </Stack>
-            <Separator color={"#fc7faa"} mb={2} />
+                        {/* Duración */}
+                        <Text fontWeight="semibold" mb={2}>
+                          Duración
+                        </Text>
+                        <Stack mb={4}>
+                          {[
+                            ["gt60", "+60 mins"],
+                            ["btw45and60", "45–60 mins"],
+                            ["btw30and45", "30–45 mins"],
+                            ["lt30", "-30 mins"],
+                            ["solo15", "-15 mins"],
+                          ].map(([value, label]) => (
+                            <Checkbox.Root
+                              key={value}
+                              checked={durations.includes(value)}
+                              onCheckedChange={() => toggleDuration(value)}
+                              colorPalette="pink"
+                              variant="subtle"
+                            >
+                              <Checkbox.HiddenInput />
+                              <Checkbox.Control />
+                              <Checkbox.Label>{label}</Checkbox.Label>
+                            </Checkbox.Root>
+                          ))}
+                        </Stack>
+                        <Separator color={"#fc7faa"} mb={2} />
 
-            {/* Idioma */}
-            <Text fontWeight="semibold" mb={2}>
-              Idioma
-            </Text>
-            <Stack mb={4}>
-              {["Español", "English"].map((lang) => (
-                <Checkbox.Root
-                  key={lang}
-                  checked={languages.includes(lang)}
-                  onCheckedChange={() => toggleLanguage(lang)}
-                  colorPalette="pink"
-                  variant="subtle"
-                >
-                  <Checkbox.HiddenInput />
-                  <Checkbox.Control />
-                  <Checkbox.Label>{lang}</Checkbox.Label>
-                </Checkbox.Root>
-              ))}
-            </Stack>
-            <Separator color={"#fc7faa"} mb={2} />
+                        {/* Idioma */}
+                        <Text fontWeight="semibold" mb={2}>
+                          Idioma
+                        </Text>
+                        <Stack mb={4}>
+                          {["Español", "English"].map((lang) => (
+                            <Checkbox.Root
+                              key={lang}
+                              checked={languages.includes(lang)}
+                              onCheckedChange={() => toggleLanguage(lang)}
+                              colorPalette="pink"
+                              variant="subtle"
+                            >
+                              <Checkbox.HiddenInput />
+                              <Checkbox.Control />
+                              <Checkbox.Label>{lang}</Checkbox.Label>
+                            </Checkbox.Root>
+                          ))}
+                        </Stack>
+                        <Separator color={"#fc7faa"} mb={2} />
 
-            {/* Rating Min */}
-            <Text fontWeight="semibold" mb={2}>
-              Calificación de la entrenadora
-            </Text>
-            <RadioGroup.Root
-              mb={4}
-              value={ratingMin ? "best" : "all"}
-              onValueChange={(details) => {
-                const selected =
-                  typeof details === "string" ? details : details.value;
-                setRatingMin(selected === "best");
-              }}
-              colorPalette="pink"
-              variant="subtle"
-            >
-              <Stack direction="column" gap={2}>
-                <RadioGroup.Item value="best">
-                  <RadioGroup.ItemHiddenInput />
-                  <RadioGroup.ItemIndicator />
-                  <RadioGroup.ItemText>
-                    Sólo mejor puntuadas (4.5–5 ⭐)
-                  </RadioGroup.ItemText>
-                </RadioGroup.Item>
+                        {/* Rating Min */}
+                        <Text fontWeight="semibold" mb={2}>
+                          Calificación de la entrenadora
+                        </Text>
+                        <RadioGroup.Root
+                          mb={4}
+                          value={ratingMin ? "best" : "all"}
+                          onValueChange={(details) => {
+                            const selected =
+                              typeof details === "string"
+                                ? details
+                                : details.value;
+                            setRatingMin(selected === "best");
+                          }}
+                          colorPalette="pink"
+                          variant="subtle"
+                        >
+                          <Stack direction="column" gap={2}>
+                            <RadioGroup.Item value="best">
+                              <RadioGroup.ItemHiddenInput />
+                              <RadioGroup.ItemIndicator />
+                              <RadioGroup.ItemText>
+                                Sólo mejor puntuadas (4.5–5 ⭐)
+                              </RadioGroup.ItemText>
+                            </RadioGroup.Item>
 
-                <RadioGroup.Item value="all">
-                  <RadioGroup.ItemHiddenInput />
-                  <RadioGroup.ItemIndicator />
-                  <RadioGroup.ItemText>Todas</RadioGroup.ItemText>
-                </RadioGroup.Item>
-              </Stack>
-            </RadioGroup.Root>
-            <Separator color={"#fc7faa"} mb={2} />
+                            <RadioGroup.Item value="all">
+                              <RadioGroup.ItemHiddenInput />
+                              <RadioGroup.ItemIndicator />
+                              <RadioGroup.ItemText>Todas</RadioGroup.ItemText>
+                            </RadioGroup.Item>
+                          </Stack>
+                        </RadioGroup.Root>
+                        <Separator color={"#fc7faa"} mb={2} />
 
-            {/* Slider de precio */}
-            <Text fontWeight="semibold" mb={2}>
-              Precio: ${priceRange[0]} -{" "}
-              {priceRange[1] === Infinity ? "∞" : `$${priceRange[1]}`}
-            </Text>
+                        {/* Slider de precio */}
+                        <Text fontWeight="semibold" mb={2}>
+                          Precio: ${priceRange[0]} -{" "}
+                          {priceRange[1] === Infinity
+                            ? "∞"
+                            : `$${priceRange[1]}`}
+                        </Text>
 
-            <Slider.Root
-              mb={4}
-              maxW="md"
-              min={0}
-              max={maxPrice}
-              value={priceRange}
-              onValueChange={(details) =>
-                setPriceRange(details.value as [number, number])
-              }
-              minStepsBetweenThumbs={1}
-              step={10}
-              colorScheme="pink"
-            >
-              <Slider.Control>
-                <Slider.Track bg="gray.200">
-                  <Slider.Range bg="pink.400" />
-                </Slider.Track>
-                <Slider.Thumbs
-                  bg="pink.600"
-                  border="2px solid white"
-                  cursor={"grab"}
-                  _active={{ cursor: "grabbing" }}
-                />
-              </Slider.Control>
-            </Slider.Root>
+                        <Slider.Root
+                          mb={4}
+                          maxW="md"
+                          min={0}
+                          max={maxPrice}
+                          value={priceRange}
+                          onValueChange={(details) =>
+                            setPriceRange(details.value as [number, number])
+                          }
+                          minStepsBetweenThumbs={1}
+                          step={10}
+                          colorScheme="pink"
+                        >
+                          <Slider.Control>
+                            <Slider.Track bg="gray.200">
+                              <Slider.Range bg="pink.400" />
+                            </Slider.Track>
+                            <Slider.Thumbs
+                              bg="pink.600"
+                              border="2px solid white"
+                              cursor={"grab"}
+                              _active={{ cursor: "grabbing" }}
+                            />
+                          </Slider.Control>
+                        </Slider.Root>
 
-            {/* Inputs sincronizados */}
-            <Flex gap={2} mb={4}>
-              <Input
-                type="number"
-                value={minInput}
-                onChange={(e) => setMinInput(e.target.value)}
-                onBlur={() => {
-                  const val = Number(minInput);
-                  const safeVal = Math.max(0, Math.min(val, priceRange[1]));
-                  setPriceRange([safeVal, priceRange[1]]);
-                }}
-              />
+                        {/* Inputs sincronizados */}
+                        <Flex gap={2} mb={4}>
+                          <Input
+                            type="number"
+                            value={minInput}
+                            onChange={(e) => setMinInput(e.target.value)}
+                            onBlur={() => {
+                              const val = Number(minInput);
+                              const safeVal = Math.max(
+                                0,
+                                Math.min(val, priceRange[1])
+                              );
+                              setPriceRange([safeVal, priceRange[1]]);
+                            }}
+                          />
 
-              <Input
-                type="number"
-                value={maxInput}
-                onChange={(e) => setMaxInput(e.target.value)}
-                onBlur={() => {
-                  const val = Number(maxInput);
-                  if (isNaN(val) || maxInput.trim() === "") {
-                    setPriceRange([priceRange[0], Infinity]);
-                  } else {
-                    const safeVal = Math.min(
-                      Math.max(val, priceRange[0]),
-                      maxPrice
-                    );
-                    setPriceRange([priceRange[0], safeVal]);
-                  }
-                }}
-              />
-            </Flex>
+                          <Input
+                            type="number"
+                            value={maxInput}
+                            onChange={(e) => setMaxInput(e.target.value)}
+                            onBlur={() => {
+                              const val = Number(maxInput);
+                              if (isNaN(val) || maxInput.trim() === "") {
+                                setPriceRange([priceRange[0], Infinity]);
+                              } else {
+                                const safeVal = Math.min(
+                                  Math.max(val, priceRange[0]),
+                                  maxPrice
+                                );
+                                setPriceRange([priceRange[0], safeVal]);
+                              }
+                            }}
+                          />
+                        </Flex>
 
-            <Button
-              w="100%"
-              bg="#fc7faa"
-              color={"black"}
-              _hover={{ bg: "#fd99bf" }}
-              onClick={fetchServices}
-              isLoading={loading}
-              loadingText="Cargando..."
-            >
-              Aplicar filtros
-            </Button>
-          
-      
-
+                        <Button
+                          w="100%"
+                          bg="#fc7faa"
+                          color={"black"}
+                          _hover={{ bg: "#fd99bf" }}
+                          onClick={fetchServices}
+                          loading={loading}
+                          loadingText="Aplicando..."
+                        >
+                          Aplicar filtros
+                        </Button>
                       </Drawer.Body>
                     )}
                   </Drawer.Context>
@@ -643,8 +657,8 @@ const Services = () => {
               color={"black"}
               _hover={{ bg: "#fd99bf" }}
               onClick={fetchServices}
-              isLoading={loading}
-              loadingText="Cargando..."
+              loading={loading}
+              loadingText="Aplicando..."
             >
               Aplicar filtros
             </Button>
@@ -659,9 +673,14 @@ const Services = () => {
           >
             {loading ? (
               <VStack justify="center" align="center" minH="100px">
-                <Spinner size="xl" color="#fd6193" />
-
-                <Text>Cargando entrenamientos...</Text>
+                <Text mb={6} fontSize="lg" color="#fd6193" fontWeight="medium">
+                  Cargando entrenamientos...
+                </Text>
+                <PropagateLoader
+                  size="15"
+                  color="#fd6193"
+                  speedMultiplier={1}
+                />
               </VStack>
             ) : error ? (
               <Text color="red">{error}</Text>

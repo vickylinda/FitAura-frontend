@@ -212,7 +212,8 @@ export default function ResetPassword() {
               fontFamily="Inter"
               _hover={{ bg: "#fd6193" }}
               onClick={handleResetPassword}
-              isLoading={loading}
+              loading={loading}
+              loadingText={"Reestableciendo..."}
             >
               Reestablecer Contraseña
             </Button>

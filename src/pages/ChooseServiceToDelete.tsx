@@ -7,7 +7,6 @@ import {
   AvatarRoot,
   AvatarFallback,
   Button,
-  Spinner,
   useBreakpointValue,
   VStack,
   Heading,
@@ -20,7 +19,7 @@ import { useFetchWithAuth } from "@/utils/fetchWithAuth";
 import { toaster } from "@/components/ui/toaster";
 import DeleteConfirmationDialog from "./ConfirmDeleteModal";
 import Footer from "@/components/Footer";
-
+import { PropagateLoader } from "react-spinners";
 
 const ChooseServiceToDelete = () => {
   const [isDeleting, setIsDeleting] = useState(false);
@@ -101,12 +100,13 @@ const ChooseServiceToDelete = () => {
   if (isLoading) {
     return (
       <VStack justify="center" align="center" minH="50vh">
-        <Spinner size="xl" color="#fd6193" />
-        <Text color="#fd6193">Cargando...</Text>
+        <Text mb={6} fontSize="lg" color="#fd6193" fontWeight="medium">
+          Cargando servicios a eliminar...
+        </Text>
+        <PropagateLoader size="15" color="#fd6193" speedMultiplier={1} />
       </VStack>
     );
   }
-
 
   const handleConfirmDelete = () => {
     if (serviceToDelete !== null) {
@@ -117,261 +117,259 @@ const ChooseServiceToDelete = () => {
   };
 
   const validateCanDelete = async (serviceId: number) => {
-  try {
-    const res = await fetchWithAuth(
-      `http://localhost:4000/api/v2/services/${serviceId}`,
-      {
-        method: "DELETE",
-        headers: { "X-Validate-Only": "true" }, 
-      }
-    );
-    const data = await res.json();
+    try {
+      const res = await fetchWithAuth(
+        `http://localhost:4000/api/v2/services/${serviceId}`,
+        {
+          method: "DELETE",
+          headers: { "X-Validate-Only": "true" },
+        }
+      );
+      const data = await res.json();
 
-    if (!res.ok) {
-      // si es 1010 es que tiene alumnas
-      if (data.internalErrorCode === 1010) {
-        toaster.create({
-          title: "No se puede eliminar",
-          description: data.message || "Este servicio tiene alumnas activas.",
-          type: "error",
-          duration: 4000,
-        });
-        return false; 
+      if (!res.ok) {
+        // si es 1010 es que tiene alumnas
+        if (data.internalErrorCode === 1010) {
+          toaster.create({
+            title: "No se puede eliminar",
+            description: data.message || "Este servicio tiene alumnas activas.",
+            type: "error",
+            duration: 4000,
+          });
+          return false;
+        }
+        throw new Error(data.message || "No se puede eliminar este servicio.");
       }
-      throw new Error(data.message || "No se puede eliminar este servicio.");
+
+      return true;
+    } catch (err: any) {
+      console.error("Error al validar:", err);
+      toaster.create({
+        title: "Error",
+        description:
+          err.message || "Ocurrió un error al validar este servicio.",
+        type: "error",
+        duration: 4000,
+      });
+      return false;
     }
+  };
 
-    return true; 
-  } catch (err: any) {
-    console.error("Error al validar:", err);
-    toaster.create({
-      title: "Error",
-      description:
-        err.message || "Ocurrió un error al validar este servicio.",
-      type: "error",
-      duration: 4000,
-    });
-    return false; 
-  }
-};
-
-const handleOpenDialog = async (id: number) => {
-  const canDelete = await validateCanDelete(id);
-  if (canDelete) {
-    setServiceToDelete(id);
-    setIsDialogOpen(true);
-  }
-};
-
-
+  const handleOpenDialog = async (id: number) => {
+    const canDelete = await validateCanDelete(id);
+    if (canDelete) {
+      setServiceToDelete(id);
+      setIsDialogOpen(true);
+    }
+  };
 
   return (
     <Box minH="100vh" bg="white" overflowX="hidden">
-       <Header />
-    <Box
-      minH="100vh"
-      w="100vw"
-      bg="white"
-      px={{ base: 4, md: 10 }}
-      py={{ base: 4, md: 6 }}
-    >
-     
-     <Heading
-                          as="h1"
-                          fontSize={{ base: "2xl", md: "3xl" }}
-                          color="#fd6193"
-                          fontWeight="bold"
-                          mb={2}
-                          fontFamily={"Inter"}
-                          mt={0}
-                        >
-                          Seleccione el servicio a eliminar
-                        </Heading>
-                        <Box h="2px" w="100%" bg="#fd6193" mb={6} />
-
+      <Header />
       <Box
-        mt={6}
+        minH="100vh"
+        w="100vw"
         bg="white"
-        borderRadius="2xl"
-        boxShadow="xl"
         px={{ base: 4, md: 10 }}
-        py={8}
+        py={{ base: 4, md: 6 }}
       >
-        {errorServices && <Text color="red">{errorServices}</Text>}
-        {services.length === 0 ? (
-          <Text>No hay servicios de esta entrenadora.</Text>
-        ) : (
-          <SimpleGrid
-            columns={{ base: 1, sm: 2, md: 3 }}
-            gap={{ base: 6, md: 8 }}
-          >
-            {services.map((service, index) => (
-              <Box
-                key={index}
-                p={4}
-                bg="white"
-                borderRadius="xl"
-                boxShadow="md"
-                display="flex"
-                flexDirection="column"
-                height="100%"
-              >
-                <Flex
-                  justify="space-between"
-                  align="center"
-                  mb={4}
-                  wrap="wrap"
-                  gap={2}
+        <Heading
+          as="h1"
+          fontSize={{ base: "2xl", md: "3xl" }}
+          color="#fd6193"
+          fontWeight="bold"
+          mb={2}
+          fontFamily={"Inter"}
+          mt={0}
+        >
+          Seleccione el servicio a eliminar
+        </Heading>
+        <Box h="2px" w="100%" bg="#fd6193" mb={6} />
+
+        <Box
+          mt={6}
+          bg="white"
+          borderRadius="2xl"
+          boxShadow="xl"
+          px={{ base: 4, md: 10 }}
+          py={8}
+        >
+          {errorServices && <Text color="red">{errorServices}</Text>}
+          {services.length === 0 ? (
+            <Text>No hay servicios de esta entrenadora.</Text>
+          ) : (
+            <SimpleGrid
+              columns={{ base: 1, sm: 2, md: 3 }}
+              gap={{ base: 6, md: 8 }}
+            >
+              {services.map((service, index) => (
+                <Box
+                  key={index}
+                  p={4}
+                  bg="white"
+                  borderRadius="xl"
+                  boxShadow="md"
+                  display="flex"
+                  flexDirection="column"
+                  height="100%"
                 >
-                  <Text
-                    fontWeight="semibold"
-                    fontSize={{ base: "md", md: "lg" }}
-                    fontFamily="Poppins"
-                    flex="1 1 100%"
-                    wordBreak="break-word"
-                  >
-                    {service.title}
-                  </Text>
-
                   <Flex
-                    as={RouterLink}
-                    to={`/trainer/${service.trainerid}`}
-                    _hover={{ transform: "scale(1.05)", boxShadow: "md" }}
-                    transition="all 0.2s ease-in-out"
+                    justify="space-between"
                     align="center"
-                    border="1px solid #fd6193"
-                    borderRadius="lg"
-                    px={3}
-                    py={2}
-                    bg="white"
-                    boxShadow="sm"
+                    mb={4}
+                    wrap="wrap"
+                    gap={2}
                   >
-                    <Box mr={2}>
-                      <Text
-                        fontWeight="extrabold"
-                        color="#fd6193"
-                        fontSize="md"
-                        fontFamily="Poppins"
-                        lineHeight="1"
-                      >
-                        {service.trainer_name}
-                      </Text>
-                      <Flex align="center" gap={1}>
-                        <Text fontWeight="bold" fontSize="sm" color="black">
-                          {service.trainer_rating
-                            ? `${service.trainer_rating.toFixed(1)}/5`
-                            : "Sin reviews"}
+                    <Text
+                      fontWeight="semibold"
+                      fontSize={{ base: "md", md: "lg" }}
+                      fontFamily="Poppins"
+                      flex="1 1 100%"
+                      wordBreak="break-word"
+                    >
+                      {service.title}
+                    </Text>
+
+                    <Flex
+                      as={RouterLink}
+                      to={`/trainer/${service.trainerid}`}
+                      _hover={{ transform: "scale(1.05)", boxShadow: "md" }}
+                      transition="all 0.2s ease-in-out"
+                      align="center"
+                      border="1px solid #fd6193"
+                      borderRadius="lg"
+                      px={3}
+                      py={2}
+                      bg="white"
+                      boxShadow="sm"
+                    >
+                      <Box mr={2}>
+                        <Text
+                          fontWeight="extrabold"
+                          color="#fd6193"
+                          fontSize="md"
+                          fontFamily="Poppins"
+                          lineHeight="1"
+                        >
+                          {service.trainer_name}
                         </Text>
-                        <Image src="/estrella.png" boxSize="1rem" />
-                      </Flex>
-                    </Box>
-                    {service.profile_pic ? (
-                      <Image
-                        src={service.profile_pic}
-                        alt={service.trainer_name}
-                        boxSize={{ base: "40px", md: "50px" }}
-                        borderRadius="full"
-                        objectFit="cover"
-                        flexShrink={0}
-                      />
-                    ) : (
-                      <AvatarRoot colorPalette="pink">
-                        <AvatarFallback />
-                      </AvatarRoot>
-                    )}
-                  </Flex>
-                </Flex>
-
-                <Box flexGrow={1} mb={4}>
-                  <Text fontSize={fontSizeCard}>
-                    <Image
-                      src="/dinero.webp"
-                      display="inline"
-                      boxSize="1.5rem"
-                      verticalAlign="-0.30rem"
-                    />{" "}
-                    ${Number(service.price).toFixed(2)}
-                  </Text>
-                  <Text fontSize={fontSizeCard}>
-                    <Image
-                      src="/reloj.png"
-                      display="inline"
-                      boxSize="1.5rem"
-                      verticalAlign="-0.30rem"
-                    />{" "}
-                    {service.duration} mins
-                  </Text>
-                  <Text fontSize={fontSizeCard}>
-                    <Image
-                      src="/locacion.png"
-                      display="inline"
-                      boxSize="1.5rem"
-                      verticalAlign="-0.30rem"
-                    />{" "}
-                    {service.location}
-                  </Text>
-                  <Text fontSize={fontSizeCard}>
-                    <Image
-                      src="/idioma.png"
-                      display="inline"
-                      boxSize="1.5rem"
-                      verticalAlign="-0.30rem"
-                    />{" "}
-                    {service.language}
-                  </Text>
-                  <Text fontSize={fontSizeCard} mt={2}>
-                    <strong>Publicado:</strong>{" "}
-                    {service.published ? "Sí" : "No"}
-                  </Text>
-                  <Text fontSize={fontSizeCard} mt={2} fontWeight="bold">
-                    Horarios disponibles:
-                  </Text>
-                  <Box mt={2} mb={4}>
-                    {service.timeavailability ? (
-                      Object.entries(service.timeavailability).map(
-                        ([day, times]) => (
-                          <Text key={day} fontSize={fontSizeCard}>
-                            <strong>
-                              {day.charAt(0).toUpperCase() + day.slice(1)}:
-                            </strong>{" "}
-                            {times.join(", ")}
+                        <Flex align="center" gap={1}>
+                          <Text fontWeight="bold" fontSize="sm" color="black">
+                            {service.trainer_rating
+                              ? `${service.trainer_rating.toFixed(1)}/5`
+                              : "Sin reviews"}
                           </Text>
-                        )
-                      )
-                    ) : (
-                      <Text fontSize={fontSizeCard} color="gray.500">
-                        No hay horarios disponibles.
-                      </Text>
-                    )}
-                  </Box>
+                          <Image src="/estrella.png" boxSize="1rem" />
+                        </Flex>
+                      </Box>
+                      {service.profile_pic ? (
+                        <Image
+                          src={service.profile_pic}
+                          alt={service.trainer_name}
+                          boxSize={{ base: "40px", md: "50px" }}
+                          borderRadius="full"
+                          objectFit="cover"
+                          flexShrink={0}
+                        />
+                      ) : (
+                        <AvatarRoot colorPalette="pink">
+                          <AvatarFallback />
+                        </AvatarRoot>
+                      )}
+                    </Flex>
+                  </Flex>
 
-                  <Button
-                    onClick={() => handleOpenDialog(service.id)}
-                    bg="#fd6193"
-                    w="full"
-                    borderRadius="xl"
-                    color="white"
-                    _hover={{
-                      color: "white",
-                      boxShadow: "0 8px 14px rgba(0, 0, 0, 0.3)",
-                    }}
-                    isLoading={isDeleting}
-                  >
-                    Eliminar servicio
-                  </Button>
+                  <Box flexGrow={1} mb={4}>
+                    <Text fontSize={fontSizeCard}>
+                      <Image
+                        src="/dinero.webp"
+                        display="inline"
+                        boxSize="1.5rem"
+                        verticalAlign="-0.30rem"
+                      />{" "}
+                      ${Number(service.price).toFixed(2)}
+                    </Text>
+                    <Text fontSize={fontSizeCard}>
+                      <Image
+                        src="/reloj.png"
+                        display="inline"
+                        boxSize="1.5rem"
+                        verticalAlign="-0.30rem"
+                      />{" "}
+                      {service.duration} mins
+                    </Text>
+                    <Text fontSize={fontSizeCard}>
+                      <Image
+                        src="/locacion.png"
+                        display="inline"
+                        boxSize="1.5rem"
+                        verticalAlign="-0.30rem"
+                      />{" "}
+                      {service.location}
+                    </Text>
+                    <Text fontSize={fontSizeCard}>
+                      <Image
+                        src="/idioma.png"
+                        display="inline"
+                        boxSize="1.5rem"
+                        verticalAlign="-0.30rem"
+                      />{" "}
+                      {service.language}
+                    </Text>
+                    <Text fontSize={fontSizeCard} mt={2}>
+                      <strong>Publicado:</strong>{" "}
+                      {service.published ? "Sí" : "No"}
+                    </Text>
+                    <Text fontSize={fontSizeCard} mt={2} fontWeight="bold">
+                      Horarios disponibles:
+                    </Text>
+                    <Box mt={2} mb={4}>
+                      {service.timeavailability ? (
+                        Object.entries(service.timeavailability).map(
+                          ([day, times]) => (
+                            <Text key={day} fontSize={fontSizeCard}>
+                              <strong>
+                                {day.charAt(0).toUpperCase() + day.slice(1)}:
+                              </strong>{" "}
+                              {times.join(", ")}
+                            </Text>
+                          )
+                        )
+                      ) : (
+                        <Text fontSize={fontSizeCard} color="gray.500">
+                          No hay horarios disponibles.
+                        </Text>
+                      )}
+                    </Box>
+
+                    <Button
+                      onClick={() => handleOpenDialog(service.id)}
+                      bg="#fd6193"
+                      w="full"
+                      borderRadius="xl"
+                      color="white"
+                      _hover={{
+                        color: "white",
+                        boxShadow: "0 8px 14px rgba(0, 0, 0, 0.3)",
+                      }}
+                      loading={isDeleting}
+                      loadingText={"Eliminando..."}
+                    >
+                      Eliminar servicio
+                    </Button>
+                  </Box>
                 </Box>
-              </Box>
-            ))}
-          </SimpleGrid>
-        )}
+              ))}
+            </SimpleGrid>
+          )}
+        </Box>
+        <DeleteConfirmationDialog
+          isOpen={isDialogOpen}
+          onClose={() => setIsDialogOpen(false)}
+          onConfirm={handleConfirmDelete}
+        />
       </Box>
-      <DeleteConfirmationDialog
-        isOpen={isDialogOpen}
-        onClose={() => setIsDialogOpen(false)}
-        onConfirm={handleConfirmDelete}
-      />
-    </Box>
-    <Footer />
+      <Footer />
     </Box>
   );
 };

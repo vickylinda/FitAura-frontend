@@ -64,7 +64,7 @@ const Home = () => {
       overflowX="hidden">
       <Header />
 
-      {/* Hero */}
+      {/* foto */}
       <Box
         minHeight="70vh"
         backgroundImage="url('/aura.jpeg')"
@@ -100,7 +100,7 @@ const Home = () => {
         </Box>
       </Box>
 
-      {/* Filtros */}
+      {/* filtros */}
       <Box px={{ base: 4, md: 12 }} py={8} bg="white">
         <Text
           fontWeight="semibold"
@@ -168,7 +168,7 @@ const Home = () => {
         </SimpleGrid>
       </Box>
 
-      {/* Entrenamientos destacados */}
+      {/* entrenamientos destacados */}
       <Box px={{ base: 4, md: 12 }} py={8} bg="pink.100">
         <Text fontSize={{ base: "lg", md: "xl" }} fontWeight="bold" mb={6}>
           Nuestros entrenamientos{" "}

@@ -163,7 +163,8 @@ export default function RecoverPassword() {
                 borderColor: "transparent",
               }}
               onClick={handleRecoverPassword}
-              isLoading={loading}
+              loading={loading}
+              loadingText={"Recuperando..."}
             >
               Recuperar Contraseña
             </Button>

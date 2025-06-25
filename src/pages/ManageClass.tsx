@@ -2,7 +2,6 @@ import {
   Box,
   Heading,
   Text,
-  Spinner,
   Flex,
   Button,
   SimpleGrid,
@@ -14,12 +13,9 @@ import { useFetchWithAuth } from "@/utils/fetchWithAuth";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { toaster } from "@/components/ui/toaster";
+import { PropagateLoader } from "react-spinners";
 
-function forceAttachmentUrl(url: string) {
-  // Inserta "fl_attachment/" para forzar descarga en Cloudinary RAW
-  return url.replace("/raw/upload/", "/raw/upload/fl_attachment/");
-}
-
+type StatusType = "aceptado" | "cancelado" | null;
 
 interface Student {
   trainingId: number;
@@ -44,28 +40,31 @@ interface Service {
   price: number;
 }
 const CLOUD_NAME = "dfvnyxs4i";
-const UPLOAD_PRESET = "fitaura_files"; // tu preset
+const UPLOAD_PRESET = "fitaura_files";
 
 async function uploadAttachmentToCloudinary(file: File) {
   const formData = new FormData();
   formData.append("file", file);
   formData.append("upload_preset", UPLOAD_PRESET);
 
-  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/raw/upload`, {
-    method: "POST",
-    body: formData,
-  });
+  const res = await fetch(
+    `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/raw/upload`,
+    {
+      method: "POST",
+      body: formData,
+    }
+  );
   const data = await res.json();
-  console.log("✅ Uploaded RAW:", data);
+  console.log(" Uploaded RAW:", data);
   return data;
 }
-
-
 
 export default function ManageClass() {
   const { serviceId } = useParams();
   const fetchWithAuth = useFetchWithAuth();
-  const [submitting, setSubmitting] = useState(false);
+  const [statusSubmitting, setStatusSubmitting] = useState<Record<number, StatusType>>({});
+
+  const [uploading, setUploading] = useState<Record<number, boolean>>({});
 
   const [students, setStudents] = useState<StudentsResponse>({
     pending: [],
@@ -73,7 +72,7 @@ export default function ManageClass() {
     cancelled: [],
   });
   const [service, setService] = useState<Service | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setLoading] = useState(true);
 
   const fetchStudentsAndService = async () => {
     if (!serviceId) {
@@ -87,18 +86,14 @@ export default function ManageClass() {
 
     try {
       setLoading(true);
-
       const statuses = ["pendiente", "aceptado", "cancelado"];
-
       const results = await Promise.all(
         statuses.map(async (status) => {
           const url = `http://localhost:4000/api/v1/trainers-trainings?serviceId=${serviceId}&status=${status}`;
           console.log(`[FETCH URL]: ${url}`);
-
           const res = await fetchWithAuth(url);
           const text = await res.text();
-
-          // Si la respuesta no es JSON válido, se lanza
+          // si la respuesta no es JSON válido, se lanza:
           try {
             const data = JSON.parse(text);
             return Array.isArray(data.trainings) ? data.trainings : [];
@@ -157,7 +152,8 @@ export default function ManageClass() {
 
   const updateStatus = async (trainingId: number, newStatus: string) => {
     try {
-      setSubmitting(true);
+      setStatusSubmitting((prev) => ({ ...prev, [trainingId]: newStatus as StatusType }));
+
       const res = await fetchWithAuth(
         `http://localhost:4000/api/v1/trainings/${trainingId}/status`,
         {
@@ -182,84 +178,82 @@ export default function ManageClass() {
         type: "error",
         duration: 3000,
       });
-    }finally {
-    setSubmitting(false); // 👉 Oculta spinner
-  }
-    
+    } finally {
+       setStatusSubmitting((prev) => ({ ...prev, [trainingId]: null }));
+    }
+  };
+  const handleUploadAttachment = async (trainingId: number, file: File) => {
+    try {
+      setUploading((prev) => ({ ...prev, [trainingId]: true }));
+      // subo a cloudinary
+      const cloudRes = await uploadAttachmentToCloudinary(file);
+      console.log(" SUBIDO A CLOUDINARY:", cloudRes);
+      // infiero en tipo seguro desde el nombre del archivo
+      const ext = file.name.split(".").pop()?.toLowerCase() || "raw";
+      let attachmentType: string;
+      if (ext === "pdf") {
+        attachmentType = "pdf";
+      } else if (ext === "zip") {
+        attachmentType = "zip";
+      } else {
+        attachmentType = "raw"; // fallback por si es otro tipo
+      }
+      await fetchWithAuth(
+        `http://localhost:4000/api/v1/trainings/${trainingId}/attachments`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            attachmentName: file.name,
+            attachmentType: attachmentType,
+            attachmentSize: cloudRes.bytes,
+            attachmentUrl: cloudRes.secure_url,
+          }),
+        }
+      );
+
+      toaster.create({
+        title: "Archivo enviado",
+        description: "Se subió y guardó correctamente.",
+        type: "success",
+      });
+
+      fetchStudentsAndService();
+    } catch (err) {
+      console.error("ERROR SUBIENDO:", err);
+      toaster.create({
+        title: "Error",
+        description: "No se pudo subir.",
+        type: "error",
+      });
+    } finally {
+      setUploading((prev) => ({ ...prev, [trainingId]: false }));
+    }
   };
 
-  const handleUploadAttachment = async (trainingId: number, file: File) => {
-    
-  try {
-    setSubmitting(true); 
-    // ✅ Subir a Cloudinary RAW
-    const cloudRes = await uploadAttachmentToCloudinary(file);
-    console.log(" SUBIDO A CLOUDINARY:", cloudRes);
-    // 👉 Inferir tipo seguro desde el nombre del archivo
-    const ext = file.name.split('.').pop()?.toLowerCase() || 'raw';
-    let attachmentType: string;
-
-    if (ext === 'pdf') {
-      attachmentType = 'pdf';
-    } else if (ext === 'zip') {
-      attachmentType = 'zip';
-    } else {
-      attachmentType = 'raw'; // fallback por si es otro tipo
-    }
-
-    // ✅ Registrar en tu backend usando secure_url y metadata de Cloudinary
-    await fetchWithAuth(
-      `http://localhost:4000/api/v1/trainings/${trainingId}/attachments`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          attachmentName: file.name,
-          attachmentType: attachmentType, // ej: 'pdf'
-          attachmentSize: cloudRes.bytes,
-          attachmentUrl: cloudRes.secure_url, // URL final para bajar
-        }),
-      }
+  if (isLoading) {
+    return (
+      <VStack justify="center" align="center" minH="50vh">
+        <Text mb={6} fontSize="lg" color="#fd6193" fontWeight="medium">
+          Cargando clase...
+        </Text>
+        <PropagateLoader size="15" color="#fd6193" speedMultiplier={1} />
+      </VStack>
     );
-
-    toaster.create({
-      title: "Archivo enviado",
-      description: "Se subió y guardó correctamente.",
-      type: "success",
-    });
-
-    fetchStudentsAndService();
-  } catch (err) {
-    console.error("❌ ERROR SUBIENDO:", err);
-    toaster.create({
-      title: "Error",
-      description: "No se pudo subir.",
-      type: "error",
-    });
-  }finally {
-    setSubmitting(false); // Oculta spinner
   }
-};
-
-
-if (loading || submitting) {
-  return (
-    <VStack justify="center" align="center" minH="50vh">
-      <Spinner size="xl" color="#fd6193" />
-      <Text color="#fd6193">Cargando...</Text>
-    </VStack>
-  );
-}
-
 
   return (
-    
     <Box minH="100vh" bg="white" overflowX="hidden">
       <Header />
-    
 
       <Box px={{ base: 4, md: 12 }} py={6} maxW="100%" mx="auto">
-        <Heading as="h1" fontSize="2xl" color="#fd6193" mb={2} fontWeight="bold">
+        <Heading
+          as="h1"
+          fontSize="2xl"
+          color="#fd6193"
+          mb={2}
+          fontWeight="bold"
+        >
           Sobre este servicio
         </Heading>
         <Box h="2px" bg="#fd6193" mb={10} />
@@ -273,30 +267,45 @@ if (loading || submitting) {
           </Box>
         )}
 
-        {["pending", "confirmed", "cancelled"].map((key) => (
-          <Box key={key}>
-            <Heading
-              as="h1"
-              fontSize="2xl"
-              color="#fd6193"
-              fontWeight="bold"
-              mb={2}
-            >
-              {key === "pending"
-                ? "Alumnas pendientes de confirmación"
-                : key === "confirmed"
-                ? "Alumnas confirmadas"
-                : "Alumnas canceladas"}
-            </Heading>
-            <Box h="2px" bg="#fd6193" mb={10} />
-            <StudentsGrid
-              students={students[key as keyof StudentsResponse]}
-              showActions={key === "pending"}
-              onAction={updateStatus}
-              onUpload={key === "confirmed" ? handleUploadAttachment : undefined}
-            />
-          </Box>
-        ))}
+        {["pending", "confirmed", "cancelled"].map((key) => {
+          const studentList = students[key as keyof StudentsResponse];
+          const count = studentList.length;
+
+          return (
+            <Box key={key}>
+              <Heading
+                as="h1"
+                fontSize="2xl"
+                color="#fd6193"
+                fontWeight="bold"
+                mb={2}
+              >
+                {key === "pending"
+                  ? `Alumnas pendientes de confirmación (${count})`
+                  : key === "confirmed"
+                    ? `Alumnas confirmadas (${count})`
+                    : `Alumnas canceladas (${count})`}
+              </Heading>
+              {key === "confirmed" && (
+                <Text fontSize="sm" color="gray.600" mb={2}>
+                  NOTA: al subir un archivo, el mismo se enviará
+                  automáticamente.
+                </Text>
+              )}
+              <Box h="2px" bg="#fd6193" mb={10} />
+              <StudentsGrid
+                students={students[key as keyof StudentsResponse]}
+                showActions={key === "pending"}
+                onAction={updateStatus}
+                onUpload={
+                  key === "confirmed" ? handleUploadAttachment : undefined
+                }
+                statusSubmitting={statusSubmitting}
+                uploading={uploading}
+              />
+            </Box>
+          );
+        })}
       </Box>
       <Footer />
     </Box>
@@ -307,10 +316,19 @@ interface StudentsGridProps {
   students: Student[];
   showActions?: boolean;
   onAction?: (trainingId: number, newStatus: string) => void;
-   onUpload?: (trainingId: number, file: File) => void; 
+  onUpload?: (trainingId: number, file: File) => void;
+  statusSubmitting?: Record<number, "aceptado" | "cancelado" | null>;
+  uploading?: Record<number, boolean>;
 }
 
-function StudentsGrid({ students, showActions, onAction, onUpload }: StudentsGridProps) {
+function StudentsGrid({
+  students,
+  showActions,
+  onAction,
+  onUpload,
+  statusSubmitting,
+  uploading
+}: StudentsGridProps) {
   if (!students.length) {
     return <Text mb={8}>No hay alumnas en este estado.</Text>;
   }
@@ -339,7 +357,7 @@ function StudentsGrid({ students, showActions, onAction, onUpload }: StudentsGri
 
           {student.hasAttachments && (
             <Text fontSize="sm" color="gray.500" mb={2}>
-              📎 Subió archivos adjuntos.
+              Subió archivos adjuntos.
             </Text>
           )}
 
@@ -350,6 +368,8 @@ function StudentsGrid({ students, showActions, onAction, onUpload }: StudentsGri
                 bg="#7ed957"
                 _hover={{ bg: "#9af574" }}
                 onClick={() => onAction(student.trainingId, "aceptado")}
+                loading={statusSubmitting?.[student.trainingId] === "aceptado"}
+                loadingText={"Confirmando..."}
               >
                 Confirmar
               </Button>
@@ -358,13 +378,14 @@ function StudentsGrid({ students, showActions, onAction, onUpload }: StudentsGri
                 bg="#ff3131"
                 _hover={{ bg: "#f86767" }}
                 onClick={() => onAction(student.trainingId, "cancelado")}
+                loading={statusSubmitting?.[student.trainingId] === "cancelado"}
+                loadingText={"Cancelando..."}
               >
                 Cancelar
               </Button>
             </Flex>
           )}
           {onUpload && (
-            
             <Flex mt={2} direction="column" gap={1} w="100%">
               <input
                 type="file"
@@ -376,6 +397,12 @@ function StudentsGrid({ students, showActions, onAction, onUpload }: StudentsGri
                   }
                 }}
               />
+              {uploading?.[student.trainingId] && (
+  <Text fontSize="sm" color="#fd6193" mt={1}>
+    Enviando archivo...
+  </Text>
+)}
+
             </Flex>
           )}
         </Box>

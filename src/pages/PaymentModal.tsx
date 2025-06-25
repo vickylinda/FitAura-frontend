@@ -8,7 +8,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogBody,
-  DialogFooter,
   DialogBackdrop,
   DialogPositioner,
   Portal,
@@ -26,14 +25,12 @@ import cardImages, { type CardImages } from "react-payment-inputs/images";
 import { useFetchWithAuth } from "@/utils/fetchWithAuth";
 import { InputRightElement, InputGroup } from "@chakra-ui/input";
 import { toaster } from "@/components/ui/toaster";
-
 const images = cardImages as unknown as CardImages;
-
 interface PaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
   onPaymentSuccess: () => void;
-  serviceData: any; // ajusta el tipo si lo tenés tipado!
+  serviceData: any;
   selectedHours: { [key: string]: string[] };
   endDate: string;
   comment: string;
@@ -58,7 +55,6 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   const fetchWithAuth = useFetchWithAuth();
   const [paymentMethod, setPaymentMethod] = useState<"card" | "mp">("card");
 
-  // Campos de tarjeta
   const payment = usePaymentInputs();
   const [loading, setLoading] = useState(false);
 
@@ -90,21 +86,8 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
       </Show>
     );
   };
-  const Demo = () => {
-    const payment = usePaymentInputs();
-
-    return (
-      <Show
-        when={meta.cardType}
-        fallback={<LuCreditCard size={16} aria-hidden="true" />}
-      >
-        <svg {...getCardImageProps({ images })} />
-      </Show>
-    );
-  };
 
   const handlePay = async () => {
-    // Validaciones previas (las mismas de Booking)
     if (!serviceData || !endDate || Object.keys(selectedHours).length === 0) {
       toaster.create({
         title: "Error",
@@ -119,10 +102,8 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
     setLoading(true);
 
     try {
-      // ✅ Simular pago (puede omitirse en producción real)
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
-      // ✅ Crear reserva real en el backend
       const payload = {
         serviceId: serviceData.id,
         selectedSchedule: selectedHours,
@@ -169,7 +150,6 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
         duration: 3000,
       });
 
-      // ✅ Notifica éxito y cierra modal
       onPaymentSuccess();
     } catch (error) {
       console.error("Error inesperado:", error);
@@ -219,7 +199,6 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
 
             <DialogBody>
               <Stack gap={4}>
-                {/* Selector de método */}
                 <Flex gap={4} mb={4}>
                   <ChakraButton
                     onClick={() => setPaymentMethod("card")}
@@ -243,7 +222,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                         <Input
                           w="full"
                           {...payment.getCardNumberProps()}
-                          pr="3rem" // espacio a la derecha para el ícono
+                          pr="3rem"
                         />
                         <Box
                           position="absolute"
@@ -263,7 +242,8 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                         <Input roundedTopRight="0" {...payment.getCVCProps()} />
                       </Group>
                       <ChakraButton
-                        isLoading={loading}
+                        loading={loading}
+                        loadingText={"Procesando..."}
                         w="full"
                         bg="#fd6193"
                         color="white"
@@ -278,7 +258,8 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                 {paymentMethod === "mp" && (
                   <Box w="full">
                     <ChakraButton
-                      isLoading={loading}
+                      loading={loading}
+                      loadingText={"Procesando..."}
                       w="full"
                       bg="#2abcff"
                       color="white"
@@ -287,7 +268,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                       display="flex"
                       alignItems="center"
                       justifyContent="center"
-                      gap={2} // para separar logo y texto
+                      gap={2}
                     >
                       <Image
                         src="/mp.svg"

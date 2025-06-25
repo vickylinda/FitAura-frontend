@@ -14,7 +14,6 @@ import {
   AvatarFallback,
   Image,
   useBreakpointValue,
-  Spinner,
 } from "@chakra-ui/react";
 import { Global } from "@emotion/react";
 import Footer from "@/components/Footer";
@@ -31,6 +30,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
 import { useFetchWithAuth } from "@/utils/fetchWithAuth";
+import { PropagateLoader } from "react-spinners";
 
 export default function MyAccount() {
   const { user, setUser } = useAuth();
@@ -189,7 +189,23 @@ export default function MyAccount() {
         }
       );
 
-      if (!res.ok) throw new Error("No se pudo actualizar");
+      const data = await res.json();
+
+      if (!res.ok) {
+        if (data.internalErrorCode === 1004) {
+          toaster.create({
+            title: "Error",
+            description: "Ese email ya está registrado por otro usuario.",
+            type: "error",
+            duration: 3000,
+          });
+          setSaving(false);
+          return;
+        }
+
+        throw new Error("No se pudo actualizar");
+      }
+
       if (profile.isTrainer) {
         const trainerRes = await fetchWithAuth(
           `http://localhost:4000/api/v1/trainers/${user?.id}/profile`,
@@ -404,10 +420,13 @@ export default function MyAccount() {
     }
   };
 
-  if (loading || saving) {
+  if (loading) {
     return (
       <VStack justify="center" align="center" minH="50vh">
-        <Spinner size="xl" color="#fd6193" />
+        <Text mb={6} fontSize="lg" color="#fd6193" fontWeight="medium">
+          Cargando cuenta...
+        </Text>
+        <PropagateLoader size="15" color="#fd6193" speedMultiplier={1} />
       </VStack>
     );
   }
@@ -717,7 +736,8 @@ export default function MyAccount() {
                           _hover={{ bg: "#9af574" }}
                           color="white"
                           onClick={handleSave}
-                          isLoading={saving}
+                          loading={saving}
+                          loadingText="Guardando..."
                           w={{ base: "100%", md: "auto" }}
                         >
                           Guardar cambios
@@ -1138,6 +1158,8 @@ export default function MyAccount() {
                     color="white"
                     onClick={handleSave}
                     w={{ base: "100%", md: "auto" }}
+                    loading={saving}
+                    loadingText={"Guardando..."}
                   >
                     Guardar cambios
                   </Button>

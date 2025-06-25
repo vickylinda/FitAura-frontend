@@ -344,7 +344,7 @@ const TrainerProfile = () => {
                 typeof stats?.ratingaverage === "number"
                   ? stats.ratingaverage
                   : null
-              } // ✅
+              }
               trainingsCount={stats?.completedtrainings ?? 0}
               activeStudents={stats?.activetrainees ?? 0}
               yearsUsingApp={calculateYearsUsingApp(profile.joiningDate)}

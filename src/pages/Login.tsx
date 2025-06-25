@@ -30,7 +30,7 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setLoading] = useState(false);
   const inputSize = useBreakpointValue({ base: "sm", md: "md", lg: "lg" });
   const headingSize = useBreakpointValue({
     base: "3xl",
@@ -93,7 +93,7 @@ export default function Login() {
       const firstName = profileData.name?.split(" ")[0] || "Usuaria";
       let profilePic = null;
 
-      // Si es entrenadora, traé la foto:
+      // si es entrenadora, trae la foto:
       if (profileData.isTrainer) {
         const trainerRes = await fetch(
           `http://localhost:4000/api/v1/trainers/${profileData.id}/profile`,
@@ -152,7 +152,7 @@ export default function Login() {
           mt={{ base: 6, md: 10, lg: 20 }}
           mb={0}
         >
-          {/* Izquierda: formulario */}
+          {/* izquierda: formulario */}
           <Box
             ref={formRef}
             flex="1"
@@ -271,7 +271,8 @@ export default function Login() {
                 color="white"
                 fontSize={inputSize}
                 _hover={{ bg: "#fd6193" }}
-                isLoading={loading}
+                loading={isLoading}
+                loadingText={"Iniciando sesión..."}
                 onClick={async () => {
                   setError("");
 
@@ -282,7 +283,7 @@ export default function Login() {
 
                   setLoading(true);
                   try {
-                    // Login
+                    // login
                     const response = await fetch(
                       "http://localhost:4000/api/v1/users/log-in",
                       {
@@ -322,7 +323,7 @@ export default function Login() {
                       profileData.name?.split(" ")[0] || "Usuaria";
                     let profilePic = null;
 
-                    // Si es entrenadora, traé la foto:
+                    // si es entrenadora, trae la foto:
                     if (profileData.isTrainer) {
                       const trainerRes = await fetch(
                         `http://localhost:4000/api/v1/trainers/${profileData.id}/profile`,
@@ -337,7 +338,7 @@ export default function Login() {
                         profilePic = trainerData.profilePic || null;
                       }
                     }
-                
+
                     login(
                       {
                         id: profileData.id,

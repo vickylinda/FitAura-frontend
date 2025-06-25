@@ -6,7 +6,6 @@ import {
 import { Link as RouterLink } from 'react-router-dom';
 
 const ServiceActions = () => {
-  // Ahora cada acción tiene una ruta asociada 👇
   const actions = [
     { label: 'Crear', bg: '#fd6193', to: '/create-service' },
     { label: 'Modificar', bg: '#f87ca1', to: '/edit-service' },
@@ -27,7 +26,7 @@ return (
             transition="all 0.2s ease-in-out"
           >
             <Box
-              w="130px" // Agrandé un poco
+              w="130px" 
               h="130px"
               borderRadius="full"
               bg={action.bg}

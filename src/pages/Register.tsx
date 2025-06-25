@@ -618,7 +618,8 @@ export default function Register() {
                 fontSize={inputSize}
                 _hover={{ bg: "#fd6193" }}
                 onClick={handleRegister}
-                isLoading={loading}
+                loading={loading}
+                loadingText={"Registrando..."}
               >
                 Registrarme
               </Button>

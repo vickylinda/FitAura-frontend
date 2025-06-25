@@ -9,13 +9,13 @@ import {
   AvatarRoot,
   AvatarFallback,
   VStack,
-  Spinner,
 } from "@chakra-ui/react";
 import { useParams, useNavigate, Link as RouterLink } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useFetchWithAuth } from "@/utils/fetchWithAuth";
+import { PropagateLoader } from "react-spinners";
 
 const RateTraining = () => {
   const { trainingId } = useParams();
@@ -73,10 +73,10 @@ const RateTraining = () => {
   if (loading)
     return (
       <VStack justify="center" align="center" minH="50vh">
-        <Spinner size="xl" color="#fd6193" />
-        <Text mt={4} color="#fd6193">
+        <Text mb={6} fontSize="lg" color="#fd6193" fontWeight="medium">
           Cargando entrenamiento...
         </Text>
+        <PropagateLoader size="15" color="#fd6193" speedMultiplier={1} />
       </VStack>
     );
 
@@ -106,7 +106,7 @@ const RateTraining = () => {
           borderRadius="xl"
           boxShadow="md"
           mb={8}
-          maxW="400px" 
+          maxW="400px"
         >
           <Text fontWeight="semibold" fontSize={{ base: "md", md: "lg" }}>
             {training.title}
@@ -241,11 +241,12 @@ const RateTraining = () => {
           fontWeight="semibold"
           _hover={{ bg: "#fc7faa" }}
           onClick={handleSubmit}
-          display="block" 
+          display="block"
           mx="auto"
-          w="100%" 
+          w="100%"
           maxW="400px"
-          isLoading={submitting}
+          loading={submitting}
+          loadingText={"Enviando..."}
         >
           Enviar calificación
         </Button>

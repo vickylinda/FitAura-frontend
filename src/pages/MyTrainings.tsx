@@ -9,7 +9,6 @@ import {
   AvatarFallback,
   Heading,
   Tag,
-  Spinner,
   VStack,
 } from "@chakra-ui/react";
 import { Avatar } from "@chakra-ui/avatar";
@@ -18,13 +17,13 @@ import Header from "@/components/Header";
 import { useEffect, useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
 import Footer from "@/components/Footer";
+import { PropagateLoader } from "react-spinners";
 
 const MisEntrenamientos = () => {
   const [trainings, setTrainings] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setLoading] = useState(true);
   const [errorCode, setErrorCode] = useState<number | null>(null);
-  const [submitting, setSubmitting] = useState(false); 
-  
+  const [isSubmitting, setSubmitting] = useState(false);
 
   const fetchWithAuth = useFetchWithAuth();
 
@@ -73,47 +72,44 @@ const MisEntrenamientos = () => {
   );
 
   const cancelTraining = async (trainingId: number) => {
-  setSubmitting(true);
-  try {
-    const response = await fetchWithAuth(
-      `http://localhost:4000/api/v1/trainings/${trainingId}/status`,
-      {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          newStatus: "cancelado",
-        }),
+    setSubmitting(true);
+    try {
+      const response = await fetchWithAuth(
+        `http://localhost:4000/api/v1/trainings/${trainingId}/status`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            newStatus: "cancelado",
+          }),
+        }
+      );
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "No se pudo cancelar");
       }
-    );
 
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.message || "No se pudo cancelar");
+      const updated = trainings.map((t) =>
+        t.id === trainingId ? { ...t, status: "cancelado" } : t
+      );
+      setTrainings(updated);
+    } catch (err) {
+      console.error("Error al cancelar entrenamiento:", err);
+    } finally {
+      setSubmitting(false);
     }
+  };
 
-    // ✅ Actualiza el estado local para reflejar el cambio en la UI:
-    const updated = trainings.map(t =>
-      t.id === trainingId ? { ...t, status: "cancelado" } : t
-    );
-    setTrainings(updated);
-
-  } catch (err) {
-    console.error("Error al cancelar entrenamiento:", err);
-    // Opcional: podrías usar toaster para notificar
-  } finally {
-    setSubmitting(false);
-  }
-};
-
-
-
-  if (loading || submitting) {
+  if (isLoading) {
     return (
       <VStack justify="center" align="center" minH="50vh">
-        <Spinner size="xl" color="#fd6193" />
-        <Text color="#fd6193">Cargando...</Text>
+        <Text mb={6} fontSize="lg" color="#fd6193" fontWeight="medium">
+          Cargando entrenamientos...
+        </Text>
+        <PropagateLoader size="15" color="#fd6193" speedMultiplier={1} />
       </VStack>
     );
   }
@@ -308,22 +304,22 @@ const MisEntrenamientos = () => {
                     </Text>
                   )}
                   {training.status === "pendiente" && (
-  <Flex
-    align="center"
-    gap={1}
-    fontSize="sm"
-    color="gray.600"
-    mt={2}
-    _hover={{
-      textDecoration: "underline",
-      cursor: "pointer",
-    }}
-    onClick={() => cancelTraining(training.id)}
-  >
-    <Image src="cancel.png" boxSize="1rem" />
-    <Text>Cancelar entrenamiento</Text>
-  </Flex>
-)}
+                    <Flex
+                      align="center"
+                      gap={1}
+                      fontSize="sm"
+                      color="gray.600"
+                      mt={2}
+                      _hover={{
+                        textDecoration: "underline",
+                        cursor: "pointer",
+                      }}
+                      onClick={() => cancelTraining(training.id)}
+                    >
+                      <Image src="cancel.png" boxSize="1rem" />
+                      <Text>Cancelar entrenamiento</Text>
+                    </Flex>
+                  )}
 
                   {training.status === "aceptado" &&
                     training.hasAttachments && (
@@ -544,6 +540,8 @@ const MisEntrenamientos = () => {
                     borderRadius="xl"
                     fontWeight="semibold"
                     _hover={{ bg: "#fc7faa" }}
+                    loading={isSubmitting}
+                    loadingText={"Cargando..."}
                   >
                     Calificar entrenamiento
                   </Button>

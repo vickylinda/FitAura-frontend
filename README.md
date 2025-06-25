@@ -1,54 +1,37 @@
-# React + TypeScript + Vite
+Entrega Final - Grupo 2 - Aplicaciones Interactivas - Miércoles Noche
+##Requisitos
+- Node
+- npm
+- En caso de no tenerlos se pueden instalar desde la página oficial  (https://nodejs.org/en/download).
+##Uso
+1. Preparación:
+	- Abra una terminal en la carpeta `FitAura-backend`
+	- Abra una terminal en la carpeta `frontend-fitaura`
+2. Instalación de dependencias:
+	- Ejecute el comando `npm i` en ambas terminales.
+3. Inicio de entorno de desarrollo:
+	- Ejecute el comando `npm run dev` en ambas terminales.
+4. Acceso a la página web:
+	- Abra el navegador de su preferencia e ingresar a la URL [http://localhost:5174/](http://localhost:5174/)
+5. Disfrute de un paseo por toda la página :)
+##Advertencia
+Atención: el backend de esta app usa el puerto 4000. Si está ocupado, mostrará el mensaje "❌ Uy, el puerto 4000 ya está en uso... Liberalo e intentá nuevamente para entrar a FitAura!" Por favor, libere el puerto.
+##Advertencia
+Atención: el frontend de esta app usa el puerto 5174. Si está ocupado, mostrará el mensaje "❌ El puerto 5174 está ocupado. Por favor, desocúpelo para correr la app correctamente." Por favor, libere el puerto.
+##Advertencia
+Si estás usando Windows y ves un error como:
+> "running scripts is disabled on this system"
+Ejecutá esto en PowerShell (como usuario, no como admin):
+```powershell
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+##Extra
+Para su comodidad, le dejamos algunos usuarios para probar:
+- Entrenadora con varios servicios publicados
+	- Correo: "paulita30@gmail.com"
+	- Contraseña: "1234.A5678"
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+- Alumna con entrenamientos finalizados para puntuar y archivos para ver
+	- Correo: "paulita-alumna@gmail.com"
+	- Contraseña:  "1234.A5678"
 
-Currently, two official plugins are available:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```

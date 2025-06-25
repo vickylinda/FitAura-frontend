@@ -45,7 +45,7 @@ export default function LoginModal({
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setLoading] = useState(false);
   const headingSize = useBreakpointValue({
     base: "1xl",
     sm: "2xl",
@@ -357,7 +357,8 @@ export default function LoginModal({
                 color="white"
                 fontWeight="semibold"
                 _hover={{ bg: "#fd6193" }}
-                isLoading={loading}
+                loading={isLoading}
+                loadingText="Iniciando sesión..."
                 onClick={handleLogin}
                 w="full"
                 fontSize={inputSize}

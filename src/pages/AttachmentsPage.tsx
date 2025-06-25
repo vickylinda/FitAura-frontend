@@ -6,7 +6,6 @@ import {
   Button,
   Image,
   Stack,
-  Spinner,
   VStack,
 } from "@chakra-ui/react";
 import { useParams } from "react-router-dom";
@@ -14,6 +13,7 @@ import { useFetchWithAuth } from "@/utils/fetchWithAuth";
 import { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { PropagateLoader } from "react-spinners";
 
 interface Attachment {
   id: number;
@@ -68,8 +68,10 @@ export default function AttachmentsPage() {
   if (loading) {
     return (
       <VStack justify="center" align="center" minH="50vh">
-        <Spinner size="xl" color="#fd6193" />
-        <Text color="#fd6193">Cargando...</Text>
+        <Text mb={6} fontSize="lg" color="#fd6193" fontWeight="medium">
+          Cargando archivos...
+        </Text>
+        <PropagateLoader size="15" color="#fd6193" speedMultiplier={1} />
       </VStack>
     );
   }
