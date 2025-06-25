@@ -16,6 +16,9 @@ import {
   Separator,
   VStack,
   Spinner,
+  Drawer,
+  Portal,
+  CloseButton,
 } from "@chakra-ui/react";
 import { Link as RouterLink } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -42,7 +45,7 @@ const Services = () => {
   // Filtros
   const [locations, setLocations] = useState<string[]>([]);
   const [languages, setLanguages] = useState<string[]>([]);
-  const [ratingMin, setRatingMin] = useState<boolean>(false); 
+  const [ratingMin, setRatingMin] = useState<boolean>(false);
   const [maxPrice, setMaxPrice] = useState<number>(1000);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, Infinity]);
   const [minInput, setMinInput] = useState("0");
@@ -116,7 +119,7 @@ const Services = () => {
         );
         const highest = prices.length > 0 ? Math.max(...prices) : 1000;
         setGlobalMaxPrice(highest);
-        setMaxPrice(highest); 
+        setMaxPrice(highest);
         setPriceRange([0, highest]);
         setHasFetchedGlobalMax(true);
       } catch (e) {
@@ -148,9 +151,10 @@ const Services = () => {
       prev.includes(dur) ? prev.filter((d) => d !== dur) : [...prev, dur]
     );
   };
+  const isMobile = useBreakpointValue({ base: true, xl: false });
 
   return (
-    <Box>
+    <Box overflowX="hidden">
       <Header />
 
       <Flex
@@ -160,235 +164,492 @@ const Services = () => {
         gap={10}
         direction={{ base: "column", md: "row" }}
       >
-        <Box w={{ base: "100%", md: "250px" }} flexShrink={0}>
-          <Text fontWeight="bold" mb={4}>
-            Filtros
-          </Text>
-
-          {/* Buscador */}
-          <Input
-            placeholder="Buscar..."
-            mb={4}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-
-          {/* Categoría */}
-          <Text fontWeight="semibold" mb={2}>
-            Tipo de entrenamiento
-          </Text>
-
-          <Stack mb={4} gap={2}>
-            <Button
-              variant={category === null ? "solid" : "ghost"}
-              colorScheme="pink"
-              size="sm"
-              onClick={() => setCategory(null)}
-              width="100%"
-              justifyContent="flex-start"
-              bg={category === null ? "#fc7faa" : "transparent"}
-              color="black"
-              _hover={{ bg: category === null ? "#fc7faa" : "#ffd3e5" }}
-            >
-              Ver todos
-            </Button>
-            {["Yoga", "Fuerza", "Pilates", "Cardio", "Otros"].map((cat) => (
+        {isMobile ? (
+          <Drawer.Root placement={"start"}>
+            <Drawer.Trigger asChild>
               <Button
-                key={cat}
-                variant={category === cat ? "solid" : "ghost"}
+                variant="outline"
+                size="sm"
+                bg={"#fd6193"}
+                color={"white"}
+              >
+                Filtros
+              </Button>
+            </Drawer.Trigger>
+            <Portal>
+              <Drawer.Backdrop />
+              <Drawer.Positioner>
+                <Drawer.Content>
+                  <Drawer.Context>
+                    {(store) => (
+                      <Drawer.Body pt="6" spaceY="3">
+                       {/* Buscador */}
+            <Input
+              placeholder="Buscar..."
+              mb={4}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+
+            {/* Categoría */}
+            <Text fontWeight="semibold" mb={2}>
+              Tipo de entrenamiento
+            </Text>
+
+            <Stack mb={4} gap={2}>
+              <Button
+                variant={category === null ? "solid" : "ghost"}
                 colorScheme="pink"
                 size="sm"
-                onClick={() => setCategory(cat)}
+                onClick={() => setCategory(null)}
                 width="100%"
                 justifyContent="flex-start"
-                bg={category === cat ? "#fc7faa" : "transparent"}
+                bg={category === null ? "#fc7faa" : "transparent"}
                 color="black"
-                _hover={{ bg: category === cat ? "#fc7faa" : "#ffd3e5" }}
+                _hover={{ bg: category === null ? "#fc7faa" : "#ffd3e5" }}
               >
-                {cat}
+                Ver todos
               </Button>
-            ))}
-          </Stack>
-          <Separator color={"#fc7faa"} mb={2} />
-
-          {/* Ubicación */}
-          <Text fontWeight="semibold" mb={2}>
-            Ubicación
-          </Text>
-          <Stack mb={4}>
-            {["Virtual por Zoom", "CABA", "PBA", "Otras"].map((loc) => (
-              <Checkbox.Root
-                key={loc}
-                checked={locations.includes(loc)}
-                onCheckedChange={() => toggleLocation(loc)}
-                colorPalette="pink"
-                variant="subtle"
-              >
-                <Checkbox.HiddenInput />
-                <Checkbox.Control />
-                <Checkbox.Label>{loc}</Checkbox.Label>
-              </Checkbox.Root>
-            ))}
-          </Stack>
-          <Separator color={"#fc7faa"} mb={2} />
-
-          {/* Duración */}
-          <Text fontWeight="semibold" mb={2}>
-            Duración
-          </Text>
-          <Stack mb={4}>
-            {[
-              ["gt60", "+60 mins"],
-              ["btw45and60", "45–60 mins"],
-              ["btw30and45", "30–45 mins"],
-              ["lt30", "-30 mins"],
-              ["solo15", "-15 mins"],
-            ].map(([value, label]) => (
-              <Checkbox.Root
-                key={value}
-                checked={durations.includes(value)}
-                onCheckedChange={() => toggleDuration(value)}
-                colorPalette="pink"
-                variant="subtle"
-              >
-                <Checkbox.HiddenInput />
-                <Checkbox.Control />
-                <Checkbox.Label>{label}</Checkbox.Label>
-              </Checkbox.Root>
-            ))}
-          </Stack>
-          <Separator color={"#fc7faa"} mb={2} />
-
-          {/* Idioma */}
-          <Text fontWeight="semibold" mb={2}>
-            Idioma
-          </Text>
-          <Stack mb={4}>
-            {["Español", "English"].map((lang) => (
-              <Checkbox.Root
-                key={lang}
-                checked={languages.includes(lang)}
-                onCheckedChange={() => toggleLanguage(lang)}
-                colorPalette="pink"
-                variant="subtle"
-              >
-                <Checkbox.HiddenInput />
-                <Checkbox.Control />
-                <Checkbox.Label>{lang}</Checkbox.Label>
-              </Checkbox.Root>
-            ))}
-          </Stack>
-          <Separator color={"#fc7faa"} mb={2} />
-
-          {/* Rating Min */}
-          <Text fontWeight="semibold" mb={2}>
-            Calificación de la entrenadora
-          </Text>
-          <RadioGroup.Root
-            mb={4}
-            value={ratingMin ? "best" : "all"}
-            onValueChange={(details) => {
-              const selected =
-                typeof details === "string" ? details : details.value;
-              setRatingMin(selected === "best");
-            }}
-            colorPalette="pink"
-            variant="subtle"
-          >
-            <Stack direction="column" gap={2}>
-              <RadioGroup.Item value="best">
-                <RadioGroup.ItemHiddenInput />
-                <RadioGroup.ItemIndicator />
-                <RadioGroup.ItemText>
-                  Sólo mejor puntuadas (4.5–5 ⭐)
-                </RadioGroup.ItemText>
-              </RadioGroup.Item>
-
-              <RadioGroup.Item value="all">
-                <RadioGroup.ItemHiddenInput />
-                <RadioGroup.ItemIndicator />
-                <RadioGroup.ItemText>Todas</RadioGroup.ItemText>
-              </RadioGroup.Item>
+              {["Yoga", "Fuerza", "Pilates", "Cardio", "Otros"].map((cat) => (
+                <Button
+                  key={cat}
+                  variant={category === cat ? "solid" : "ghost"}
+                  colorScheme="pink"
+                  size="sm"
+                  onClick={() => setCategory(cat)}
+                  width="100%"
+                  justifyContent="flex-start"
+                  bg={category === cat ? "#fc7faa" : "transparent"}
+                  color="black"
+                  _hover={{ bg: category === cat ? "#fc7faa" : "#ffd3e5" }}
+                >
+                  {cat}
+                </Button>
+              ))}
             </Stack>
-          </RadioGroup.Root>
-          <Separator color={"#fc7faa"} mb={2} />
+            <Separator color={"#fc7faa"} mb={2} />
 
-          {/* Slider de precio */}
-          <Text fontWeight="semibold" mb={2}>
-            Precio: ${priceRange[0]} -{" "}
-            {priceRange[1] === Infinity ? "∞" : `$${priceRange[1]}`}
-          </Text>
+            {/* Ubicación */}
+            <Text fontWeight="semibold" mb={2}>
+              Ubicación
+            </Text>
+            <Stack mb={4}>
+              {["Virtual por Zoom", "CABA", "PBA", "Otras"].map((loc) => (
+                <Checkbox.Root
+                  key={loc}
+                  checked={locations.includes(loc)}
+                  onCheckedChange={() => toggleLocation(loc)}
+                  colorPalette="pink"
+                  variant="subtle"
+                >
+                  <Checkbox.HiddenInput />
+                  <Checkbox.Control />
+                  <Checkbox.Label>{loc}</Checkbox.Label>
+                </Checkbox.Root>
+              ))}
+            </Stack>
+            <Separator color={"#fc7faa"} mb={2} />
 
-          <Slider.Root
-            mb={4}
-            maxW="md"
-            min={0}
-            max={maxPrice}
-            value={priceRange}
-            onValueChange={(details) =>
-              setPriceRange(details.value as [number, number])
-            }
-            minStepsBetweenThumbs={1}
-            step={10}
-            colorScheme="pink"
-          >
-            <Slider.Control>
-              <Slider.Track bg="gray.200">
-                <Slider.Range bg="pink.400" />
-              </Slider.Track>
-              <Slider.Thumbs
-                bg="pink.600"
-                border="2px solid white"
-                cursor={"grab"}
-                _active={{ cursor: "grabbing" }}
+            {/* Duración */}
+            <Text fontWeight="semibold" mb={2}>
+              Duración
+            </Text>
+            <Stack mb={4}>
+              {[
+                ["gt60", "+60 mins"],
+                ["btw45and60", "45–60 mins"],
+                ["btw30and45", "30–45 mins"],
+                ["lt30", "-30 mins"],
+                ["solo15", "-15 mins"],
+              ].map(([value, label]) => (
+                <Checkbox.Root
+                  key={value}
+                  checked={durations.includes(value)}
+                  onCheckedChange={() => toggleDuration(value)}
+                  colorPalette="pink"
+                  variant="subtle"
+                >
+                  <Checkbox.HiddenInput />
+                  <Checkbox.Control />
+                  <Checkbox.Label>{label}</Checkbox.Label>
+                </Checkbox.Root>
+              ))}
+            </Stack>
+            <Separator color={"#fc7faa"} mb={2} />
+
+            {/* Idioma */}
+            <Text fontWeight="semibold" mb={2}>
+              Idioma
+            </Text>
+            <Stack mb={4}>
+              {["Español", "English"].map((lang) => (
+                <Checkbox.Root
+                  key={lang}
+                  checked={languages.includes(lang)}
+                  onCheckedChange={() => toggleLanguage(lang)}
+                  colorPalette="pink"
+                  variant="subtle"
+                >
+                  <Checkbox.HiddenInput />
+                  <Checkbox.Control />
+                  <Checkbox.Label>{lang}</Checkbox.Label>
+                </Checkbox.Root>
+              ))}
+            </Stack>
+            <Separator color={"#fc7faa"} mb={2} />
+
+            {/* Rating Min */}
+            <Text fontWeight="semibold" mb={2}>
+              Calificación de la entrenadora
+            </Text>
+            <RadioGroup.Root
+              mb={4}
+              value={ratingMin ? "best" : "all"}
+              onValueChange={(details) => {
+                const selected =
+                  typeof details === "string" ? details : details.value;
+                setRatingMin(selected === "best");
+              }}
+              colorPalette="pink"
+              variant="subtle"
+            >
+              <Stack direction="column" gap={2}>
+                <RadioGroup.Item value="best">
+                  <RadioGroup.ItemHiddenInput />
+                  <RadioGroup.ItemIndicator />
+                  <RadioGroup.ItemText>
+                    Sólo mejor puntuadas (4.5–5 ⭐)
+                  </RadioGroup.ItemText>
+                </RadioGroup.Item>
+
+                <RadioGroup.Item value="all">
+                  <RadioGroup.ItemHiddenInput />
+                  <RadioGroup.ItemIndicator />
+                  <RadioGroup.ItemText>Todas</RadioGroup.ItemText>
+                </RadioGroup.Item>
+              </Stack>
+            </RadioGroup.Root>
+            <Separator color={"#fc7faa"} mb={2} />
+
+            {/* Slider de precio */}
+            <Text fontWeight="semibold" mb={2}>
+              Precio: ${priceRange[0]} -{" "}
+              {priceRange[1] === Infinity ? "∞" : `$${priceRange[1]}`}
+            </Text>
+
+            <Slider.Root
+              mb={4}
+              maxW="md"
+              min={0}
+              max={maxPrice}
+              value={priceRange}
+              onValueChange={(details) =>
+                setPriceRange(details.value as [number, number])
+              }
+              minStepsBetweenThumbs={1}
+              step={10}
+              colorScheme="pink"
+            >
+              <Slider.Control>
+                <Slider.Track bg="gray.200">
+                  <Slider.Range bg="pink.400" />
+                </Slider.Track>
+                <Slider.Thumbs
+                  bg="pink.600"
+                  border="2px solid white"
+                  cursor={"grab"}
+                  _active={{ cursor: "grabbing" }}
+                />
+              </Slider.Control>
+            </Slider.Root>
+
+            {/* Inputs sincronizados */}
+            <Flex gap={2} mb={4}>
+              <Input
+                type="number"
+                value={minInput}
+                onChange={(e) => setMinInput(e.target.value)}
+                onBlur={() => {
+                  const val = Number(minInput);
+                  const safeVal = Math.max(0, Math.min(val, priceRange[1]));
+                  setPriceRange([safeVal, priceRange[1]]);
+                }}
               />
-            </Slider.Control>
-          </Slider.Root>
 
-          {/* Inputs sincronizados */}
-          <Flex gap={2} mb={4}>
+              <Input
+                type="number"
+                value={maxInput}
+                onChange={(e) => setMaxInput(e.target.value)}
+                onBlur={() => {
+                  const val = Number(maxInput);
+                  if (isNaN(val) || maxInput.trim() === "") {
+                    setPriceRange([priceRange[0], Infinity]);
+                  } else {
+                    const safeVal = Math.min(
+                      Math.max(val, priceRange[0]),
+                      maxPrice
+                    );
+                    setPriceRange([priceRange[0], safeVal]);
+                  }
+                }}
+              />
+            </Flex>
+
+            <Button
+              w="100%"
+              bg="#fc7faa"
+              color={"black"}
+              _hover={{ bg: "#fd99bf" }}
+              onClick={fetchServices}
+              isLoading={loading}
+              loadingText="Cargando..."
+            >
+              Aplicar filtros
+            </Button>
+          
+      
+
+                      </Drawer.Body>
+                    )}
+                  </Drawer.Context>
+                  <Drawer.CloseTrigger asChild>
+                    <CloseButton size="sm" />
+                  </Drawer.CloseTrigger>
+                </Drawer.Content>
+              </Drawer.Positioner>
+            </Portal>
+          </Drawer.Root>
+        ) : (
+          <Box w={{ base: "100%", md: "250px" }} flexShrink={0}>
+            <Text fontWeight="bold" mb={4}>
+              Filtros
+            </Text>
+
+            {/* Buscador */}
             <Input
-              type="number"
-              value={minInput}
-              onChange={(e) => setMinInput(e.target.value)}
-              onBlur={() => {
-                const val = Number(minInput);
-                const safeVal = Math.max(0, Math.min(val, priceRange[1]));
-                setPriceRange([safeVal, priceRange[1]]);
-              }}
+              placeholder="Buscar..."
+              mb={4}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
             />
 
-            <Input
-              type="number"
-              value={maxInput}
-              onChange={(e) => setMaxInput(e.target.value)}
-              onBlur={() => {
-                const val = Number(maxInput);
-                if (isNaN(val) || maxInput.trim() === "") {
-                  setPriceRange([priceRange[0], Infinity]);
-                } else {
-                  const safeVal = Math.min(
-                    Math.max(val, priceRange[0]),
-                    maxPrice
-                  );
-                  setPriceRange([priceRange[0], safeVal]);
-                }
-              }}
-            />
-          </Flex>
+            {/* Categoría */}
+            <Text fontWeight="semibold" mb={2}>
+              Tipo de entrenamiento
+            </Text>
 
-          <Button
-            w="100%"
-            bg="#fc7faa"
-            color={"black"}
-            _hover={{ bg: "#fd99bf" }}
-            onClick={fetchServices}
-            isLoading={loading}
-            loadingText="Cargando..."
-          >
-            Aplicar filtros
-          </Button>
-        </Box>
+            <Stack mb={4} gap={2}>
+              <Button
+                variant={category === null ? "solid" : "ghost"}
+                colorScheme="pink"
+                size="sm"
+                onClick={() => setCategory(null)}
+                width="100%"
+                justifyContent="flex-start"
+                bg={category === null ? "#fc7faa" : "transparent"}
+                color="black"
+                _hover={{ bg: category === null ? "#fc7faa" : "#ffd3e5" }}
+              >
+                Ver todos
+              </Button>
+              {["Yoga", "Fuerza", "Pilates", "Cardio", "Otros"].map((cat) => (
+                <Button
+                  key={cat}
+                  variant={category === cat ? "solid" : "ghost"}
+                  colorScheme="pink"
+                  size="sm"
+                  onClick={() => setCategory(cat)}
+                  width="100%"
+                  justifyContent="flex-start"
+                  bg={category === cat ? "#fc7faa" : "transparent"}
+                  color="black"
+                  _hover={{ bg: category === cat ? "#fc7faa" : "#ffd3e5" }}
+                >
+                  {cat}
+                </Button>
+              ))}
+            </Stack>
+            <Separator color={"#fc7faa"} mb={2} />
+
+            {/* Ubicación */}
+            <Text fontWeight="semibold" mb={2}>
+              Ubicación
+            </Text>
+            <Stack mb={4}>
+              {["Virtual por Zoom", "CABA", "PBA", "Otras"].map((loc) => (
+                <Checkbox.Root
+                  key={loc}
+                  checked={locations.includes(loc)}
+                  onCheckedChange={() => toggleLocation(loc)}
+                  colorPalette="pink"
+                  variant="subtle"
+                >
+                  <Checkbox.HiddenInput />
+                  <Checkbox.Control />
+                  <Checkbox.Label>{loc}</Checkbox.Label>
+                </Checkbox.Root>
+              ))}
+            </Stack>
+            <Separator color={"#fc7faa"} mb={2} />
+
+            {/* Duración */}
+            <Text fontWeight="semibold" mb={2}>
+              Duración
+            </Text>
+            <Stack mb={4}>
+              {[
+                ["gt60", "+60 mins"],
+                ["btw45and60", "45–60 mins"],
+                ["btw30and45", "30–45 mins"],
+                ["lt30", "-30 mins"],
+                ["solo15", "-15 mins"],
+              ].map(([value, label]) => (
+                <Checkbox.Root
+                  key={value}
+                  checked={durations.includes(value)}
+                  onCheckedChange={() => toggleDuration(value)}
+                  colorPalette="pink"
+                  variant="subtle"
+                >
+                  <Checkbox.HiddenInput />
+                  <Checkbox.Control />
+                  <Checkbox.Label>{label}</Checkbox.Label>
+                </Checkbox.Root>
+              ))}
+            </Stack>
+            <Separator color={"#fc7faa"} mb={2} />
+
+            {/* Idioma */}
+            <Text fontWeight="semibold" mb={2}>
+              Idioma
+            </Text>
+            <Stack mb={4}>
+              {["Español", "English"].map((lang) => (
+                <Checkbox.Root
+                  key={lang}
+                  checked={languages.includes(lang)}
+                  onCheckedChange={() => toggleLanguage(lang)}
+                  colorPalette="pink"
+                  variant="subtle"
+                >
+                  <Checkbox.HiddenInput />
+                  <Checkbox.Control />
+                  <Checkbox.Label>{lang}</Checkbox.Label>
+                </Checkbox.Root>
+              ))}
+            </Stack>
+            <Separator color={"#fc7faa"} mb={2} />
+
+            {/* Rating Min */}
+            <Text fontWeight="semibold" mb={2}>
+              Calificación de la entrenadora
+            </Text>
+            <RadioGroup.Root
+              mb={4}
+              value={ratingMin ? "best" : "all"}
+              onValueChange={(details) => {
+                const selected =
+                  typeof details === "string" ? details : details.value;
+                setRatingMin(selected === "best");
+              }}
+              colorPalette="pink"
+              variant="subtle"
+            >
+              <Stack direction="column" gap={2}>
+                <RadioGroup.Item value="best">
+                  <RadioGroup.ItemHiddenInput />
+                  <RadioGroup.ItemIndicator />
+                  <RadioGroup.ItemText>
+                    Sólo mejor puntuadas (4.5–5 ⭐)
+                  </RadioGroup.ItemText>
+                </RadioGroup.Item>
+
+                <RadioGroup.Item value="all">
+                  <RadioGroup.ItemHiddenInput />
+                  <RadioGroup.ItemIndicator />
+                  <RadioGroup.ItemText>Todas</RadioGroup.ItemText>
+                </RadioGroup.Item>
+              </Stack>
+            </RadioGroup.Root>
+            <Separator color={"#fc7faa"} mb={2} />
+
+            {/* Slider de precio */}
+            <Text fontWeight="semibold" mb={2}>
+              Precio: ${priceRange[0]} -{" "}
+              {priceRange[1] === Infinity ? "∞" : `$${priceRange[1]}`}
+            </Text>
+
+            <Slider.Root
+              mb={4}
+              maxW="md"
+              min={0}
+              max={maxPrice}
+              value={priceRange}
+              onValueChange={(details) =>
+                setPriceRange(details.value as [number, number])
+              }
+              minStepsBetweenThumbs={1}
+              step={10}
+              colorScheme="pink"
+            >
+              <Slider.Control>
+                <Slider.Track bg="gray.200">
+                  <Slider.Range bg="pink.400" />
+                </Slider.Track>
+                <Slider.Thumbs
+                  bg="pink.600"
+                  border="2px solid white"
+                  cursor={"grab"}
+                  _active={{ cursor: "grabbing" }}
+                />
+              </Slider.Control>
+            </Slider.Root>
+
+            {/* Inputs sincronizados */}
+            <Flex gap={2} mb={4}>
+              <Input
+                type="number"
+                value={minInput}
+                onChange={(e) => setMinInput(e.target.value)}
+                onBlur={() => {
+                  const val = Number(minInput);
+                  const safeVal = Math.max(0, Math.min(val, priceRange[1]));
+                  setPriceRange([safeVal, priceRange[1]]);
+                }}
+              />
+
+              <Input
+                type="number"
+                value={maxInput}
+                onChange={(e) => setMaxInput(e.target.value)}
+                onBlur={() => {
+                  const val = Number(maxInput);
+                  if (isNaN(val) || maxInput.trim() === "") {
+                    setPriceRange([priceRange[0], Infinity]);
+                  } else {
+                    const safeVal = Math.min(
+                      Math.max(val, priceRange[0]),
+                      maxPrice
+                    );
+                    setPriceRange([priceRange[0], safeVal]);
+                  }
+                }}
+              />
+            </Flex>
+
+            <Button
+              w="100%"
+              bg="#fc7faa"
+              color={"black"}
+              _hover={{ bg: "#fd99bf" }}
+              onClick={fetchServices}
+              isLoading={loading}
+              loadingText="Cargando..."
+            >
+              Aplicar filtros
+            </Button>
+          </Box>
+        )}
 
         {/* Cards */}
         <Box flex="1">

@@ -23,7 +23,8 @@ const MisEntrenamientos = () => {
   const [trainings, setTrainings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorCode, setErrorCode] = useState<number | null>(null);
-  const [submitting, setSubmitting] = useState(false); // 👉 Para spinner de acciones
+  const [submitting, setSubmitting] = useState(false); 
+  
 
   const fetchWithAuth = useFetchWithAuth();
 
@@ -117,7 +118,7 @@ const MisEntrenamientos = () => {
     );
   }
   return (
-    <Box minH="100vh" bg={"white"}>
+    <Box minH="100vh" bg={"white"} overflowX="hidden">
       <Header />
       <Box px={{ base: 4, md: 12 }} py={6} maxW="100%" mx="auto">
         <Heading

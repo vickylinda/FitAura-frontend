@@ -60,7 +60,8 @@ const Home = () => {
   };
 
   return (
-    <Box>
+    <Box           
+      overflowX="hidden">
       <Header />
 
       {/* Hero */}

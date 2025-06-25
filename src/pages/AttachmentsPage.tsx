@@ -75,7 +75,7 @@ export default function AttachmentsPage() {
   }
 
   return (
-    <Box minH="100vh" bg="white">
+    <Box minH="100vh" bg="white" overflowX="hidden">
       <Header />
 
       <Box px={{ base: 4, md: 12 }} py={6} maxW="100%" mx="auto">

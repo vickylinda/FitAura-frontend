@@ -195,7 +195,7 @@ export default function Booking() {
   });
 
   return (
-    <Box minH="100vh" bg="white">
+    <Box minH="100vh" bg="white" overflowX="hidden">
       <Header />
 
       <Box px={{ base: 4, md: 10 }} pb={10}>

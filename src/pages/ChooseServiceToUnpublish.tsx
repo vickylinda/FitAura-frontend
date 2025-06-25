@@ -114,7 +114,7 @@ const ChooseServiceToUnpublish = () => {
   };
 
   return (
-    <Box minH="100vh" bg="white">
+    <Box minH="100vh" bg="white" overflowX="hidden">
        <Header />
     <Box
       minH="100vh"

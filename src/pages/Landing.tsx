@@ -17,6 +17,7 @@ export default function Landing() {
       textAlign="center"
       px={{ base: 4, md: 8 }}
       py={{ base: 8, md: 0 }}
+      overflowX="hidden"
     >
       <Box position="relative" zIndex={1} maxW="container.md">
         <Heading

@@ -413,7 +413,7 @@ export default function MyAccount() {
   }
 
   return (
-    <Box minH="100vh" bg="pink.100">
+    <Box minH="100vh" bg="pink.100" overflowX="hidden">
       <Global
         styles={`
     .slick-dots li button:before {
